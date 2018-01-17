@@ -1,13 +1,11 @@
 //var io = require('socket.io')(80);
 // var io = require('socket.io')(server);
-var io = require('socket.io')(server,{});
 
 
 
     var WIDTH = 500;
 	  var HEIGHT = 500;
-    var socket = io(); // socket io
-    var soundID = "Thunder"; //sound
+    // var soundID = "Thunder"; //sound
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -55,13 +53,13 @@ var io = require('socket.io')(server,{});
 
 //game
 
-  function loadSound () {
-  createjs.Sound.registerSound("assets/thunder.mp3", soundID);
-  }
-
-  function playSound () {
-  createjs.Sound.play(soundID);
-  }
+  // function loadSound () {
+  // createjs.Sound.registerSound("assets/thunder.mp3", soundID);
+  // }
+  //
+  // function playSound () {
+  // createjs.Sound.play(soundID);
+  // }
 
   var ctx = document.getElementById('ctx').getContext('2d');
   ctx.font = '30px Arial';

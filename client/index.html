@@ -27,6 +27,7 @@
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
 <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
+<script type='text/javascript'src="/client/character.js"></script>
 
 <script>
     var WIDTH = 500;
@@ -92,7 +93,7 @@
   ctx.font = '30px Arial';
 
 
-  socket.on('newPositions', function(data){
+  socket.on('newPos', function(data){
     ctx.clearRect(0,0,500,500);
     for(var i = 0; i < data.player.length; i++) //player
         ctx.fillText(data.player[i].number,data.player[i].x,data.player[i].y);
@@ -101,6 +102,8 @@
     for(var i = 0; i < data.bullet.length; i++) //bullet
         ctx.fillRect(data.bullet[i].x-5,data.bullet[i].y-5,10,10);
   });
+
+
 
   document.onkeydown = function(event){ //keyboard controls
       if(event.keyCode === 39) //right arrow

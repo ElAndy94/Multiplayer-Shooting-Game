@@ -162,14 +162,14 @@ Bullet.update = function(){
 
 var DEBUG = true;
 
-var USERS = {
+var ONLINEUSERS = {
   'andy':'peliza',
   'a':'p',
   'andrew':'peliza',
 }
 
 var isValidPassword = function(data){
-    return USERS[data.username] === data.password;
+    return ONLINEUSERS[data.username] === data.password;
 }
 
 var io = require('socket.io')(server,{});
@@ -215,6 +215,6 @@ setInterval(function(){
 
   for (var i in SOCKET_LIST){
     var socket = SOCKET_LIST[i];
-    socket.emit('newPositions',pack);
+    socket.emit('newPos',pack);
   }
 },1000/25);
