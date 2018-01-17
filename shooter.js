@@ -117,7 +117,7 @@ Player.update = function(){
   }
   return pack;
 }
-//ddd
+
 var Bullet = function(parent,angle){
     var self = Shared();
     self.id = Math.random();
