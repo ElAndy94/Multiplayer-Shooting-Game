@@ -2,47 +2,44 @@
     Username: <input id="signDiv-username" type="text"></input><br>  <!--input username box -->
     Password: <input id="signDiv-password" type="password"></input> <!--input password box -->
     <button id="signDiv-signIn">Sign In</button> <!-- Sign in button -->
+    <button id="signDiv-signUp">Sign Up</button> <!-- Sign UP in button -->
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<!-- <body onload="loadSound();">
+<body onload="loadSound();">
 
-    <button onclick="playSound();" class="playSound">Play Sound</button> -->
   <div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
-      <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;">
+      <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"> <!-- creating canvas -->
+      </canvas> 
 
-  	</canvas> <!-- creating canvas -->
-      <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll"> <!-- creating chat box, with overflow which you can scroll through -->
-
-      </div>
-
-      <form id="chat-form">  <!-- the chat form -->
-          <input id="chat-input" type="text" style="width:500px"></input>
-      </form>
   </div>
-<!-- </body> -->
-<!-- <script type='text/javascript'src="/client/script.js"></script> -->
-<script src="/socket.io/socket.io.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
-<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
-<script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
-<script type='text/javascript'src="/client/character.js"></script>
+    </body>
+    <!-- <script type='text/javascript'src="/client/script.js"></script> -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
+    <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
 
 <script>
     var WIDTH = 500;
-	  var HEIGHT = 500;
+	var HEIGHT = 500;
     var socket = io(); // socket io
-    // var soundID = "Thunder"; //sound
+    var soundID = "Thunder"; //sound
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
     var signDivUsername = document.getElementById('signDiv-username'); //<!-- username element -->
     var signDivSignIn = document.getElementById('signDiv-signIn'); //<!-- sign in element -->
     var signDivPassword = document.getElementById('signDiv-password'); //<!-- password element -->
+    var signDivUp = document.getElementById('signDiv-signUp'); //<!-- password element -->
 
     signDivSignIn.onclick = function(){  //<!-- clicking the sign in button does this function -->
         socket.emit('LogIn',{username:signDivUsername.value,password:signDivPassword.value}); //<!-- emits username + password to server -->
+        }
+
+    signDivUp.onclick = function(){  //<!-- clicking the sign in button does this function -->
+        socket.emit('signUp',{username:signDivUsername.value,password:signDivPassword.value}); //<!-- emits username + password to server -->
         }
 
     socket.on('LogInResponse',function(data){  // Sign in Response function
@@ -53,56 +50,130 @@
             alert("Sign in was unsuccessful!"); //if password or username is wrong, you get this alart
     });
 
-    //Chat
-    var chatText = document.getElementById('chat-text'); //chat text
-    var chatInput = document.getElementById('chat-input'); //chat input
-    var chatForm = document.getElementById('chat-form'); //the chat form
-
-    socket.on('addToChat',function(data){  //this adds the message to chat
-       chatText.innerHTML += '<div>' + data + '</div>';
+    socket.on('signPlayerRes',function(data){  // Sign UP*** in Response function
+        if(data.success){
+            alert("Sign up was successful!");
+        }  else
+            alert("Sign in was unsuccessful!"); // Not signing up
     });
-
-    socket.on('evalAnswer',function(data){  //evalutation answer
-       console.log(data);
-    });
-
-    chatForm.onsubmit = function(e) {
-        e.preventDefault(); //prevents ""
-        if(chatInput.value[0] === '/')
-		{
-            socket.emit('evalServer',chatInput.value.slice(1)); //to evaluate
-		}
-        else
-            socket.emit('sendMsgToSever',chatInput.value); //this is to send message to sever
-        chatInput.value = ''; //resets ""
-    }
-
 
 
 //game
 
-  // function loadSound () {
-  // createjs.Sound.registerSound("assets/thunder.mp3", soundID);
-  // }
-  //
-  // function playSound () {
-  // createjs.Sound.play(soundID);
-  // }
+  function loadSound () {
+  createjs.Sound.registerSound("/client/shot.mp3", soundID);
+  }
+  
+  function playSound () {
+  createjs.Sound.play(soundID);
+  }
 
   var ctx = document.getElementById('ctx').getContext('2d');
   ctx.font = '30px Arial';
 
+  var Img = {}; //creats image array
+  Img.grass = new Image(); 
+  Img.grass.src = '/client/images/grasses.png'; //loads the background
 
-  socket.on('newPos', function(data){
-    ctx.clearRect(0,0,500,500);
+  var Player = function(startingPack) {
+      var self = {}
+      self.id = startingPack.id;
+      self.number = startingPack.number;
+      self.x = startingPack.x;
+      self.y = startingPack.y;
+      self.healthPoints = startingPack.healthPoints;
+      self.score = startingPack.score;
+      self.maxHealthPoints = startingPack.maxHealthPoints;
+      Player.list[self.id] = self;
+      return self;
+  }
+  Player.list = {};
+
+  var Bullet = function(startingPack) {
+      var self = {}
+      self.id = startingPack.id;
+      self.number = startingPack.number;
+      self.x = startingPack.x;
+      self.y = startingPack.y;
+      Bullet.list[self.id] = self;
+      return self;
+  }
+  Bullet.list = {};
+
+  //player and bullet info big pack
+socket.on('starterPack',function(data){
     for(var i = 0; i < data.player.length; i++) //player
-        ctx.fillText(data.player[i].number,data.player[i].x,data.player[i].y);
-
+        // ctx.fillRect(data.player[i].x,data.player[i].y,10,10);
+        new Player(data.player[i]);
 
     for(var i = 0; i < data.bullet.length; i++) //bullet
-        ctx.fillRect(data.bullet[i].x-5,data.bullet[i].y-5,10,10);
+        // ctx.fillRect(data.bullet[i].x-1,data.bullet[i].y-1,10,10);
+        new Bullet(data.bullet[i]);
   });
 
+// update player and bullet location - id
+socket.on('update',function(data){
+    for(var i = 0; i < data.player.length; i++){
+        var pack = data.player[i];
+        var ple = Player.list[pack.id];
+        if(ple) {
+                if(pack.x !== undefined)
+                   ple.x = pack.x;
+                if(pack.y !== undefined)
+                   ple.y = pack.y;
+                if(pack.heatlhPoints !== undefined)
+                   ple.healthPoints = pack.healthPoints;
+                if(pack.score !== undefined)
+                   ple.score = pack.score;
+        }
+    }
+
+    for(var i = 0; i < data.bullet.length; i++){
+        var pack = data.bullet[i];
+        var bul = Bullet.list[data.bullet[i].id];
+        if(bul) {
+                if(pack.x !== undefined)
+                   bul.x = pack.x;
+                if(pack.y !== undefined)
+                   bul.y = pack.y;
+        }
+    }
+});
+    
+//remove player/bullet
+socket.on('deletePack',function(data){
+    for(var i = 0; i < data.player.length; i++){
+        delete Player.list[data.player[i]];
+    }
+    for(var i = 0; i < data.bullet.length; i++){
+        delete Bullet.list[data.bullet[i]];
+    }
+});
+
+
+//draw
+setInterval(function(){
+    ctx.clearRect(0,0,500,500);
+    drawGrass();
+    for(var i in Player.list)
+        var healthPointsWidth = 30 * self.healthPoints / self.maxHealthPoints;
+
+        ctx.fillRect(self.x - healthPointsWidth/2,self.y - 40,healthPointsWidth,4); //draw health bar
+        
+        ctx.fillRect(Player.list[i].x,Player.list[i].y,10,10); //draw player
+
+        ctx.fillText(self.score,self.x,self.y-60); //draw score
+
+    for(var i in Bullet.list)
+        ctx.fillRect(Bullet.list[i].x-1,Bullet.list[i].y-1,10,10);
+        ctx.fillStyle="#FF0000";
+},40);
+
+
+
+  var drawGrass = function(){
+		ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
+	}
 
 
   document.onkeydown = function(event){ //keyboard controls
@@ -127,11 +198,19 @@
           socket.emit('movementKey' ,{inputId:'up',state:false});
    }
 
+
    document.onmousedown = function(event){
-     socket.emit('movementKey',{inputId:'attack',state:true});
+     socket.emit('movementKey',{inputId:'attack',state:true}); //mouse down to attack (click)*
+
+     if(event.target.attributes["id"].value !== "ctx"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
+         return;
+     } else {
+         playSound(); //plays the shot sound
+     }
    }
+
    document.onmouseup = function(event){
-     socket.emit('movementKey',{inputId:'attack',state:false});
+     socket.emit('movementKey',{inputId:'attack',state:false}); //when not attacking, (unlicked)*
    }
 
    document.onmousemove = function(event){
