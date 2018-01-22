@@ -49,7 +49,7 @@ var Player = function(id){
     self.pDown = false; //moving down auto false
     self.pAttack = false; //attacking set to fasle which is shooting!
     self.mouseAngle = 0; //mouse or touchpad angle
-    self.maxSpeed = 3; //moving speed 10 (need to modify this)***
+    self.maxSpeed = 4; //moving speed 10 (need to modify this)***
     self.healthPoints = 10; // player hp
     self.maxHealthPoints = 10; // the max hp a player starts with
     self.score = 0; //score starts at 0, +1 for every kill.
@@ -89,7 +89,7 @@ var Player = function(id){
           // self.speedX = 0;
     }
 
-    self.retriveStarterPack = function(){
+    self.getInitPack = function(){
       return {
               id:self.id,
               x:self.x,
@@ -113,7 +113,7 @@ var Player = function(id){
 
     Player.list[id] = self;
 
-    starterPack.player.push(self.retriveStarterPack());
+    initPack.player.push(self.getInitPack());
     
     return self;
 }
@@ -137,22 +137,23 @@ Player.onConnect = function(socket){
     });
 
 
-    socket.emit('starter',{
-        player:Player.startPack(),
-        bullet:Bullet.startPack(),
+    socket.emit('init',{
+        selfId:socket.id,
+        player:Player.getAllInitPack(),
+        bullet:Bullet.getAllInitPack(),
     })
 }
 
-Player.startPack = function(){
+Player.getAllInitPack = function(){
   var players = [];
   for(var i in Player.list)
-      players.push(Player.list[i].retriveStarterPack());
+      players.push(Player.list[i].getInitPack());
       return players;
 }
 
 Player.onDisconnect = function(socket){ 
     delete Player.list[socket.id]; //delete player from players list
-    deletePack.player.push(socket.id);
+    removePack.player.push(socket.id);
 }
 Player.update = function(){
   var pack = [];
@@ -197,7 +198,7 @@ var Bullet = function(parent,angle){ //bullet
         }
     }
 
-    self.retriveStarterPack = function(){
+    self.getInitPack = function(){
       return {
               id:self.id,
               x:self.x,
@@ -214,7 +215,7 @@ var Bullet = function(parent,angle){ //bullet
     }
 
     Bullet.list[self.id] = self;
-    starterPack.bullet.push(self.retriveStarterPack());
+    initPack.bullet.push(self.getInitPack());
     return self;
 }
 Bullet.list = {}; //bullet 
@@ -226,17 +227,17 @@ Bullet.update = function(){  //pushes bullet
       bullet.update();
       if(bullet.toRemove){
         delete Bullet.list[i]
-        deletePack.bullet.push(bullet.id);
+        removePack.bullet.push(bullet.id);
       } else
           pack.push(bullet.getUpdatePack());
   }
   return pack;
 }
 
-Bullet.startPack = function(){
+Bullet.getAllInitPack = function(){
   var bullets = [];
     for(var i in Bullet.list)
-        bullets.push(Bullet.list[i].retriveStarterPack());
+        bullets.push(Bullet.list[i].getInitPack());
         return bullets;
 }
 
@@ -302,8 +303,8 @@ io.sockets.on('connection', function(socket){
 
  });
 
-var starterPack = {player:[],bullet:[]};
-var deletePack =  {player:[],bullet:[]};
+var initPack = {player:[],bullet:[]};
+var removePack =  {player:[],bullet:[]};
 
 
 setInterval(function(){
@@ -314,14 +315,14 @@ setInterval(function(){
 
   for (var i in SOCKET_LIST){
     var socket = SOCKET_LIST[i];
-    socket.emit('starterPack',starterPack);
+    socket.emit('init',initPack);
     socket.emit('update',pack); //emits new positions
-    socket.emit('deletePack',deletePack);
+    socket.emit('remove',removePack);
   }
-  starterPack.player = []; //sets everything to 0 so it doesnt repeat / replicate
-  starterPack.bullet = []; //sets everything to 0 so it doesnt repeat / replicate
-  deletePack.player = []; //sets everything to 0 so it doesnt repeat / replicate
-  deletePack.bullet = []; //sets everything to 0 so it doesnt repeat / replicate
+  initPack.player = []; //sets everything to 0 so it doesnt repeat / replicate
+  initPack.bullet = []; //sets everything to 0 so it doesnt repeat / replicate
+  removePack.player = []; //sets everything to 0 so it doesnt repeat / replicate
+  removePack.bullet = []; //sets everything to 0 so it doesnt repeat / replicate
 
 
 },1000/25);
