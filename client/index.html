@@ -61,10 +61,10 @@
 //game
 
   function loadSound () {
-  createjs.Sound.registerSound("/client/shot.mp3", soundID);
+  createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
   }
   
-  function playSound () {
+  function playSound () { //play sound function
   createjs.Sound.play(soundID);
   }
 
@@ -81,35 +81,31 @@
 
 var Player = function(initPack){
 		var self = {};
-		self.id = initPack.id;
-		self.number = initPack.number;
-		self.x = initPack.x;
-		self.y = initPack.y;
-		self.healthPoints = initPack.healthPoints;
-		self.maxHealthPoints = initPack.maxHealthPoints;
-		self.score = initPack.score;
+		self.id = initPack.id; //id
+		self.number = initPack.number; //number
+		self.x = initPack.x;  // self.x location
+		self.y = initPack.y; // self.y location
+		self.healthPoints = initPack.healthPoints; //health Points
+		self.maxHealthPoints = initPack.maxHealthPoints; //health max = at 10
+		self.score = initPack.score;  //the score of the player
 		
 		self.draw = function(){	
             var x = self.x - Player.list[selfId].x + WIDTH/2;
             var y = self.y - Player.list[selfId].y + WIDTH/2;
 
-            var hpWidth = 30 * self.healthPoints / self.maxHealthPoints;
-            ctx.fillStyle = 'red';
-            ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4);
+            var hpWidth = 30 * self.healthPoints / self.maxHealthPoints; //draws the health bar
+            ctx.fillStyle = 'red'; //red health bar
+            ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4); //at the position it draws it
             
-            var width = Img.player.width/20;
-            var height = Img.player.width/20;
+            var width = Img.player.width/25;  //the width of the player img /25 because it was too big
+            var height = Img.player.width/25; //the height of the player img /25 because it was too big
 
-            ctx.drawImage(Img.player,
+            ctx.drawImage(Img.player,  //draws the image here.
             0,0,Img.player.width,Img.player.height,
             x-width/2,y-height/2,width,height);
-            
-            // ctx.fillRect(self.x,self.y,10,10);
-			
 		}
 		
 		Player.list[self.id] = self;
-		
 		
 		return self;
 	}
@@ -131,7 +127,6 @@ var Player = function(initPack){
 
             ctx.drawImage(Img.bullet,0,0,Img.bullet.width,Img.bullet.height,
             x-width/2,y-height/2,width,height);
-			// ctx.fillRect(self.x-5,self.y-5,10,10);
 		}
 		
 		Bullet.list[self.id] = self;		
@@ -139,12 +134,12 @@ var Player = function(initPack){
 	}
 	Bullet.list = {};
 
-
     var selfId = null;
 
     Player.list[selfId];
+
   //player and bullet info big pack
-socket.on('init',function(data){
+socket.on('starterPack',function(data){
     if(data.selfId)
         selfId = data.selfId;
 
@@ -154,6 +149,13 @@ socket.on('init',function(data){
     for(var i = 0; i < data.bullet.length; i++) //bullet
         new Bullet(data.bullet[i]);
   });
+
+  //enemy info drawn here
+// socket.on('enemyPack',function(data){
+//     for(var i = 0; i < data.enemyTarget.length; i++) //enemy
+//         new enemyTarget(data.enemyTarget[i]);
+     //ctx.fillRect(x+30,y+30,10,10);
+//   });
 
 // update player and bullet location - id
 socket.on('update',function(data){
@@ -186,10 +188,10 @@ socket.on('update',function(data){
     
 //remove player/bullet
 socket.on('remove',function(data){
-    for(var i = 0; i < data.player.length; i++){
+    for(var i = 0; i < data.player.length; i++){ //removing player
         delete Player.list[data.player[i]];
     }
-    for(var i = 0; i < data.bullet.length; i++){
+    for(var i = 0; i < data.bullet.length; i++){ //removing bullet
         delete Bullet.list[data.bullet[i]];
     }
 });
@@ -198,27 +200,42 @@ socket.on('remove',function(data){
 //draw
 
 setInterval(function(){
-    if(!selfId)
-        return;
+    if(!selfId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
+        return;             //if player logs on then the below will work.
 
         ctx.clearRect(0,0,500,500);
-        drawGrass();
-        theScore();
-		for(var i in Player.list)
+        drawGrass(); //draws my map
+        theScore();  //draws the score
+        // enemy(); //enemy
+        // for(var i in enemyTarget.list)  //draws the playlist every set miliseconds
+		// 	enemyTarget.list[i].draw();
+		for(var i in Player.list)  //draws the playlist every set miliseconds
 			Player.list[i].draw();
-		for(var i in Bullet.list)
+		for(var i in Bullet.list) //draws the bulletlist every set miliseconds
 			Bullet.list[i].draw();
     },40);
     
 var theScore = function(){
-    ctx.fillStyle = 'black';
-    ctx.fillText(Player.list[selfId].score,0,30);
+    ctx.fillStyle = 'black'; //score on black text
+    ctx.fillText(Player.list[selfId].score,0,30); //draws the score for THAT player only!**
 }
 
+// var enemyTarget = {
+// 	x:Math.random() * 500, //random location for the enemy
+//     y:Math.random() * 500,  //random location for the enemy
+//     hp:10,
+// }
+
+
+// var enemy = function(){
+//     ctx.fillStyle = 'pink'; //pink rect
+//     ctx.fillRect(enemyTarget.x,enemyTarget.y,10,10); //enemy Target x / enemy Target y
+// }
+
 var drawGrass = function(){
-    var x = WIDTH/2 - Player.list[selfId].x;
-    var y = WIDTH/2 - Player.list[selfId].y;
-    ctx.drawImage(Img.grass,x,y);
+    var x = WIDTH/2 - Player.list[selfId].x; //makes the character always on the middle of the map, which fixes the shots problem.
+    var y = WIDTH/2 - Player.list[selfId].y; //same as above.
+    ctx.drawImage(Img.grass,x,y); //draw grass function
 		// ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
 	}
 
