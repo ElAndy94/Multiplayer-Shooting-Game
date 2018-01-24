@@ -82,34 +82,14 @@ io.sockets.on('connection', function(socket){
       Player.onDisconnect(socket);
     });
 
-
  });
 
  setInterval(function(){
-	var packs = Shared.getFrameUpdateData();
+	var packs = Shared.makeModular();
 	for(var i in SOCKET_LIST){
 		var socket = SOCKET_LIST[i];
-		socket.emit('starterPack',packs.initPack);
+		socket.emit('starterPack',packs.infoPack);
 		socket.emit('update',packs.updatePack);
 		socket.emit('remove',packs.removePack);
 	}
-// setInterval(function(){
-//   var pack = {
-//       player:Player.update(), //refreshes player intervals
-//       bullet:Bullet.update(), //refreshes bullets intervals
-//   }
-
-//   for (var i in SOCKET_LIST){
-//     var socket = SOCKET_LIST[i];
-//     socket.emit('starterPack',initPack);
-//     socket.emit('update',pack); //emits new positions
-//     socket.emit('remove',removePack);
-//     // socket.emit('enemyTarget',enemyTarget);
-//   }
-//   initPack.player = []; //sets everything to 0 so it doesnt repeat / replicate
-//   initPack.bullet = []; //sets everything to 0 so it doesnt repeat / replicate
-//   removePack.player = []; //sets everything to 0 so it doesnt repeat / replicate
-//   removePack.bullet = []; //sets everything to 0 so it doesnt repeat / replicate
-
-
 },1000/25);

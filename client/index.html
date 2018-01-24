@@ -25,7 +25,7 @@
     var WIDTH = 500;
 	var HEIGHT = 500;
     var socket = io(); // socket io
-    var soundID = "Thunder"; //sound
+    var soundID = "Shot"; //sound
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -79,15 +79,15 @@
   Img.grass = new Image(); 
   Img.grass.src = '/client/images/grasses.png'; //loads the background
 
-var Player = function(initPack){
+var Player = function(infoPack){
 		var self = {};
-		self.id = initPack.id; //id
-		self.number = initPack.number; //number
-		self.x = initPack.x;  // self.x location
-		self.y = initPack.y; // self.y location
-		self.healthPoints = initPack.healthPoints; //health Points
-		self.maxHealthPoints = initPack.maxHealthPoints; //health max = at 10
-		self.score = initPack.score;  //the score of the player
+		self.id = infoPack.id; //id
+		self.number = infoPack.number; //number
+		self.x = infoPack.x;  // self.x location
+		self.y = infoPack.y; // self.y location
+		self.healthPoints = infoPack.healthPoints; //health Points
+		self.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10
+		self.score = infoPack.score;  //the score of the player
 		
 		self.draw = function(){	
             var x = self.x - Player.list[selfId].x + WIDTH/2;
@@ -112,11 +112,11 @@ var Player = function(initPack){
 	Player.list = {};
 
 		
-	var Bullet = function(initPack){
+	var Bullet = function(infoPack){
 		var self = {};
-		self.id = initPack.id;
-		self.x = initPack.x;
-		self.y = initPack.y;
+		self.id = infoPack.id;
+		self.x = infoPack.x;
+		self.y = infoPack.y;
 		
 		self.draw = function(){
             var width = Img.bullet.width/10;
@@ -157,8 +157,8 @@ socket.on('starterPack',function(data){
      //ctx.fillRect(x+30,y+30,10,10);
 //   });
 
-// update player and bullet location - id
-socket.on('update',function(data){
+
+socket.on('update',function(data){ // update player and bullet location - id
     for(var i = 0; i < data.player.length; i++){
         var pack = data.player[i];
         var ple = Player.list[pack.id];
@@ -196,7 +196,6 @@ socket.on('remove',function(data){
     }
 });
 
-
 //draw
 
 setInterval(function(){
@@ -206,7 +205,6 @@ setInterval(function(){
         ctx.clearRect(0,0,500,500);
         drawGrass(); //draws my map
         theScore();  //draws the score
-        // enemy(); //enemy
         // for(var i in enemyTarget.list)  //draws the playlist every set miliseconds
 		// 	enemyTarget.list[i].draw();
 		for(var i in Player.list)  //draws the playlist every set miliseconds

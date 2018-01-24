@@ -1,4 +1,4 @@
-var initPack = {player:[],bullet:[]};
+var infoPack = {player:[],bullet:[]};
 var removePack =  {player:[],bullet:[]};
 
 Shared = function(){
@@ -22,11 +22,11 @@ Shared = function(){
     return self;
 }
 
-Shared.getFrameUpdateData = function(){
+Shared.makeModular = function(){ //this is what makes my project modular
 	var pack = {
-		initPack:{
-			player:initPack.player,
-			bullet:initPack.bullet,
+		infoPack:{
+			player:infoPack.player, 
+			bullet:infoPack.bullet, 
 		},
 		removePack:{
 			player:removePack.player,
@@ -37,10 +37,10 @@ Shared.getFrameUpdateData = function(){
 			bullet:Bullet.update(),
 		}
 	};
-	initPack.player = [];
-	initPack.bullet = [];
-	removePack.player = [];
-	removePack.bullet = [];
+	infoPack.player = []; //sets to empty so it does not repeat/duplicate
+	infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
+	removePack.player = [];  //sets to empty so it does not repeat/duplicate
+	removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
 	return pack;
 }
 
@@ -102,7 +102,7 @@ Player = function(id){
           // self.speedX = 0;
     }
 
-    self.getInitPack = function(){
+    self.retrieveInfoPack = function(){
       return {
               id:self.id,
               x:self.x,
@@ -114,7 +114,7 @@ Player = function(id){
             };
     }
 
-    self.getUpdatePack = function(){
+    self.retrieveUpdatePack = function(){
       return {
               id:self.id,
               x:self.x,
@@ -126,7 +126,7 @@ Player = function(id){
 
     Player.list[id] = self;
 
-    initPack.player.push(self.getInitPack());
+    infoPack.player.push(self.retrieveInfoPack());
     
     return self;
 }
@@ -160,7 +160,7 @@ Player.onConnect = function(socket){
 Player.getAllInitPack = function(){
   var players = [];
   for(var i in Player.list)
-      players.push(Player.list[i].getInitPack());
+      players.push(Player.list[i].retrieveInfoPack());
       return players;
 }
 
@@ -173,7 +173,7 @@ Player.update = function(){
   for(var i in Player.list){
     var player = Player.list[i];
     player.update(); //update player
-    pack.push(player.getUpdatePack());//push player number, x & y
+    pack.push(player.retrieveUpdatePack());//push player number, x & y
   }
   return pack;
 }
@@ -211,7 +211,7 @@ Bullet = function(parent,angle){ //bullet
         }
     }
 
-    self.getInitPack = function(){
+    self.retrieveInfoPack = function(){
       return {
               id:self.id,
               x:self.x,
@@ -219,7 +219,7 @@ Bullet = function(parent,angle){ //bullet
             };
     }
 
-    self.getUpdatePack = function(){
+    self.retrieveUpdatePack = function(){
       return {
               id:self.id,
               x:self.x,
@@ -228,7 +228,7 @@ Bullet = function(parent,angle){ //bullet
     }
 
     Bullet.list[self.id] = self;
-    initPack.bullet.push(self.getInitPack());
+    infoPack.bullet.push(self.retrieveInfoPack());
     return self;
 }
 Bullet.list = {}; //bullet 
@@ -242,7 +242,7 @@ Bullet.update = function(){  //pushes bullet
         delete Bullet.list[i]
         removePack.bullet.push(bullet.id);
       } else
-          pack.push(bullet.getUpdatePack());
+          pack.push(bullet.retrieveUpdatePack());
   }
   return pack;
 }
@@ -250,6 +250,6 @@ Bullet.update = function(){  //pushes bullet
 Bullet.getAllInitPack = function(){
   var bullets = [];
     for(var i in Bullet.list)
-        bullets.push(Bullet.list[i].getInitPack());
+        bullets.push(Bullet.list[i].retrieveInfoPack());
         return bullets;
 }
