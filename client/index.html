@@ -13,18 +13,19 @@
 
   </div>
     </body>
-    <!-- <script type='text/javascript'src="/client/script.js"></script> -->
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
     <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
+    <!-- <script src="scriptDraw.js"></script> -->
 
 <script>
-    var WIDTH = 500;
-	var HEIGHT = 500;
     var socket = io(); // socket io
+    var WIDTH = 500;
+    var HEIGHT = 500;
     var soundID = "Shot"; //sound
 
     //signIn/Out
@@ -33,6 +34,7 @@
     var signDivSignIn = document.getElementById('signDiv-signIn'); //<!-- sign in element -->
     var signDivPassword = document.getElementById('signDiv-password'); //<!-- password element -->
     var signDivUp = document.getElementById('signDiv-signUp'); //<!-- password element -->
+
 
     signDivSignIn.onclick = function(){  //<!-- clicking the sign in button does this function -->
         socket.emit('LogIn',{username:signDivUsername.value,password:signDivPassword.value}); //<!-- emits username + password to server -->
@@ -58,38 +60,38 @@
     });
 
 
-//game
+    //game
 
-  function loadSound () {
-  createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
-  }
-  
-  function playSound () { //play sound function
-  createjs.Sound.play(soundID);
-  }
+    function loadSound () {
+    createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
+    }
 
-  var ctx = document.getElementById('ctx').getContext('2d');
-  ctx.font = '30px Arial';
+    function playSound () { //play sound function
+    createjs.Sound.play(soundID);
+    }
 
-  var Img = {}; //creats image array
-  Img.bullet = new Image(); 
-  Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
-  Img.player = new Image(); 
-  Img.player.src = '/client/images/littleman.png'; //loads the player
-  Img.grass = new Image(); 
-  Img.grass.src = '/client/images/grasses.png'; //loads the background
+    var ctx = document.getElementById('ctx').getContext('2d');
+    ctx.font = '30px Arial';
 
-var Player = function(infoPack){
-		var self = {};
-		self.id = infoPack.id; //id
-		self.number = infoPack.number; //number
-		self.x = infoPack.x;  // self.x location
-		self.y = infoPack.y; // self.y location
-		self.healthPoints = infoPack.healthPoints; //health Points
-		self.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10
-		self.score = infoPack.score;  //the score of the player
-		
-		self.draw = function(){	
+    var Img = {}; //creats image array
+    Img.bullet = new Image(); 
+    Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
+    Img.player = new Image(); 
+    Img.player.src = '/client/images/littleman.png'; //loads the player
+    Img.grass = new Image(); 
+    Img.grass.src = '/client/images/grasses.png'; //loads the background
+
+    var Player = function(infoPack){
+        var self = {};
+        self.id = infoPack.id; //id
+        self.number = infoPack.number; //number
+        self.x = infoPack.x;  // self.x location
+        self.y = infoPack.y; // self.y location
+        self.healthPoints = infoPack.healthPoints; //health Points
+        self.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10
+        self.score = infoPack.score;  //the score of the player
+        
+        self.draw = function(){	
             var x = self.x - Player.list[selfId].x + WIDTH/2;
             var y = self.y - Player.list[selfId].y + WIDTH/2;
 
@@ -103,22 +105,22 @@ var Player = function(infoPack){
             ctx.drawImage(Img.player,  //draws the image here.
             0,0,Img.player.width,Img.player.height,
             x-width/2,y-height/2,width,height);
-		}
-		
-		Player.list[self.id] = self;
-		
-		return self;
-	}
-	Player.list = {};
+        }
+        
+        Player.list[self.id] = self;
+        
+        return self;
+    }
+    Player.list = {};
 
-		
-	var Bullet = function(infoPack){
-		var self = {};
-		self.id = infoPack.id;
-		self.x = infoPack.x;
-		self.y = infoPack.y;
-		
-		self.draw = function(){
+        
+    var Bullet = function(infoPack){
+        var self = {};
+        self.id = infoPack.id;
+        self.x = infoPack.x;
+        self.y = infoPack.y;
+        
+        self.draw = function(){
             var width = Img.bullet.width/10;
             var height = Img.bullet.width/10;
 
@@ -127,19 +129,19 @@ var Player = function(infoPack){
 
             ctx.drawImage(Img.bullet,0,0,Img.bullet.width,Img.bullet.height,
             x-width/2,y-height/2,width,height);
-		}
-		
-		Bullet.list[self.id] = self;		
-		return self;
-	}
-	Bullet.list = {};
+        }
+        
+        Bullet.list[self.id] = self;		
+        return self;
+    }
+    Bullet.list = {};
 
     var selfId = null;
 
     Player.list[selfId];
 
-  //player and bullet info big pack
-socket.on('starterPack',function(data){
+    //player and bullet info big pack
+    socket.on('starterPack',function(data){
     if(data.selfId)
         selfId = data.selfId;
 
@@ -148,29 +150,29 @@ socket.on('starterPack',function(data){
 
     for(var i = 0; i < data.bullet.length; i++) //bullet
         new Bullet(data.bullet[i]);
-  });
+    });
 
-  //enemy info drawn here
-// socket.on('enemyPack',function(data){
-//     for(var i = 0; i < data.enemyTarget.length; i++) //enemy
-//         new enemyTarget(data.enemyTarget[i]);
-     //ctx.fillRect(x+30,y+30,10,10);
-//   });
+    //enemy info drawn here
+    // socket.on('enemyPack',function(data){
+    //     for(var i = 0; i < data.enemyTarget.length; i++) //enemy
+    //         new enemyTarget(data.enemyTarget[i]);
+    //ctx.fillRect(x+30,y+30,10,10);
+    //   });
 
 
-socket.on('update',function(data){ // update player and bullet location - id
+    socket.on('update',function(data){ // update player and bullet location - id
     for(var i = 0; i < data.player.length; i++){
         var pack = data.player[i];
         var ple = Player.list[pack.id];
         if(ple) {
                 if(pack.x !== undefined)
-                   ple.x = pack.x;
+                ple.x = pack.x;
                 if(pack.y !== undefined)
-                   ple.y = pack.y;
+                ple.y = pack.y;
                 if(pack.heatlhPoints !== undefined)
-                   ple.healthPoints = pack.healthPoints;
+                ple.healthPoints = pack.healthPoints;
                 if(pack.score !== undefined)
-                   ple.score = pack.score;
+                ple.score = pack.score;
         }
     }
 
@@ -179,26 +181,26 @@ socket.on('update',function(data){ // update player and bullet location - id
         var bul = Bullet.list[data.bullet[i].id];
         if(bul) {
                 if(pack.x !== undefined)
-                   bul.x = pack.x;
+                bul.x = pack.x;
                 if(pack.y !== undefined)
-                   bul.y = pack.y;
+                bul.y = pack.y;
         }
     }
-});
-    
-//remove player/bullet
-socket.on('remove',function(data){
+    });
+
+    //remove player/bullet
+    socket.on('remove',function(data){
     for(var i = 0; i < data.player.length; i++){ //removing player
         delete Player.list[data.player[i]];
     }
     for(var i = 0; i < data.bullet.length; i++){ //removing bullet
         delete Bullet.list[data.bullet[i]];
     }
-});
+    });
 
-//draw
+    //draw
 
-setInterval(function(){
+    setInterval(function(){
     if(!selfId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
         return;             //if player logs on then the below will work.
 
@@ -206,80 +208,80 @@ setInterval(function(){
         drawGrass(); //draws my map
         theScore();  //draws the score
         // for(var i in enemyTarget.list)  //draws the playlist every set miliseconds
-		// 	enemyTarget.list[i].draw();
-		for(var i in Player.list)  //draws the playlist every set miliseconds
-			Player.list[i].draw();
-		for(var i in Bullet.list) //draws the bulletlist every set miliseconds
-			Bullet.list[i].draw();
+        // 	enemyTarget.list[i].draw();
+        for(var i in Player.list)  //draws the playlist every set miliseconds
+            Player.list[i].draw();
+        for(var i in Bullet.list) //draws the bulletlist every set miliseconds
+            Bullet.list[i].draw();
     },40);
-    
-var theScore = function(){
+
+    var theScore = function(){
     ctx.fillStyle = 'black'; //score on black text
     ctx.fillText(Player.list[selfId].score,0,30); //draws the score for THAT player only!**
-}
+    }
 
-// var enemyTarget = {
-// 	x:Math.random() * 500, //random location for the enemy
-//     y:Math.random() * 500,  //random location for the enemy
-//     hp:10,
-// }
+    // var enemyTarget = {
+    // 	x:Math.random() * 500, //random location for the enemy
+    //     y:Math.random() * 500,  //random location for the enemy
+    //     hp:10,
+    // }
 
 
-// var enemy = function(){
-//     ctx.fillStyle = 'pink'; //pink rect
-//     ctx.fillRect(enemyTarget.x,enemyTarget.y,10,10); //enemy Target x / enemy Target y
-// }
+    // var enemy = function(){
+    //     ctx.fillStyle = 'pink'; //pink rect
+    //     ctx.fillRect(enemyTarget.x,enemyTarget.y,10,10); //enemy Target x / enemy Target y
+    // }
 
-var drawGrass = function(){
+    var drawGrass = function(){
     var x = WIDTH/2 - Player.list[selfId].x; //makes the character always on the middle of the map, which fixes the shots problem.
     var y = WIDTH/2 - Player.list[selfId].y; //same as above.
     ctx.drawImage(Img.grass,x,y); //draw grass function
-		// ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
-	}
+        // ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
+    }
 
 
-  document.onkeydown = function(event){ //keyboard controls
-      if(event.keyCode === 39) //right arrow
-          socket.emit('movementKey' ,{inputId:'right',state:true});
-      if(event.keyCode === 40) //down arrow
-          socket.emit('movementKey' ,{inputId:'down',state:true});
-      if(event.keyCode === 37) //left arrow
-          socket.emit('movementKey' ,{inputId:'left',state:true});
-      if(event.keyCode === 38) //up arrow
-          socket.emit('movementKey' ,{inputId:'up',state:true});
-  }
+    document.onkeydown = function(event){ //keyboard controls
+    if(event.keyCode === 39) //right arrow
+        socket.emit('movementKey' ,{inputId:'right',state:true});
+    if(event.keyCode === 40) //down arrow
+        socket.emit('movementKey' ,{inputId:'down',state:true});
+    if(event.keyCode === 37) //left arrow
+        socket.emit('movementKey' ,{inputId:'left',state:true});
+    if(event.keyCode === 38) //up arrow
+        socket.emit('movementKey' ,{inputId:'up',state:true});
+    }
 
-  document.onkeyup = function(event){
-      if(event.keyCode === 39) //right arrow
-          socket.emit('movementKey' ,{inputId:'right',state:false});
-      if(event.keyCode === 40) //down arrow
-          socket.emit('movementKey' ,{inputId:'down',state:false});
-      if(event.keyCode === 37) //left arrow
-          socket.emit('movementKey' ,{inputId:'left',state:false});
-      if(event.keyCode === 38) //up arrow
-          socket.emit('movementKey' ,{inputId:'up',state:false});
-   }
+    document.onkeyup = function(event){
+    if(event.keyCode === 39) //right arrow
+        socket.emit('movementKey' ,{inputId:'right',state:false});
+    if(event.keyCode === 40) //down arrow
+        socket.emit('movementKey' ,{inputId:'down',state:false});
+    if(event.keyCode === 37) //left arrow
+        socket.emit('movementKey' ,{inputId:'left',state:false});
+    if(event.keyCode === 38) //up arrow
+        socket.emit('movementKey' ,{inputId:'up',state:false});
+    }
 
 
-   document.onmousedown = function(event){
-     socket.emit('movementKey',{inputId:'attack',state:true}); //mouse down to attack (click)*
+    document.onmousedown = function(event){
+    socket.emit('movementKey',{inputId:'attack',state:true}); //mouse down to attack (click)*
 
-     if(event.target.attributes["id"].value !== "ctx"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
-         return;
-     } else {
-         playSound(); //plays the shot sound
-     }
-   }
+    if(event.target.attributes["id"].value !== "ctx"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
+        return;
+    } else {
+        playSound(); //plays the shot sound
+    }
+    }
 
-   document.onmouseup = function(event){
-     socket.emit('movementKey',{inputId:'attack',state:false}); //when not attacking, (unlicked)*
-   }
+    document.onmouseup = function(event){
+    socket.emit('movementKey',{inputId:'attack',state:false}); //when not attacking, (unlicked)*
+    }
 
-   document.onmousemove = function(event){
-      var x = -250 + event.clientX - 8;  //500 being the whole screen
-      var y = -250 + event.clientY - 8;
-      var angle = Math.atan2(y,x) / Math.PI * 180;
-      socket.emit('movementKey',{inputId:'mouseAngle',state:angle});
-   }
+    document.onmousemove = function(event){
+    var x = -250 + event.clientX - 8;  //500 being the whole screen
+    var y = -250 + event.clientY - 8;
+    var angle = Math.atan2(y,x) / Math.PI * 180;
+    socket.emit('movementKey',{inputId:'mouseAngle',state:angle});
+    }
 
   </script>
