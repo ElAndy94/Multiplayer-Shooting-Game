@@ -62,22 +62,24 @@
 
     //game
 
-    function loadSound () {
+function loadSound () {
     createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
     }
 
-    function playSound () { //play sound function
+function playSound () { //play sound function
     createjs.Sound.play(soundID);
     }
 
-    var ctx = document.getElementById('ctx').getContext('2d');
-    ctx.font = '30px Arial';
+var ctx = document.getElementById('ctx').getContext('2d');
+ ctx.font = '30px Arial';
 
-    var Img = {}; //creats image array
+var Img = {}; //creats image array
     Img.bullet = new Image(); 
     Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
     Img.player = new Image(); 
     Img.player.src = '/client/images/littleman.png'; //loads the player
+    Img.grass = new Image(); 
+    Img.grass.src = '/client/images/target.png'; //loads the background
     Img.grass = new Image(); 
     Img.grass.src = '/client/images/grasses.png'; //loads the background
 
@@ -117,12 +119,11 @@
     var Bullet = function(infoPack){
         var self = {};
         self.id = infoPack.id;
-        self.x = infoPack.x;
-        self.y = infoPack.y;
-        
+        self.x = infoPack.x; //bullet x
+        self.y = infoPack.y; //bullet y
         self.draw = function(){
-            var width = Img.bullet.width/10;
-            var height = Img.bullet.width/10;
+            var width = Img.bullet.width/10; //bullet width size
+            var height = Img.bullet.width/10; //bullet height size
 
             var x = self.x - Player.list[selfId].x + WIDTH/2;
             var y = self.y - Player.list[selfId].y + WIDTH/2;
@@ -136,12 +137,39 @@
     }
     Bullet.list = {};
 
+
+    var Target = function(infoPack){
+        var self = {};
+        self.id = infoPack.id; //target id
+        self.x = infoPack.x; //target x
+        self.y = infoPack.y; //target y
+        
+        console.log(self.x + "x");
+        console.log(self.y + "y");
+        console.log('hey');
+
+        self.draw = function(){
+            var width = Img.target.width/10; //bullet width size
+            var height = Img.target.width/10; //bullet height size
+
+            var x = self.x - Player.list[selfId].x + WIDTH/2;
+            var y = self.y - Player.list[selfId].y + WIDTH/2;
+
+            ctx.drawImage(Img.target,0,0,Img.target.width,Img.target.height,
+            x-width/2,y-height/2,width,height);
+        }
+        console.log('do you see me');
+        Target.list[self.id] = self;		
+        return self;
+    }
+    Target.list = {};
+    
     var selfId = null;
 
     Player.list[selfId];
 
     //player and bullet info big pack
-    socket.on('starterPack',function(data){
+socket.on('starterPack',function(data){
     if(data.selfId)
         selfId = data.selfId;
 
@@ -150,17 +178,13 @@
 
     for(var i = 0; i < data.bullet.length; i++) //bullet
         new Bullet(data.bullet[i]);
+
+    for(var i = 0; i < data.target.length; i++) //target
+        new Target(data.target[i]);
     });
 
-    //enemy info drawn here
-    // socket.on('enemyPack',function(data){
-    //     for(var i = 0; i < data.enemyTarget.length; i++) //enemy
-    //         new enemyTarget(data.enemyTarget[i]);
-    //ctx.fillRect(x+30,y+30,10,10);
-    //   });
-
-
-    socket.on('update',function(data){ // update player and bullet location - id
+    
+socket.on('update',function(data){ // update player and bullet location - id
     for(var i = 0; i < data.player.length; i++){
         var pack = data.player[i];
         var ple = Player.list[pack.id];
@@ -186,98 +210,98 @@
                 bul.y = pack.y;
         }
     }
+
+    for(var i = 0; i < data.target.length; i++){
+        var pack = data.target[i];
+        var tar = Target.list[data.target[i].id];
+        if(tar) {
+                if(pack.x !== undefined)
+                tar.x = pack.x;
+                if(pack.y !== undefined)
+                tar.y = pack.y;
+        }
+    }
     });
 
     //remove player/bullet
-    socket.on('remove',function(data){
+socket.on('remove',function(data){
     for(var i = 0; i < data.player.length; i++){ //removing player
         delete Player.list[data.player[i]];
     }
     for(var i = 0; i < data.bullet.length; i++){ //removing bullet
         delete Bullet.list[data.bullet[i]];
     }
+    for(var i = 0; i < data.target.length; i++){ //removing target
+        delete Target.list[data.target[i]];
+    }
     });
 
     //draw
-
-    setInterval(function(){
+setInterval(function(){
     if(!selfId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
         return;             //if player logs on then the below will work.
 
         ctx.clearRect(0,0,500,500);
         drawGrass(); //draws my map
         theScore();  //draws the score
-        // for(var i in enemyTarget.list)  //draws the playlist every set miliseconds
-        // 	enemyTarget.list[i].draw();
         for(var i in Player.list)  //draws the playlist every set miliseconds
             Player.list[i].draw();
         for(var i in Bullet.list) //draws the bulletlist every set miliseconds
             Bullet.list[i].draw();
+        for(var i in Target.list) //draws the targetlist every set miliseconds
+            Target.list[i].draw();
+            console.log(Target.list[i]);
     },40);
 
-    var theScore = function(){
+var theScore = function(){
     ctx.fillStyle = 'black'; //score on black text
     ctx.fillText(Player.list[selfId].score,0,30); //draws the score for THAT player only!**
     }
 
-    // var enemyTarget = {
-    // 	x:Math.random() * 500, //random location for the enemy
-    //     y:Math.random() * 500,  //random location for the enemy
-    //     hp:10,
-    // }
-
-
-    // var enemy = function(){
-    //     ctx.fillStyle = 'pink'; //pink rect
-    //     ctx.fillRect(enemyTarget.x,enemyTarget.y,10,10); //enemy Target x / enemy Target y
-    // }
-
-    var drawGrass = function(){
+var drawGrass = function(){
     var x = WIDTH/2 - Player.list[selfId].x; //makes the character always on the middle of the map, which fixes the shots problem.
     var y = WIDTH/2 - Player.list[selfId].y; //same as above.
     ctx.drawImage(Img.grass,x,y); //draw grass function
         // ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
     }
 
+document.onkeydown = function(event){ //keyboard controls
+        if(event.keyCode === 39) //right arrow
+            socket.emit('movementKey' ,{inputId:'right',state:true});
+        if(event.keyCode === 40) //down arrow
+            socket.emit('movementKey' ,{inputId:'down',state:true});
+        if(event.keyCode === 37) //left arrow
+            socket.emit('movementKey' ,{inputId:'left',state:true});
+        if(event.keyCode === 38) //up arrow
+            socket.emit('movementKey' ,{inputId:'up',state:true});
+        }
 
-    document.onkeydown = function(event){ //keyboard controls
-    if(event.keyCode === 39) //right arrow
-        socket.emit('movementKey' ,{inputId:'right',state:true});
-    if(event.keyCode === 40) //down arrow
-        socket.emit('movementKey' ,{inputId:'down',state:true});
-    if(event.keyCode === 37) //left arrow
-        socket.emit('movementKey' ,{inputId:'left',state:true});
-    if(event.keyCode === 38) //up arrow
-        socket.emit('movementKey' ,{inputId:'up',state:true});
-    }
+document.onkeyup = function(event){
+        if(event.keyCode === 39) //right arrow
+            socket.emit('movementKey' ,{inputId:'right',state:false});
+        if(event.keyCode === 40) //down arrow
+            socket.emit('movementKey' ,{inputId:'down',state:false});
+        if(event.keyCode === 37) //left arrow
+            socket.emit('movementKey' ,{inputId:'left',state:false});
+        if(event.keyCode === 38) //up arrow
+            socket.emit('movementKey' ,{inputId:'up',state:false});
+        }
 
-    document.onkeyup = function(event){
-    if(event.keyCode === 39) //right arrow
-        socket.emit('movementKey' ,{inputId:'right',state:false});
-    if(event.keyCode === 40) //down arrow
-        socket.emit('movementKey' ,{inputId:'down',state:false});
-    if(event.keyCode === 37) //left arrow
-        socket.emit('movementKey' ,{inputId:'left',state:false});
-    if(event.keyCode === 38) //up arrow
-        socket.emit('movementKey' ,{inputId:'up',state:false});
-    }
-
-
-    document.onmousedown = function(event){
+document.onmousedown = function(event){
     socket.emit('movementKey',{inputId:'attack',state:true}); //mouse down to attack (click)*
 
-    if(event.target.attributes["id"].value !== "ctx"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
+if(event.target.attributes["id"].value !== "ctx"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
         return;
     } else {
         playSound(); //plays the shot sound
     }
     }
 
-    document.onmouseup = function(event){
+document.onmouseup = function(event){
     socket.emit('movementKey',{inputId:'attack',state:false}); //when not attacking, (unlicked)*
     }
 
-    document.onmousemove = function(event){
+document.onmousemove = function(event){
     var x = -250 + event.clientX - 8;  //500 being the whole screen
     var y = -250 + event.clientY - 8;
     var angle = Math.atan2(y,x) / Math.PI * 180;

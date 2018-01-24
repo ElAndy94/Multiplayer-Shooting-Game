@@ -1,10 +1,10 @@
-var infoPack = {player:[],bullet:[]};
-var removePack =  {player:[],bullet:[]};
+var infoPack = {player:[],bullet:[],target:[]};
+var removePack =  {player:[],bullet:[],target:[]};
 
 Shared = function(){
     var self = {
-      x:Math.random() * 500, // X of the character or bullet
-      y:Math.random() * 500, // Y of the character or bullet
+      x:Math.random() * 500, // X of the character 
+      y:Math.random() * 500, // Y of the character 
       speedX:0, //speed X defult to 0
       speedY:0, //speed Y defult to 0
       id:"",
@@ -26,21 +26,26 @@ Shared.makeModular = function(){ //this is what makes my project modular
 	var pack = {
 		infoPack:{
 			player:infoPack.player, 
-			bullet:infoPack.bullet, 
+      bullet:infoPack.bullet,
+      target:infoPack.target, 
 		},
 		removePack:{
 			player:removePack.player,
-			bullet:removePack.bullet,
+      bullet:removePack.bullet,
+      target:removePack.target,
 		},
 		updatePack:{
 			player:Player.update(),
-			bullet:Bullet.update(),
+      bullet:Bullet.update(),
+      target:Target.update(),
 		}
 	};
 	infoPack.player = []; //sets to empty so it does not repeat/duplicate
-	infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
+  infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
+  infoPack.target = []; //sets to empty so it does not repeat/duplicate
 	removePack.player = [];  //sets to empty so it does not repeat/duplicate
-	removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
+  removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
+  removePack.target = [];  //sets to empty so it does not repeat/duplicate
 	return pack;
 }
 
@@ -54,21 +59,14 @@ Player = function(id){
     self.pDown = false; //moving down auto false
     self.pAttack = false; //attacking set to fasle which is shooting!
     self.mouseAngle = 0; //mouse or touchpad angle
-    self.maxSpeed = 4; //moving speed 10 (need to modify this)***
+    self.maxSpeed = 10; //moving speed 10 (need to modify this)***
     self.healthPoints = 10; // player hp
     self.maxHealthPoints = 10; // the max hp a player starts with
     self.score = 0; //score starts at 0, +1 for every kill.
 
-    // if(Math.sqrt(Math.pow(self.x-enemyTarget.x, 2) + Math.pow(self.y-enemyTarget.y, 2)) < 20 )
-    // {
-    //     enemyTarget = {
-    //       x:Math.floor(400 * Math.random()), //random location for the enemy
-    //       y:Math.floor(400 * Math.random())	//random location for the enemy
-    //     };
-    //       self.healthPoints-=1;
-    //     }
+    
 
-    var second_update = self.update;
+var second_update = self.update;
     self.update = function(){ //this function calls a secondary update
         self.updateSpeed();
         second_update();
@@ -77,14 +75,15 @@ Player = function(id){
             self.fireBullet(self.mouseAngle); //mouse angle attack
         }
   }
-  self.fireBullet = function(angle){
+  
+self.fireBullet = function(angle){
     var b = Bullet(self.id,angle); //bullet id, with angle pack
     b.x = self.x;
     b.y = self.y;
   }
 
 
-  self.updateSpeed = function(){
+self.updateSpeed = function(){
     if(self.pRight)
           self.speedX = self.maxSpeed;
     else if(self.pLeft)
@@ -154,6 +153,7 @@ Player.onConnect = function(socket){
         selfId:socket.id, //sends the id over to the client
         player:Player.getAllInitPack(),  //sends player info pack to client
         bullet:Bullet.getAllInitPack(), //sends bullet info pack to client
+        target:Target.getAllInitPack(),
     })
 }
 
@@ -252,4 +252,56 @@ Bullet.getAllInitPack = function(){
     for(var i in Bullet.list)
         bullets.push(Bullet.list[i].retrieveInfoPack());
         return bullets;
+}
+
+Target = function(data){ //bullet 
+  var self = Shared(); //uses shared properties with player
+  self.id = Math.random(); //random id
+  // self.speedX = Math.cos(angle/180*Math.PI) * 10; 
+  // self.speedY = Math.sin(angle/180*Math.PI) * 10;
+  self.toRemove = false; //if shot yourself then = true.
+  // var second_update = self.update;
+
+self.retrieveInfoPack = function(){
+    return {
+            id:self.id,
+            x:self.x,
+            y:self.y,
+          };
+  }
+
+self.retrieveUpdatePack = function(){
+    return {
+            id:self.id,
+            x:self.x,
+            y:self.y,
+          };
+  }
+
+Target.list[self.id] = self;
+
+  infoPack.target.push(self.retrieveInfoPack());
+  return self;
+}
+Target.list = {}; //target
+
+Target.update = function(){  //pushes target
+var pack = [];
+for(var i in Target.list){
+  var target = Target.list[i];
+    target.update();
+    if(target.toRemove){
+      delete Target.list[i]
+      removePack.target.push(target.id);
+    } else
+        pack.push(target.retrieveUpdatePack());
+}
+return pack;
+}
+
+Target.getAllInitPack = function(){
+var target = [];
+  for(var i in Target.list)
+      target.push(Target.list[i].retrieveInfoPack());
+      return target;
 }
