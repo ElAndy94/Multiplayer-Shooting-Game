@@ -39,14 +39,15 @@ Shared.makeModular = function(){ //this is what makes my project modular
       bullet:Bullet.update(),
       target:Target.update(),
 		}
-	};
-	infoPack.player = []; //sets to empty so it does not repeat/duplicate
-  infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
-  infoPack.target = []; //sets to empty so it does not repeat/duplicate
-	removePack.player = [];  //sets to empty so it does not repeat/duplicate
-  removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
-  removePack.target = [];  //sets to empty so it does not repeat/duplicate
-	return pack;
+  };
+  
+infoPack.player = []; //sets to empty so it does not repeat/duplicate
+    infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
+    // infoPack.target = []; //sets to empty so it does not repeat/duplicate
+    removePack.player = [];  //sets to empty so it does not repeat/duplicate
+    removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
+    // removePack.target = [];  //sets to empty so it does not repeat/duplicate
+    return pack;
 }
 
 Player = function(id){
@@ -101,7 +102,7 @@ self.updateSpeed = function(){
           // self.speedX = 0;
     }
 
-    self.retrieveInfoPack = function(){
+self.retrieveInfoPack = function(){
       return {
               id:self.id,
               x:self.x,
@@ -133,6 +134,7 @@ self.updateSpeed = function(){
 Player.list = {};
 Player.onConnect = function(socket){
     var player = Player(socket.id);
+    var target = Target(socket.id);
     socket.on('movementKey',function(data){
       if(data.inputId === 'left')
           player.pLeft = data.state; //moving left
@@ -254,13 +256,23 @@ Bullet.getAllInitPack = function(){
         return bullets;
 }
 
-Target = function(data){ //bullet 
+Target = function(){ //bullet 
   var self = Shared(); //uses shared properties with player
   self.id = Math.random(); //random id
+  self.pRight = false; //moving right auto false
+  self.pLeft = false; //moving left auto false
+  self.pUp = false; //moving up auto false
+  self.pDown = false; //moving down auto false
   // self.speedX = Math.cos(angle/180*Math.PI) * 10; 
   // self.speedY = Math.sin(angle/180*Math.PI) * 10;
   self.toRemove = false; //if shot yourself then = true.
-  // var second_update = self.update;
+  
+
+var second_update = self.update;
+    self.update = function(){ //this function calls a secondary update
+        // self.updateSpeed();
+        second_update();
+    }
 
 self.retrieveInfoPack = function(){
     return {
