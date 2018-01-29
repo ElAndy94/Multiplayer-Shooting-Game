@@ -15,11 +15,16 @@ Shared = function(){
     self.updatePos = function(){
         self.x += self.speedX;
         self.y += self.speedY;
+      //   if(self.x <= 2 || self.x >= 498 || self.y <= 2 || self.y >= 498 ) //this is the collision to the edges
+		  // {
+      //   self.healthPoints -=10;
+      //   console.log(self.healthPoints);
+      // }
     }
     self.getDist = function(pt){
         return Math.sqrt(Math.pow(self.x-pt.x,2) + Math.pow(self.y-pt.y,2)); //calculates distance
-    }
-    return self;
+     }
+     return self;
 }
 
 Shared.makeModular = function(){ //this is what makes my project modular
@@ -43,10 +48,10 @@ Shared.makeModular = function(){ //this is what makes my project modular
   
 infoPack.player = []; //sets to empty so it does not repeat/duplicate
     infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
-    // infoPack.target = []; //sets to empty so it does not repeat/duplicate
+    infoPack.target = []; //sets to empty so it does not repeat/duplicate
     removePack.player = [];  //sets to empty so it does not repeat/duplicate
     removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
-    // removePack.target = [];  //sets to empty so it does not repeat/duplicate
+    removePack.target = [];  //sets to empty so it does not repeat/duplicate
     return pack;
 }
 
@@ -150,16 +155,15 @@ Player.onConnect = function(socket){
           player.mouseAngle = data.state; //mouse angle (direction of shooting)
     });
 
-
     socket.emit('starterPack',{
         selfId:socket.id, //sends the id over to the client
-        player:Player.getAllInitPack(),  //sends player info pack to client
-        bullet:Bullet.getAllInitPack(), //sends bullet info pack to client
-        target:Target.getAllInitPack(),
+        player:Player.mergePack(),  //sends player info pack to client
+        bullet:Bullet.mergePack(), //sends bullet info pack to client
+        target:Target.mergePack(), //sends target info pack to client
     })
 }
 
-Player.getAllInitPack = function(){
+Player.mergePack = function(){
   var players = [];
   for(var i in Player.list)
       players.push(Player.list[i].retrieveInfoPack());
@@ -168,7 +172,9 @@ Player.getAllInitPack = function(){
 
 Player.onDisconnect = function(socket){ 
     delete Player.list[socket.id]; //delete player from players list
+    // delete Target.list[socket.id]; ///////////////////////////////////////NEED TO FIX THIS
     removePack.player.push(socket.id);
+    // removePack.target.push(socket.id);
 }
 Player.update = function(){
   var pack = [];
@@ -211,8 +217,17 @@ Bullet = function(parent,angle){ //bullet
               self.toRemove = true;
           }
         }
-    }
-
+        for (var i in Target.list){     //WORKING BULLET COLLISION WITH TARGET ** NEED TO FIX toRemove TARGET
+          var t = Target.list[i]
+          if(self.getDist(t) < 32 && self.parent !== t.id){ //gets distance
+            var enemy = Player.list[self.parent];
+            if(enemy) 
+              enemy.score += 1;
+                // console.log('hit!');
+            }
+              // self.Target.toRemove = true;
+          }
+      }
     self.retrieveInfoPack = function(){
       return {
               id:self.id,
@@ -249,29 +264,41 @@ Bullet.update = function(){  //pushes bullet
   return pack;
 }
 
-Bullet.getAllInitPack = function(){
+Bullet.mergePack = function(){
   var bullets = [];
     for(var i in Bullet.list)
         bullets.push(Bullet.list[i].retrieveInfoPack());
         return bullets;
 }
 
-Target = function(){ //bullet 
+Target = function(){ //Target 
   var self = Shared(); //uses shared properties with player
-  self.id = Math.random(); //random id
-  self.pRight = false; //moving right auto false
-  self.pLeft = false; //moving left auto false
-  self.pUp = false; //moving up auto false
-  self.pDown = false; //moving down auto false
-  // self.speedX = Math.cos(angle/180*Math.PI) * 10; 
-  // self.speedY = Math.sin(angle/180*Math.PI) * 10;
-  self.toRemove = false; //if shot yourself then = true.
   
+  self.id = Math.random(); //random id
+  self.toRemove = false; //removed from screen
 
 var second_update = self.update;
     self.update = function(){ //this function calls a secondary update
         // self.updateSpeed();
         second_update();
+      
+         for (var i in Player.list){ ////ENEMY DETEC
+          var p = Player.list[i]
+          
+          if(self.getDist(p) < 32 && self.target !== p.id){ //gets distance (!== p.id)
+            p.healthPoints -= 1; //takes away 1hp if you get hit by bullet
+            
+            if(p.healthPoints <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
+              p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
+              p.x = Math.random() * 500; //you spawn random x
+              p.y = Math.random() * 500; //spawn random y after dying.
+            }
+              // self.toRemove = true; //remove enemy when it touches the player
+              
+              self.x = Math.random() * 500;
+              self.y = Math.random() * 500;
+          }
+        }
     }
 
 self.retrieveInfoPack = function(){
@@ -311,7 +338,7 @@ for(var i in Target.list){
 return pack;
 }
 
-Target.getAllInitPack = function(){
+Target.mergePack = function(){
 var target = [];
   for(var i in Target.list)
       target.push(Target.list[i].retrieveInfoPack());

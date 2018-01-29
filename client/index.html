@@ -79,9 +79,9 @@ var Img = {}; //creats image array
     Img.player = new Image(); 
     Img.player.src = '/client/images/littleman.png'; //loads the player
     Img.target = new Image(); 
-    Img.target.src = '/client/images/target.png'; //loads the target
+    Img.target.src = '/client/images/pacman.png'; //loads the target
     Img.grass = new Image(); 
-    Img.grass.src = '/client/images/grasses.png'; //loads the background
+    Img.grass.src = '/client/images/galy.png'; //loads the background
 
 var Player = function(infoPack){
         var self = {};
@@ -97,9 +97,9 @@ var Player = function(infoPack){
             var x = self.x - Player.list[selfId].x + WIDTH/2;
             var y = self.y - Player.list[selfId].y + WIDTH/2;
 
-            var hpWidth = 30 * self.healthPoints / self.maxHealthPoints; //draws the health bar
-            ctx.fillStyle = 'red'; //red health bar
-            ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4); //at the position it draws it
+            // var hpWidth = 30 * self.healthPoints / self.maxHealthPoints; //draws the health bar
+            // ctx.fillStyle = 'red'; //red health bar
+            // ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4); //at the position it draws it
             
             var width = Img.player.width/25;  //the width of the player img /25 because it was too big
             var height = Img.player.width/25; //the height of the player img /25 because it was too big
@@ -145,8 +145,8 @@ var Target = function(infoPack){
         self.y = infoPack.y; //target y
 
         self.draw = function(){
-            var width = Img.target.width/10; //bullet width size
-            var height = Img.target.width/10; //bullet height size
+            var width = Img.target.width/20; //target width size
+            var height = Img.target.width/20; //target height size
 
             var x = self.x - Player.list[selfId].x + WIDTH/2;
             var y = self.y - Player.list[selfId].y + WIDTH/2;
@@ -246,11 +246,10 @@ setInterval(function(){
             Bullet.list[i].draw();
         for(var i in Target.list) //draws the targetlist every set miliseconds
             Target.list[i].draw();
-            // console.log(Target.list[i]);
     },40);
 
 var theScore = function(){
-    ctx.fillStyle = 'black'; //score on black text
+    ctx.fillStyle = 'white'; //score on black text
     ctx.fillText(Player.list[selfId].score,0,30); //draws the score for THAT player only!**
     }
 

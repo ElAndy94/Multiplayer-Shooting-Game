@@ -19,12 +19,6 @@ console.log("Server started.");  //Sends "sever started" to the server, so i can
 
 var SOCKET_LIST = {};
 
-// var enemyTarget = {
-// 	x:Math.random() * 500, //random location for the enemy
-//   y:Math.random() * 500,  //random location for the enemy
-//   hp:10,
-// }
-
 var isValidPassword = function(data,cb){ //data + call back
   db.account.find({username:data.username,password:data.password},function(err,res){
       if(res.length > 0) //if match then its correct! SO LET USER LOG IN!
