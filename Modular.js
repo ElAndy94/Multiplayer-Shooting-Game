@@ -217,17 +217,22 @@ Bullet = function(parent,angle){ //bullet
               self.toRemove = true;
           }
         }
-        for (var i in Target.list){     //WORKING BULLET COLLISION WITH TARGET ** NEED TO FIX toRemove TARGET
+        for (var i in Target.list){//WORKING BULLET COLLISION WITH TARGET **
           var t = Target.list[i]
-          if(self.getDist(t) < 32 && self.parent !== t.id){ //gets distance
-            var enemy = Player.list[self.parent];
-            if(enemy) 
-              enemy.score += 1;
-                // console.log('hit!');
+            if(self.getDist(t) < 32 && self.parent !== t.id){ //gets distance
+              t.life -= 1; //takes away 1hp if you get hit by bullet
+
+              if(t.life <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
+                var enemy = Target.list[self.parent];
+                  if(enemy) 
+                    enemy.score += 1;  //enemy who shot you gets 1 point
+                    t.life = t.maxLife; // you get 10 healthpoints again
+                    t.x = Math.random() * 500; //you spawn random x
+                    t.y = Math.random() * 500; //spawn random y after dying.
+                  }
+              }
             }
-              // self.Target.toRemove = true;
-          }
-      }
+        }
     self.retrieveInfoPack = function(){
       return {
               id:self.id,
@@ -273,9 +278,10 @@ Bullet.mergePack = function(){
 
 Target = function(){ //Target 
   var self = Shared(); //uses shared properties with player
-  
+  self.life = 10;
+  self.maxLife = 20;
   self.id = Math.random(); //random id
-  self.toRemove = false; //removed from screen
+  // self.toRemove = false; //removed from screen
 
 var second_update = self.update;
     self.update = function(){ //this function calls a secondary update
