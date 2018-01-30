@@ -139,7 +139,7 @@ self.retrieveInfoPack = function(){
 Player.list = {};
 Player.onConnect = function(socket){
     var player = Player(socket.id);
-    var target = Target(socket.id);
+    var target = Target(socket.id); //appears when the player logs in, enemy gets put in too!
     socket.on('movementKey',function(data){
       if(data.inputId === 'left')
           player.pLeft = data.state; //moving left
@@ -223,12 +223,12 @@ Bullet = function(parent,angle){ //bullet
               t.life -= 1; //takes away 1hp if you get hit by bullet
 
               if(t.life <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
-                var enemy = Target.list[self.parent];
+                var enemy = Player.list[self.parent];
                   if(enemy) 
                     enemy.score += 1;  //enemy who shot you gets 1 point
                     t.life = t.maxLife; // you get 10 healthpoints again
-                    t.x = Math.random() * 500; //you spawn random x
-                    t.y = Math.random() * 500; //spawn random y after dying.
+                    t.x = Math.random() * 500; //enemy spawn random x
+                    t.y = Math.random() * 500; //enemy random y after dying.
                   }
               }
             }
