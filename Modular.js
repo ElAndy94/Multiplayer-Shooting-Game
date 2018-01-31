@@ -64,24 +64,40 @@ Player = function(id){
     me.healthPoints = 10; // player hp
     me.maxHealthPoints = 10; // the max hp a player starts with
     me.score = 0; //score starts at 0, +1 for every kill.
-    me.counter = 0; 
+    me.counter = 0; //killing counter
+    me.speedCounter = 0;  //speed counter
 
 var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
   me.updateSpeed();
-        second_update();
+    second_update();
 
-        if(me.counter == 3){ //if counter is 3 then
-          me.addEnemy(); //add enemy
-          me.counter = 0; //set counter back to 0
-        }
+    if(me.counter == 10){ //if counter is 10 then
+      me.addEnemy(); //add enemy
+      me.counter = 0; //set counter back to 0
+    }
 
-        if(me.pAttack){ 
-          me.fireBullet(me.mouseAngle); //mouse angle attack
-        }
+    if(me.speedCounter == 1){ //if counter is 10 then
+      me.speedKiller(); //call the speedkiller function below
+      me.speedCounter = 0; //set counter back to 0
+    }
+
+    if(me.pAttack){ 
+      me.fireBullet(me.mouseAngle); //mouse angle attack
+    }
   }
+    
+me.speedKiller = function(data){ //the speed killer function 
+    for (var i in Target.list){ //looks into the target list
+        var t = Target.list[i] //t for target list
+        if(t.speed < 5){
+          t.speed += 1; // add 1 to the target.speed that i set in target
+        }  //console.log(t.speed + 'speed'); //sorted
+    }
+}
+ 
 
-  me.addEnemy = function(data){ //this is what makes the enemy
+me.addEnemy = function(data){ //this is what makes the enemy
   var e = Target(data);
   e.x = me.x + 20; //the x of the new enemy
   e.y = me.y + 20; //the y of the new enemy
@@ -217,6 +233,7 @@ Bullet = function(parent,angle){ //bullet
               p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
               p.x = Math.random() * 500; //you spawn random x
               p.y = Math.random() * 500; //spawn random y after dying.
+              p.score = 0;
             }
               me.toRemove = true;
           }
@@ -231,7 +248,9 @@ Bullet = function(parent,angle){ //bullet
                   if(enemy) 
                     enemy.score += 1;  //enemy who shot you gets 1 point
                     enemy.counter +=1;
+                    enemy.speedCounter +=1;
                     t.life = t.maxLife; // you get 10 healthpoints again
+                    // t.speed += 1; //add plus 1 on speed everytime you kill an enemy 
                     t.x = Math.random() * 500; //enemy spawn random x
                     t.y = Math.random() * 500; //enemy random y after dying.
                   }
@@ -287,10 +306,7 @@ Target = function(){ //Target
   me.life = 10;
   me.maxLife = 10;
   me.id = Math.random(); //random id
-  newTar = false;
-  // newEnemy = new Array();
-  // var visho = [];
-  // me.toRemove = false; //removed from screen
+  me.speed = 1; //enemy speed
 
 var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
@@ -303,14 +319,14 @@ for (var i in Player.list){ ////ENEMY DETEC
         var differenceY = p.y - me.y; //players y - targets y
 
         if(differenceX > 0) //this is what makes the target move towards the player.
-          me.x += 3;
+          me.x += me.speed;
         else
-          me.x -= 3;
+          me.x -= me.speed;
 
         if(differenceY > 0)
-          me.y +=3;
+          me.y += me.speed;
         else
-          me.y -=3;
+          me.y -= me.speed;
 }
 
 for (var i in Player.list){ ////ENEMY DETEC
@@ -323,6 +339,7 @@ for (var i in Player.list){ ////ENEMY DETEC
         p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
         p.x = Math.random() * 500; //you spawn random x
         p.y = Math.random() * 500; //spawn random y after dying.
+        p.score = 0;
       }
         me.x = Math.random() * 500; //sets the target at random x
         me.y = Math.random() * 500; //sets the target at random y
