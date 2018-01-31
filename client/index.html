@@ -84,20 +84,20 @@ var Img = {}; //creats image array
     Img.grass.src = '/client/images/galy.png'; //loads the background
 
 var Player = function(infoPack){
-        var self = {};
-        self.id = infoPack.id; //id
-        self.number = infoPack.number; //number
-        self.x = infoPack.x;  // self.x location
-        self.y = infoPack.y; // self.y location
-        self.healthPoints = infoPack.healthPoints; //health Points
-        self.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10
-        self.score = infoPack.score;  //the score of the player
+        var me = {};
+        me.id = infoPack.id; //id
+        me.number = infoPack.number; //number
+        me.x = infoPack.x;  // me.x location
+        me.y = infoPack.y; // me.y location
+        me.healthPoints = infoPack.healthPoints; //health Points
+        me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10
+        me.score = infoPack.score;  //the score of the player
         
-        self.draw = function(){	
-            var x = self.x - Player.list[selfId].x + WIDTH/2;
-            var y = self.y - Player.list[selfId].y + WIDTH/2;
+        me.draw = function(){	
+            var x = me.x - Player.list[meId].x + WIDTH/2;
+            var y = me.y - Player.list[meId].y + WIDTH/2;
 
-            // var hpWidth = 30 * self.healthPoints / self.maxHealthPoints; //draws the health bar
+            // var hpWidth = 30 * me.healthPoints / me.maxHealthPoints; //draws the health bar
             // ctx.fillStyle = 'red'; //red health bar
             // ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4); //at the position it draws it
             
@@ -109,65 +109,65 @@ var Player = function(infoPack){
             x-width/2,y-height/2,width,height);
         }
         
-        Player.list[self.id] = self;
+        Player.list[me.id] = me;
         
-        return self;
+        return me;
     }
     Player.list = {};
 
         
 var Bullet = function(infoPack){
-        var self = {};
-        self.id = infoPack.id;
-        self.x = infoPack.x; //bullet x
-        self.y = infoPack.y; //bullet y
-        self.draw = function(){
+        var me = {};
+        me.id = infoPack.id;
+        me.x = infoPack.x; //bullet x
+        me.y = infoPack.y; //bullet y
+        me.draw = function(){
             var width = Img.bullet.width/10; //bullet width size
             var height = Img.bullet.width/10; //bullet height size
 
-            var x = self.x - Player.list[selfId].x + WIDTH/2;
-            var y = self.y - Player.list[selfId].y + WIDTH/2;
+            var x = me.x - Player.list[meId].x + WIDTH/2;
+            var y = me.y - Player.list[meId].y + WIDTH/2;
 
             ctx.drawImage(Img.bullet,0,0,Img.bullet.width,Img.bullet.height,
             x-width/2,y-height/2,width,height); //draws bullet
         }
         
-        Bullet.list[self.id] = self;		
-        return self;
+        Bullet.list[me.id] = me;		
+        return me;
     }
     Bullet.list = {};
 
 
 var Target = function(infoPack){
-        var self = {};
-        self.id = infoPack.id; //target id
-        self.x = infoPack.x; //target x
-        self.y = infoPack.y; //target y
+        var me = {};
+        me.id = infoPack.id; //target id
+        me.x = infoPack.x; //target x
+        me.y = infoPack.y; //target y
 
-        self.draw = function(){
+        me.draw = function(){
             var width = Img.target.width/20; //target width size
             var height = Img.target.width/20; //target height size
 
-            var x = self.x - Player.list[selfId].x + WIDTH/2;
-            var y = self.y - Player.list[selfId].y + WIDTH/2;
+            var x = me.x - Player.list[meId].x + WIDTH/2;
+            var y = me.y - Player.list[meId].y + WIDTH/2;
 
             ctx.drawImage(Img.target,0,0,Img.target.width,Img.target.height,
             x-width/2,y-height/2,width,height); //draw enemy (Target)
         }
     
-        Target.list[self.id] = self;		
-        return self;
+        Target.list[me.id] = me;		
+        return me;
     }
     Target.list = {};
     
-    var selfId = null;
+    var meId = null;
 
-    Player.list[selfId];
+    Player.list[meId];
 
     //player and bullet info big pack
 socket.on('starterPack',function(data){
-    if(data.selfId)
-        selfId = data.selfId;
+    if(data.meId)
+    meId = data.meId;
 
     for(var i = 0; i < data.player.length; i++) //player
         new Player(data.player[i]);
@@ -234,7 +234,7 @@ socket.on('remove',function(data){
 
     //draw
 setInterval(function(){
-    if(!selfId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
+    if(!meId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
         return;             //if player logs on then the below will work.
 
         ctx.clearRect(0,0,500,500);
@@ -250,12 +250,12 @@ setInterval(function(){
 
 var theScore = function(){
     ctx.fillStyle = 'white'; //score on black text
-    ctx.fillText(Player.list[selfId].score,0,30); //draws the score for THAT player only!**
+    ctx.fillText(Player.list[meId].score,0,30); //draws the score for THAT player only!**
     }
 
 var drawGrass = function(){
-    var x = WIDTH/2 - Player.list[selfId].x; //makes the character always on the middle of the map, which fixes the shots problem.
-    var y = WIDTH/2 - Player.list[selfId].y; //same as above.
+    var x = WIDTH/2 - Player.list[meId].x; //makes the character always on the middle of the map, which fixes the shots problem.
+    var y = WIDTH/2 - Player.list[meId].y; //same as above.
     ctx.drawImage(Img.grass,x,y); //draw grass function
         // ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
     }
