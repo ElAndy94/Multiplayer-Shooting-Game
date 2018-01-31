@@ -30,19 +30,19 @@ Shared = function(){
 Shared.makeModular = function(){ //this is what makes my project modular
 	var pack = {
 		infoPack:{
-			player:infoPack.player, 
-      bullet:infoPack.bullet,
-      target:infoPack.target, 
+			player:infoPack.player, //pack with info for player
+      bullet:infoPack.bullet, //pack with info for bullet
+      target:infoPack.target, //pack with info for target
 		},
 		removePack:{
-			player:removePack.player,
-      bullet:removePack.bullet,
-      target:removePack.target,
+			player:removePack.player, //this is the pack that removes the players info
+      bullet:removePack.bullet, //this is the pack that removes the bullet info
+      target:removePack.target, //this is the pack that removes the target info
 		},
 		updatePack:{
-			player:Player.update(),
-      bullet:Bullet.update(),
-      target:Target.update(),
+			player:Player.update(),  //this sends only the basic info (hence update pack)
+      bullet:Bullet.update(),  //same for these
+      target:Target.update(), //same for this one too
 		}
   };
   
@@ -107,9 +107,9 @@ self.updateSpeed = function(){
           // self.speedX = 0;
     }
 
-self.retrieveInfoPack = function(){
+self.retrieveInfoPack = function(){ //this is what gets the info pack
       return {
-              id:self.id,
+              id:self.id, //all the players info ->
               x:self.x,
               y:self.y,
               number:self.number,
@@ -119,9 +119,9 @@ self.retrieveInfoPack = function(){
             };
     }
 
-    self.retrieveUpdatePack = function(){
+    self.retrieveUpdatePack = function(){ //this gets the update pack
       return {
-              id:self.id,
+              id:self.id, //all the players updated info ->
               x:self.x,
               y:self.y,
               healthPoints:self.healthPoints,
@@ -166,15 +166,15 @@ Player.onConnect = function(socket){
 Player.mergePack = function(){
   var players = [];
   for(var i in Player.list)
-      players.push(Player.list[i].retrieveInfoPack());
+      players.push(Player.list[i].retrieveInfoPack()); //this pushes the info pack
       return players;
 }
 
 Player.onDisconnect = function(socket){ 
     delete Player.list[socket.id]; //delete player from players list
-    // delete Target.list[socket.id]; ///////////////////////////////////////NEED TO FIX THIS
+    delete Target.list[socket.id]; ///////////////////////////////////////NEED TO FIX THIS
     removePack.player.push(socket.id);
-    // removePack.target.push(socket.id);
+    removePack.target.push(socket.id); //not really working
 }
 Player.update = function(){
   var pack = [];
@@ -217,9 +217,9 @@ Bullet = function(parent,angle){ //bullet
               self.toRemove = true;
           }
         }
-        for (var i in Target.list){//WORKING BULLET COLLISION WITH TARGET **
+        for (var i in Target.list){ //WORKING BULLET COLLISION WITH TARGET **
           var t = Target.list[i]
-            if(self.getDist(t) < 32 && self.parent !== t.id){ //gets distance
+            if(self.getDist(t) < 20 && self.parent !== t.id){ //gets distance
               t.life -= 1; //takes away 1hp if you get hit by bullet
 
               if(t.life <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
@@ -230,20 +230,21 @@ Bullet = function(parent,angle){ //bullet
                     t.x = Math.random() * 500; //enemy spawn random x
                     t.y = Math.random() * 500; //enemy random y after dying.
                   }
+                  self.toRemove = true; //remove bullet when it hits target
               }
             }
         }
-    self.retrieveInfoPack = function(){
+    self.retrieveInfoPack = function(){ //retrives the info pack for the bullet
       return {
-              id:self.id,
+              id:self.id, //bullets ID, x and y
               x:self.x,
               y:self.y,
             };
     }
 
-    self.retrieveUpdatePack = function(){
+    self.retrieveUpdatePack = function(){ //retrives the UPDATE pack for the bullet
       return {
-              id:self.id,
+              id:self.id, //Updated bullets ID, x and y
               x:self.x,
               y:self.y,
             };
@@ -259,12 +260,12 @@ Bullet.update = function(){  //pushes bullet
   var pack = [];
   for(var i in Bullet.list){
     var bullet = Bullet.list[i];
-      bullet.update();
-      if(bullet.toRemove){
-        delete Bullet.list[i]
+      bullet.update(); //calls for the update on the pack
+      if(bullet.toRemove){ 
+        delete Bullet.list[i] //remove the bullet list if .toRemove is triggered at the collision stage.
         removePack.bullet.push(bullet.id);
       } else
-          pack.push(bullet.retrieveUpdatePack());
+          pack.push(bullet.retrieveUpdatePack()); //pushes the bullet updated pack
   }
   return pack;
 }
@@ -272,7 +273,7 @@ Bullet.update = function(){  //pushes bullet
 Bullet.mergePack = function(){
   var bullets = [];
     for(var i in Bullet.list)
-        bullets.push(Bullet.list[i].retrieveInfoPack());
+        bullets.push(Bullet.list[i].retrieveInfoPack()); //pushes the bullet info pack
         return bullets;
 }
 
@@ -281,13 +282,33 @@ Target = function(){ //Target
   self.life = 10;
   self.maxLife = 20;
   self.id = Math.random(); //random id
+  newEnemy = new Array();
   // self.toRemove = false; //removed from screen
+
+
 
 var second_update = self.update;
     self.update = function(){ //this function calls a secondary update
         // self.updateSpeed();
         second_update();
-      
+
+        for (var i in Player.list){ ////ENEMY DETEC
+            var p = Player.list[i]
+
+              var differenceX = p.x - self.x; //players x - targets x
+              var differenceY = p.y - self.y; //players y - targets y
+
+              if(differenceX > 0) //this is what makes the target move towards the player.
+                self.x += 3;
+              else
+                self.x -= 3;
+
+              if(differenceY > 0)
+                self.y +=3;
+              else
+                self.y -=3;
+        }
+
          for (var i in Player.list){ ////ENEMY DETEC
           var p = Player.list[i]
           
@@ -301,23 +322,24 @@ var second_update = self.update;
             }
               // self.toRemove = true; //remove enemy when it touches the player
               
-              self.x = Math.random() * 500;
-              self.y = Math.random() * 500;
+              self.x = Math.random() * 500; //sets the target at random x
+              self.y = Math.random() * 500; //sets the target at random y
+              // self.newEnemy.push({x: self.x +5, y: self.y +5});
           }
         }
     }
 
-self.retrieveInfoPack = function(){
+self.retrieveInfoPack = function(){ //info pack for the target
     return {
-            id:self.id,
+            id:self.id, //targets id, x and y 
             x:self.x,
             y:self.y,
           };
   }
 
-self.retrieveUpdatePack = function(){
+self.retrieveUpdatePack = function(){ //update pack for the target
     return {
-            id:self.id,
+            id:self.id, //targets UPDATED id, x and y 
             x:self.x,
             y:self.y,
           };
@@ -325,28 +347,28 @@ self.retrieveUpdatePack = function(){
 
 Target.list[self.id] = self;
 
-  infoPack.target.push(self.retrieveInfoPack());
+  infoPack.target.push(self.retrieveInfoPack()); //pushes the info pack on the target
   return self;
 }
 Target.list = {}; //target
 
 Target.update = function(){  //pushes target
-var pack = [];
-for(var i in Target.list){
-  var target = Target.list[i];
-    target.update();
-    if(target.toRemove){
-      delete Target.list[i]
-      removePack.target.push(target.id);
-    } else
-        pack.push(target.retrieveUpdatePack());
-}
-return pack;
+  var pack = [];
+  for(var i in Target.list){
+    var target = Target.list[i];
+      target.update(); //cals for the update on the target INFO
+      if(target.toRemove){ //if triggered it will remove the Target pack but its currently disabled!
+        delete Target.list[i]
+        removePack.target.push(socket.id);
+      } else
+          pack.push(target.retrieveUpdatePack()); //pushes the UPDATE pack for the target
+  }
+  return pack;
 }
 
 Target.mergePack = function(){
-var target = [];
+ var target = [];
   for(var i in Target.list)
-      target.push(Target.list[i].retrieveInfoPack());
+      target.push(Target.list[i].retrieveInfoPack()); //pushes the info pack for the target
       return target;
 }

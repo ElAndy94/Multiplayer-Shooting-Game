@@ -129,7 +129,7 @@ var Bullet = function(infoPack){
             var y = self.y - Player.list[selfId].y + WIDTH/2;
 
             ctx.drawImage(Img.bullet,0,0,Img.bullet.width,Img.bullet.height,
-            x-width/2,y-height/2,width,height);
+            x-width/2,y-height/2,width,height); //draws bullet
         }
         
         Bullet.list[self.id] = self;		
@@ -152,7 +152,7 @@ var Target = function(infoPack){
             var y = self.y - Player.list[selfId].y + WIDTH/2;
 
             ctx.drawImage(Img.target,0,0,Img.target.width,Img.target.height,
-            x-width/2,y-height/2,width,height);
+            x-width/2,y-height/2,width,height); //draw enemy (Target)
         }
     
         Target.list[self.id] = self;		
@@ -183,7 +183,7 @@ socket.on('starterPack',function(data){
 socket.on('update',function(data){ // update player and bullet location - id
     for(var i = 0; i < data.player.length; i++){
         var pack = data.player[i];
-        var ple = Player.list[pack.id];
+        var ple = Player.list[pack.id]; //if the player is logged on then do this! SAVES ME FROM ERRORS!
         if(ple) {
                 if(pack.x !== undefined)
                 ple.x = pack.x;
