@@ -3,8 +3,8 @@ var removePack =  {player:[],bullet:[],target:[]};
 
 Shared = function(){
     var me = {
-      x:Math.random() * 500, // X of the character 
-      y:Math.random() * 500, // Y of the character 
+      x:250, // X of the character 
+      y:250, // Y of the character 
       speedX:0, //speed X defult to 0
       speedY:0, //speed Y defult to 0
       id:"",

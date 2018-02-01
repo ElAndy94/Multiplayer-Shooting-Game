@@ -5,10 +5,10 @@
     <button id="signDiv-signUp">Sign Up</button> <!-- Sign UP in button -->
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<body onload="loadSound();">
+<body style='margin:0px' onload="loadSound();">
 
   <div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
-      <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"> <!-- creating canvas -->
+      <canvas id="canvas" width="500" height="500" style="border:1px solid #000000;"> <!-- creating canvas -->
       </canvas> 
 
   </div>
@@ -27,6 +27,8 @@ var socket = io(); // socket io
     var WIDTH = 500;
     var HEIGHT = 500;
     var soundID = "Shot"; //sound
+    var canvasHeight = 500;
+    var canvasWidth = 500;
 
     //signIn/Out
 var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -59,7 +61,6 @@ var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
             alert("Sign in was unsuccessful!"); // Not signing up
     });
 
-
     //game
 
 function loadSound () {
@@ -69,15 +70,34 @@ function loadSound () {
 function playSound () { //play sound function
     createjs.Sound.play(soundID);
     }
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+ctx.font = '30px Arial';
+// let canvasResizing = function(){
+//  canvasHeight = window.innerWidth - 4;
+//  canvasWidth = window.innerHeight - 4;
+//  canvas.width = WIDTH;
+//  canvas.height = HEIGHT;
+//  ctx.font = '30px Arial';
+//  let ratio = 16 / 9;
+//  if(canvasHeight < canvasWidth / ratio)
+//    canvasWidth = canvasHeight * ratio;
+//    else
+//    canvasHeight = canvasWidth / ratio;
 
-var ctx = document.getElementById('ctx').getContext('2d');
- ctx.font = '30px Arial';
+//  canvas.style.width = '' + canvasWidth + 'px';
+//  canvas.style.height = '' + canvasHeight + 'px';
+// } 
+// canvasResizing();
+// window.addEventListener('resize',function(){
+// canvasResizing();
+// });
 
 var Img = {}; //creats image array
     Img.bullet = new Image(); 
     Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
     Img.player = new Image(); 
-    Img.player.src = '/client/images/littleman.png'; //loads the player
+    Img.player.src = '/client/images/player.png'; //loads the player
     Img.target = new Image(); 
     Img.target.src = '/client/images/pacman.png'; //loads the target
     Img.grass = new Image(); 
@@ -94,21 +114,21 @@ var Player = function(infoPack){
         me.score = infoPack.score;  //the score of the player
         
         me.draw = function(){	
-            var x = me.x - Player.list[meId].x + WIDTH/2;
-            var y = me.y - Player.list[meId].y + WIDTH/2;
-
-            // var hpWidth = 30 * me.healthPoints / me.maxHealthPoints; //draws the health bar
-            // ctx.fillStyle = 'red'; //red health bar
-            // ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4); //at the position it draws it
+             var x = me.x - Player.list[meId].x + WIDTH/2;
+             var y = me.y - Player.list[meId].y + HEIGHT/2;
             
-            var width = Img.player.width/25;  //the width of the player img /25 because it was too big
-            var height = Img.player.width/25; //the height of the player img /25 because it was too big
+            var hpWidth = 30 * me.healthPoints / me.maxHealthPoints; //draws the health bar
+            ctx.fillStyle = 'red'; //red health bar
+            ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4); //at the position it draws it
+            
+            var width = Img.player.width*2;  //the width of the player img /25 because it was too big
+            var height = Img.player.height*2; //the height of the player img /25 because it was too big
 
             ctx.drawImage(Img.player,  //draws the image here.
             0,0,Img.player.width,Img.player.height,
             x-width/2,y-height/2,width,height);
         }
-        
+
         Player.list[me.id] = me;
         
         return me;
@@ -123,10 +143,10 @@ var Bullet = function(infoPack){
         me.y = infoPack.y; //bullet y
         me.draw = function(){
             var width = Img.bullet.width/10; //bullet width size
-            var height = Img.bullet.width/10; //bullet height size
+            var height = Img.bullet.height/10; //bullet height size
 
             var x = me.x - Player.list[meId].x + WIDTH/2;
-            var y = me.y - Player.list[meId].y + WIDTH/2;
+            var y = me.y - Player.list[meId].y + HEIGHT/2;
 
             ctx.drawImage(Img.bullet,0,0,Img.bullet.width,Img.bullet.height,
             x-width/2,y-height/2,width,height); //draws bullet
@@ -146,10 +166,10 @@ var Target = function(infoPack){
 
         me.draw = function(){
             var width = Img.target.width/20; //target width size
-            var height = Img.target.width/20; //target height size
+            var height = Img.target.height/20; //target height size
 
             var x = me.x - Player.list[meId].x + WIDTH/2;
-            var y = me.y - Player.list[meId].y + WIDTH/2;
+            var y = me.y - Player.list[meId].y + HEIGHT/2;
 
             ctx.drawImage(Img.target,0,0,Img.target.width,Img.target.height,
             x-width/2,y-height/2,width,height); //draw enemy (Target)
@@ -169,15 +189,16 @@ socket.on('starterPack',function(data){
     if(data.meId)
     meId = data.meId;
 
-    for(var i = 0; i < data.player.length; i++) //player
+    for(var i = 0; i < data.player.length; i++){ //player
         new Player(data.player[i]);
-
-    for(var i = 0; i < data.bullet.length; i++) //bullet
+    }
+    for(var i = 0; i < data.bullet.length; i++){ //bullet
         new Bullet(data.bullet[i]);
-
-    for(var i = 0; i < data.target.length; i++) //target
+    }
+    for(var i = 0; i < data.target.length; i++){ //target
         new Target(data.target[i]);
-    });
+    }
+});
 
     
 socket.on('update',function(data){ // update player and bullet location - id
@@ -255,11 +276,13 @@ var theScore = function(){
 
 var drawGrass = function(){
     var x = WIDTH/2 - Player.list[meId].x; //makes the character always on the middle of the map, which fixes the shots problem.
-    var y = WIDTH/2 - Player.list[meId].y; //same as above.
+    var y = HEIGHT/2 - Player.list[meId].y; //same as above.
     ctx.drawImage(Img.grass,x,y); //draw grass function
         // ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
     }
-
+//  ctx.mozImageSmoothingEnabled = false;
+//  ctx.msImageSmoothingEnabled = false;
+//  ctx.imageSmoothingEnabled = false;
 document.onkeydown = function(event){ //keyboard controls
         if(event.keyCode === 39) //right arrow
             socket.emit('movementKey' ,{inputId:'right',state:true});
@@ -285,7 +308,7 @@ document.onkeyup = function(event){
 document.onmousedown = function(event){
     socket.emit('movementKey',{inputId:'attack',state:true}); //mouse down to attack (click)*
 
-if(event.target.attributes["id"].value !== "ctx"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
+if(event.target.attributes["id"].value !== "canvas"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
         return;
     } else {
         playSound(); //plays the shot sound
@@ -302,5 +325,13 @@ document.onmousemove = function(event){
     var angle = Math.atan2(y,x) / Math.PI * 180;
     socket.emit('movementKey',{inputId:'mouseAngle',state:angle});
     }
+    // document.onmousemove = function(mouse){
+    // var mouseX = mouse.clientX - canvas.getBoundingClientRect().left;
+    // var mouseY = mouse.clientX - canvas.getBoundingClientRect().top;
+    // mouseX -= canvasWidth/2;
+    // mouseY -= canvasHeight/2;
+    // var angle = Math.atan2(mouseY,mouseX) / Math.PI * 180;
+    // socket.emit('movementKey',{inputId:'mouseAngle',state:angle});
+    // }
 
   </script>
