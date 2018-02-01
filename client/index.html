@@ -73,35 +73,20 @@ function playSound () { //play sound function
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 ctx.font = '30px Arial';
-// let canvasResizing = function(){
-//  canvasHeight = window.innerWidth - 4;
-//  canvasWidth = window.innerHeight - 4;
-//  canvas.width = WIDTH;
-//  canvas.height = HEIGHT;
-//  ctx.font = '30px Arial';
-//  let ratio = 16 / 9;
-//  if(canvasHeight < canvasWidth / ratio)
-//    canvasWidth = canvasHeight * ratio;
-//    else
-//    canvasHeight = canvasWidth / ratio;
-
-//  canvas.style.width = '' + canvasWidth + 'px';
-//  canvas.style.height = '' + canvasHeight + 'px';
-// } 
-// canvasResizing();
-// window.addEventListener('resize',function(){
-// canvasResizing();
-// });
-
+ctx.mozImageSmoothingEnabled = false;
+ctx.msImageSmoothingEnabled = false;
+ctx.imageSmoothingEnabled = false;
 var Img = {}; //creats image array
     Img.bullet = new Image(); 
     Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
     Img.player = new Image(); 
     Img.player.src = '/client/images/player.png'; //loads the player
     Img.target = new Image(); 
-    Img.target.src = '/client/images/pacman.png'; //loads the target
+    Img.target.src = '/client/images/enemyUFO.png'; //loads the target
     Img.grass = new Image(); 
     Img.grass.src = '/client/images/galy.png'; //loads the background
+    Img.monster = new Image();
+    Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
 
 var Player = function(infoPack){
         var me = {};
@@ -117,18 +102,13 @@ var Player = function(infoPack){
              var x = me.x - Player.list[meId].x + WIDTH/2;
              var y = me.y - Player.list[meId].y + HEIGHT/2;
             
-            var hpWidth = 30 * me.healthPoints / me.maxHealthPoints; //draws the health bar
-            ctx.fillStyle = 'red'; //red health bar
-            ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4); //at the position it draws it
-            
-            var width = Img.player.width*2;  //the width of the player img /25 because it was too big
-            var height = Img.player.height*2; //the height of the player img /25 because it was too big
+            var width = Img.player.width/3;  //the width of the player img /25 because it was too big
+            var height = Img.player.height/3; //the height of the player img /25 because it was too big
 
             ctx.drawImage(Img.player,  //draws the image here.
             0,0,Img.player.width,Img.player.height,
             x-width/2,y-height/2,width,height);
         }
-
         Player.list[me.id] = me;
         
         return me;
@@ -159,26 +139,48 @@ var Bullet = function(infoPack){
 
 
 var Target = function(infoPack){
-        var me = {};
-        me.id = infoPack.id; //target id
-        me.x = infoPack.x; //target x
-        me.y = infoPack.y; //target y
+    var me = {};
+    me.id = infoPack.id; //target id
+    me.x = infoPack.x; //target x
+    me.y = infoPack.y; //target y
 
-        me.draw = function(){
-            var width = Img.target.width/20; //target width size
-            var height = Img.target.height/20; //target height size
+    me.draw = function(){
+        var width = Img.target.width/4; //target width size
+        var height = Img.target.height/4; //target height size
 
-            var x = me.x - Player.list[meId].x + WIDTH/2;
-            var y = me.y - Player.list[meId].y + HEIGHT/2;
+        var x = me.x - Player.list[meId].x + WIDTH/2;
+        var y = me.y - Player.list[meId].y + HEIGHT/2;
 
-            ctx.drawImage(Img.target,0,0,Img.target.width,Img.target.height,
-            x-width/2,y-height/2,width,height); //draw enemy (Target)
-        }
-    
-        Target.list[me.id] = me;		
-        return me;
+        ctx.drawImage(Img.target,0,0,Img.target.width,Img.target.height,
+        x-width/2,y-height/2,width,height); //draw enemy (Target)
+    }
+
+    Target.list[me.id] = me;		
+    return me;
     }
     Target.list = {};
+
+var Monster = function(infoPack){
+    var me = {};
+    me.id = infoPack.id; //target id
+    me.x = infoPack.x; //target x
+    me.y = infoPack.y; //target y
+    console.log(Monster.list.length);
+    me.draw = function(){
+        var width = Img.monster.width/4; //target width size
+        var height = Img.monster.height/4; //target height size
+
+        var x = me.x - Player.list[meId].x + WIDTH/2;
+        var y = me.y - Player.list[meId].y + HEIGHT/2;
+
+        ctx.drawImage(Img.monster,0,0,Img.monster.width,Img.monster.height,
+        x-width/2,y-height/2,width,height); //draw enemy (Target)
+    }
+
+    Monster.list[me.id] = me;		
+    return me;
+    }
+    Monster.list = {};
     
     var meId = null;
 
@@ -198,7 +200,10 @@ socket.on('starterPack',function(data){
     for(var i = 0; i < data.target.length; i++){ //target
         new Target(data.target[i]);
     }
-});
+    for(var i = 0; i < data.monster.length; i++){ //monster
+        new Monster(data.monster[i]);
+    }
+ });
 
     
 socket.on('update',function(data){ // update player and bullet location - id
@@ -238,9 +243,18 @@ socket.on('update',function(data){ // update player and bullet location - id
                 tar.y = pack.y;
         }
     }
-    });
 
-    //remove player/bullet
+    for(var i = 0; i < data.monster.length; i++){
+        var pack = data.monster[i];
+        var tar = Monster.list[data.monster[i].id];
+        if(tar) {
+                if(pack.x !== undefined)
+                tar.x = pack.x;
+                if(pack.y !== undefined)
+                tar.y = pack.y;
+        }
+    }
+    });
 socket.on('remove',function(data){
     for(var i = 0; i < data.player.length; i++){ //removing player
         delete Player.list[data.player[i]];
@@ -251,6 +265,9 @@ socket.on('remove',function(data){
     for(var i = 0; i < data.target.length; i++){ //removing target
         delete Target.list[data.target[i]];
     }
+    for(var i = 0; i < data.monster.length; i++){ //removing monster
+        delete Monster.list[data.monster[i]];
+    }
     });
 
     //draw
@@ -259,30 +276,36 @@ setInterval(function(){
         return;             //if player logs on then the below will work.
 
         ctx.clearRect(0,0,500,500);
+        ctx.fillStyle = 'black'; //screen black
+        ctx.fillRect(0,0,500,500);
         drawGrass(); //draws my map
         theScore();  //draws the score
+        healthP(); //draws the health
         for(var i in Player.list)  //draws the playlist every set miliseconds
             Player.list[i].draw();
         for(var i in Bullet.list) //draws the bulletlist every set miliseconds
             Bullet.list[i].draw();
         for(var i in Target.list) //draws the targetlist every set miliseconds
             Target.list[i].draw();
+        for(var i in Monster.list) //draws the monsterlist every set miliseconds
+            Monster.list[i].draw();
     },40);
 
 var theScore = function(){
     ctx.fillStyle = 'white'; //score on black text
     ctx.fillText(Player.list[meId].score,0,30); //draws the score for THAT player only!**
     }
-
+var healthP = function(){
+    ctx.fillStyle = 'lime'; //score on black text
+    ctx.fillText(Player.list[meId].healthPoints,460,30);//shows score for that player only!
+ }
 var drawGrass = function(){
     var x = WIDTH/2 - Player.list[meId].x; //makes the character always on the middle of the map, which fixes the shots problem.
     var y = HEIGHT/2 - Player.list[meId].y; //same as above.
     ctx.drawImage(Img.grass,x,y); //draw grass function
         // ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
     }
-//  ctx.mozImageSmoothingEnabled = false;
-//  ctx.msImageSmoothingEnabled = false;
-//  ctx.imageSmoothingEnabled = false;
+
 document.onkeydown = function(event){ //keyboard controls
         if(event.keyCode === 39) //right arrow
             socket.emit('movementKey' ,{inputId:'right',state:true});
