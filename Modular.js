@@ -79,22 +79,22 @@ me.update = function(){ //this function calls a secondary update
   me.updateSpeed();
     second_update();
 
-if(me.sCounter == 15){ //special monster
+if(me.sCounter == 6){ //special monster
       me.addMonster(); //call addMonster function
       me.sCounter = 0; //reset counter back to 0
     }
 
-    if(me.counter == 5){ //if counter is 10 then
+    if(me.counter == 5){ //if counter is 5 then
       me.addEnemy(); //add enemy
       me.counter = 0; //set counter back to 0
     }
 
-    if(me.speedCounter == 3){ //if counter is 10 then
+    if(me.speedCounter == 3){ //if counter is 3 then
       me.speedKiller(); //call the speedkiller function below
       me.speedCounter = 0; //set counter back to 0
     }
 
-    if(me.sSpeedCounter == 5){ //if counter is 10 then
+    if(me.sSpeedCounter == 5){ //if counter is 5 then
       me.speedKillerTwo(); //call the speedkiller function below
       me.sSpeedCounter = 0; //set counter back to 0
     }
@@ -124,16 +124,16 @@ if(me.x <= 10) {
 me.speedKiller = function(data){ //the speed killer function 
     for (var i in Target.list){ //looks into the target list
         var t = Target.list[i] //t for target list
-        if(t.speed < 4){
+        if(t.speed < 3){
           t.speed += 1; // add 1 to the target.speed that i set in target
         }  //console.log(t.speed + 'speed'); //sorted
     }
  }
 
- me.speedKillerTwo = function(data){ //the speed killer function 
+me.speedKillerTwo = function(data){ //the speed killer function 
   for (var i in Monster.list){ //looks into the target list
       var t = Monster.list[i] //t for target list
-      if(t.speed < 3){
+      if(t.speed < 2){
         t.speed += 1; // add 1 to the target.speed that i set in target
       }  
   }
@@ -224,7 +224,7 @@ Player.onConnect = function(socket){
         player:Player.mergePack(),  //sends player info pack to client
         bullet:Bullet.mergePack(), //sends bullet info pack to client
         target:Target.mergePack(), //sends target info pack to client
-        monster:Monster.mergePack(),
+        monster:Monster.mergePack(), //sends monster info pack to client
     })
  }
 
@@ -237,9 +237,11 @@ Player.mergePack = function(){
 
 Player.onDisconnect = function(socket){ 
     delete Player.list[socket.id]; //delete player from players list
-    delete Target.list[socket.id]; ///////////////////////////////////////NEED TO FIX THIS
+    delete Target.list[socket.id]; //NEED TO FIX THIS
+    delete Monster.list[socket.id];
     removePack.player.push(socket.id);
     removePack.target.push(socket.id); //not really working
+    removePack.monster.push(socket.id);
  }
 Player.update = function(){
   var pack = [];
@@ -290,8 +292,9 @@ for (var i in Target.list){ //WORKING BULLET COLLISION WITH TARGET **
       var enemy = Player.list[me.parent];
         if(enemy) 
           enemy.score += 1;  //enemy who shot you gets 1 point
-          enemy.counter +=1;
-          enemy.speedCounter +=1;
+          enemy.counter +=1; //add counter after every kill
+          enemy.speedCounter +=1; //add speed after every kill
+          enemy.sCounter +=1; //special enemy
           t.life = t.maxLife; // you get 10 healthpoints again
           t.x = Math.random() * 500; //enemy spawn random x
           t.y = Math.random() * 500; //enemy random y after dying.
@@ -308,11 +311,12 @@ for (var i in Monster.list){ //WORKING BULLET COLLISION WITH Monster **
         var enemy = Player.list[me.parent];
         if(enemy) 
           enemy.score += 10;  //enemy who shot you gets 1 point
-          enemy.sCounter +=1;
-          enemy.sSpeedCounter +=1;
+          enemy.sCounter +=1; //add 1 to counter after every kill
+          enemy.sSpeedCounter +=1; //add speed after every kill
           t.life = t.maxLife; // you get 10 healthpoints again
           t.x = Math.random() * 500; //enemy spawn random x
           t.y = Math.random() * 500; //enemy random y after dying.
+          t.toRemove = true; //removes monster
         }
         me.toRemove = true; //remove bullet when it hits target
       }
@@ -393,8 +397,7 @@ for (var i in Player.list){ ////ENEMY DETEC
     var p = Player.list[i]
     
     if(me.getDist(p) < 32 && me.target !== p.id){ //gets distance (!== p.id)
-      p.healthPoints -= 1; //takes away 1hp if you get hit by bullet
-      
+      p.healthPoints -= 1; //takes away 1hp if you get hit by bullet    
       if(p.healthPoints <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
         p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
         p.x = Math.random() * 500; //you spawn random x
@@ -408,11 +411,11 @@ for (var i in Player.list){ ////ENEMY DETEC
  }
 
 me.retrieveInfoPack = function(){ //info pack for the target
-    return {
-            id:me.id, //targets id, x and y 
-            x:me.x,
-            y:me.y,
-          };
+  return {
+          id:me.id, //targets id, x and y 
+          x:me.x,
+          y:me.y,
+        };
   }
 
   me.retrieveUpdatePack = function(){ //update pack for the target
@@ -457,6 +460,7 @@ Monster = function(){ //Target
   me.maxLife = 30;
   me.id = Math.random(); //random id
   me.speed = 2; //enemy speed
+  me.toRemove = false; //if shot yourself then = true.
 
 var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
@@ -481,8 +485,8 @@ for (var i in Player.list){ ////ENEMY movement
 
 for (var i in Player.list){ ////ENEMY DETEC
     var p = Player.list[i]
-    if(me.getDist(p) < 32 && me.monster !== p.id){ //gets distance (!== p.id)
-      p.healthPoints -= 1; //takes away 1hp if you get hit by bullet
+    if(me.getDist(p) < 20 && me.monster !== p.id){ //gets distance (!== p.id)
+      p.healthPoints -= 5; //takes away 1hp if you get hit by bullet
       if(p.healthPoints <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
         p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
         p.x = Math.random() * 500; //you spawn random x
@@ -491,6 +495,7 @@ for (var i in Player.list){ ////ENEMY DETEC
       }
         me.x = Math.random() * 500; //sets the monster at random x
         me.y = Math.random() * 500; //sets the monster at random y
+
     }
  }
  }
@@ -525,7 +530,7 @@ Monster.update = function(){  //pushes monster
       monster.update(); //cals for the update on the target INFO
       if(monster.toRemove){ //if triggered it will remove the Target pack but its currently disabled!
         delete Monster.list[i]
-        removePack.monster.push(socket.id);
+        removePack.monster.push(monster.id);
       } else
           pack.push(monster.retrieveUpdatePack()); //pushes the UPDATE pack for the target
   }

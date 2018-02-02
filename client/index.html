@@ -10,10 +10,8 @@
   <div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
       <canvas id="canvas" width="500" height="500" style="border:1px solid #000000;"> <!-- creating canvas -->
       </canvas> 
-
   </div>
     </body>
-
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
@@ -71,11 +69,11 @@ function playSound () { //play sound function
     createjs.Sound.play(soundID);
     }
 var canvas = document.getElementById('canvas');
-var ctx = canvas.getContext('2d');
-ctx.font = '30px Arial';
-ctx.mozImageSmoothingEnabled = false;
-ctx.msImageSmoothingEnabled = false;
-ctx.imageSmoothingEnabled = false;
+ var ctx = canvas.getContext('2d');
+ ctx.font = '30px Arial';
+ ctx.mozImageSmoothingEnabled = false;
+ ctx.msImageSmoothingEnabled = false;
+ ctx.imageSmoothingEnabled = false;
 var Img = {}; //creats image array
     Img.bullet = new Image(); 
     Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
@@ -154,7 +152,6 @@ var Target = function(infoPack){
         ctx.drawImage(Img.target,0,0,Img.target.width,Img.target.height,
         x-width/2,y-height/2,width,height); //draw enemy (Target)
     }
-
     Target.list[me.id] = me;		
     return me;
     }
@@ -165,7 +162,6 @@ var Monster = function(infoPack){
     me.id = infoPack.id; //target id
     me.x = infoPack.x; //target x
     me.y = infoPack.y; //target y
-    console.log(Monster.list.length);
     me.draw = function(){
         var width = Img.monster.width/4; //target width size
         var height = Img.monster.height/4; //target height size
@@ -176,14 +172,11 @@ var Monster = function(infoPack){
         ctx.drawImage(Img.monster,0,0,Img.monster.width,Img.monster.height,
         x-width/2,y-height/2,width,height); //draw enemy (Target)
     }
-
     Monster.list[me.id] = me;		
     return me;
     }
     Monster.list = {};
-    
     var meId = null;
-
     Player.list[meId];
 
     //player and bullet info big pack
@@ -276,7 +269,7 @@ setInterval(function(){
         return;             //if player logs on then the below will work.
 
         ctx.clearRect(0,0,500,500);
-        ctx.fillStyle = 'black'; //screen black
+        ctx.fillStyle = '#0D061F'; //screen black
         ctx.fillRect(0,0,500,500);
         drawGrass(); //draws my map
         theScore();  //draws the score
