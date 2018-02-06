@@ -66,19 +66,21 @@ Player = function(id){
     me.pAttack = false; //attacking set to fasle which is shooting!
     me.mouseAngle = 0; //mouse or touchpad angle
     me.maxSpeed = 6; //moving speed 10 (need to modify this)***
-    me.healthPoints = 10; // player hp
+    me.healthPoints = 2; // player hp
     me.maxHealthPoints = 10; // the max hp a player starts with
     me.score = 0; //score starts at 0, +1 for every kill.
     me.counter = 0; //killing counter
     me.speedCounter = 0;  //speed counter
     me.sCounter = 0; //special monster
     me.sSpeedCounter = 0; //speed for special monster
-
+    me.printScore = 0;
+    me.dead = false;
 var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
   me.updateSpeed();
     second_update();
-
+    // resetGame();
+    me.resetEverything();
 if(me.sCounter == 6){ //special monster
       me.addMonster(); //call addMonster function
       me.sCounter = 0; //reset counter back to 0
@@ -129,7 +131,36 @@ me.speedKiller = function(data){ //the speed killer function
         }  //console.log(t.speed + 'speed'); //sorted
     }
  }
-
+me.resetEverything = function(data){
+  if(me.healthPoints <= 0){
+    me.dead = true;
+    me.pRight = false; //moving right auto false
+    me.pLeft = false; //moving left auto false
+    me.pUp = false; //moving up auto false
+    me.pDown = false; //moving down auto false
+    me.pAttack = false; //attacking set to fasle which is shooting!
+    me.healthPoints = 10; // player hp
+    me.maxHealthPoints = 10; // the max hp a player starts with
+    me.score = 0; //score starts at 0, +1 for every kill.
+    me.counter = 0; //killing counter
+    me.speedCounter = 0;  //speed counter
+    me.sCounter = 0; //special monster
+    me.sSpeedCounter = 0; //speed for special monster
+    me.x = 250;
+    me.y = 250;
+    // var second_update = me.update;
+    
+      for (var i in Monster.list){ //looks into the target list
+        var m = Monster.list[i] //t for target list
+        m.toRemove = true;
+      }
+        for (var i in Target.list){ //looks into the target list
+          var t = Target.list[i] //t for target list
+          t.toRemove = true;
+        }
+    }
+    
+ }
 me.speedKillerTwo = function(data){ //the speed killer function 
   for (var i in Monster.list){ //looks into the target list
       var t = Monster.list[i] //t for target list
@@ -173,7 +204,6 @@ me.updateSpeed = function(){
     else
         me.speedY = 0; //reset movement speeds
     }
-
 me.retrieveInfoPack = function(){ //this is what gets the info pack
   return {
           id:me.id, //all the players info ->
@@ -183,6 +213,8 @@ me.retrieveInfoPack = function(){ //this is what gets the info pack
           healthPoints:me.healthPoints,
           maxHealthPoints:me.maxHealthPoints,
           score:me.score,
+          printScore:me.printScore,
+          dead:me.dead,
         };
  }
 
@@ -193,6 +225,8 @@ me.retrieveUpdatePack = function(){ //this gets the update pack
           y:me.y,
           healthPoints:me.healthPoints,
           score:me.score,
+          printScore:me.printScore,
+          dead:me.dead,
         };
  }
     Player.list[id] = me;
@@ -233,6 +267,20 @@ Player.onConnect = function(socket){
         target:Target.mergePack(), //sends target info pack to client
         monster:Monster.mergePack(), //sends monster info pack to client
     })
+    // resetGame = function(socket){
+    //   for (var i in Player.list){
+    //     var ple = Player.list[i]
+    //     if(ple.healthPoints <= 0){
+    //       console.log('RESET');
+    //         delete Player.list[socket.id]; //delete player from players list
+    //         delete Target.list[socket.id]; 
+    //         delete Monster.list[socket.id];
+    //         removePack.player.push(socket.id);
+    //         removePack.target.push(socket.id); 
+    //         removePack.monster.push(socket.id);
+    //     }
+    //   }
+    //  }
  }
 
 Player.mergePack = function(){
@@ -271,7 +319,7 @@ Bullet = function(parent,angle){ //bullet
     var second_update = me.update;
     
 me.update = function(){
-        if(me.timer++ > 60) //timeout on bullet traveling
+        if(me.timer++ > 40) //timeout on bullet traveling
           me.toRemove = true; //removes it
         second_update();
 
@@ -299,6 +347,7 @@ for (var i in Target.list){ //WORKING BULLET COLLISION WITH TARGET **
       var enemy = Player.list[me.parent];
         if(enemy) 
           enemy.score += 1;  //enemy who shot you gets 1 point
+          enemy.printScore +=1; //sorted.
           enemy.counter +=1; //add counter after every kill
           enemy.speedCounter +=1; //add speed after every kill
           enemy.sCounter +=1; //special enemy
@@ -378,42 +427,53 @@ Target = function(){ //Target
   me.life = 10;
   me.maxLife = 10;
   me.id = Math.random(); //random id
-  me.speed = 1; //enemy speed
+  me.speed = 1; //target speed
+  me.targetAim = 0; //target aim
 
 var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
- second_update();
+second_update();
 
-for (var i in Player.list){ ////ENEMY movement
+for (var i in Player.list){ ////TARGET movement
       var p = Player.list[i]
 
         var differenceX = p.x - me.x; //players x - targets x
         var differenceY = p.y - me.y; //players y - targets y
 
+        me.targetAim = Math.atan2(differenceX,differenceY) / Math.PI * 180 // TARGET AIM, NEED TO SORT IT OUT**
+        
         if(differenceX > 0) //this is what makes the target move towards the player.
           me.x += me.speed;
         else
           me.x -= me.speed;
 
+        if(differenceX = 0)
+          me.x = 0;
+
         if(differenceY > 0)
           me.y += me.speed;
         else
           me.y -= me.speed;
+
+        if(differenceY = 0)
+          me.y = 0;
  }
 
 for (var i in Player.list){ ////ENEMY DETEC
     var p = Player.list[i]
-    
-    if(me.getDist(p) < 32 && me.target !== p.id){ //gets distance (!== p.id)
+    // var t = Monster.list[i]
+    if(me.getDist(p) < 20 && me.target !== p.id){ //gets distance (!== p.id)
       p.healthPoints -= 1; //takes away 1hp if you get hit by bullet    
-      if(p.healthPoints <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
-        p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
-        p.x = Math.random() * 500; //you spawn random x
-        p.y = Math.random() * 500; //spawn random y after dying.
-        p.score = 0;
-      }
+      // if(p.healthPoints <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
+      //   p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
+      //   p.x = Math.random() * 500; //you spawn random x
+      //   p.y = Math.random() * 500; //spawn random y after dying.
+      //   p.score = 0;
+      //   me.toRemove = true;
+      //   Monster.toRemove = true;
+      // }
         me.x = Math.random() * 500; //sets the target at random x
-        me.y = Math.random() * 500; //sets the target at random y
+        me.y = 1; //sets the target at random y
     }
  }
  }
@@ -472,7 +532,7 @@ Monster = function(){ //Target
 
 var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
-  second_update();
+second_update();
 
 for (var i in Player.list){ ////ENEMY movement
       var p = Player.list[i]
@@ -500,10 +560,11 @@ for (var i in Player.list){ ////ENEMY DETEC
         p.x = Math.random() * 500; //you spawn random x
         p.y = Math.random() * 500; //spawn random y after dying.
         p.score = 0;
+        me.toRemove = true;
+        Target.toRemove = true;
       }
         me.x = Math.random() * 500; //sets the monster at random x
         me.y = 1; //sets the monster at random y
-
     }
  }
  }
@@ -551,3 +612,5 @@ Monster.mergePack = function(){
   monster.push(Monster.list[i].retrieveInfoPack()); //pushes the info pack for the target
       return monster;
  }
+
+

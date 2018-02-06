@@ -78,11 +78,11 @@ var Img = {}; //creats image array
     Img.bullet = new Image(); 
     Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
     Img.player = new Image(); 
-    Img.player.src = '/client/images/player.png'; //loads the player
+    Img.player.src = '/client/images/enemyUFO.png'; //loads the player
     Img.target = new Image(); 
-    Img.target.src = '/client/images/enemyUFO.png'; //loads the target
-    Img.grass = new Image(); 
-    Img.grass.src = '/client/images/galy.png'; //loads the background
+    Img.target.src = '/client/images/player.png'; //loads the target
+    Img.space = new Image(); 
+    Img.space.src = '/client/images/blackgal.png'; //loads the background
     Img.monster = new Image();
     Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
 
@@ -95,13 +95,14 @@ var Player = function(infoPack){
         me.healthPoints = infoPack.healthPoints; //health Points
         me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10
         me.score = infoPack.score;  //the score of the player
-        
+        me.printScore = infoPack.printScore;
+        me.dead = infoPack.dead;
         me.draw = function(){	
              var x = me.x - Player.list[meId].x + WIDTH/2;
              var y = me.y - Player.list[meId].y + HEIGHT/2;
             
-            var width = Img.player.width/3;  //the width of the player img /25 because it was too big
-            var height = Img.player.height/3; //the height of the player img /25 because it was too big
+            var width = Img.player.width/4;  //the width of the player img /25 because it was too big
+            var height = Img.player.height/4; //the height of the player img /25 because it was too big
 
             ctx.drawImage(Img.player,  //draws the image here.
             0,0,Img.player.width,Img.player.height,
@@ -208,10 +209,14 @@ socket.on('update',function(data){ // update player and bullet location - id
                 ple.x = pack.x;
                 if(pack.y !== undefined)
                 ple.y = pack.y;
-                if(pack.heatlhPoints !== undefined)
+                if(pack.healthPoints !== undefined)
                 ple.healthPoints = pack.healthPoints;
                 if(pack.score !== undefined)
                 ple.score = pack.score;
+                if(pack.printScore !== undefined)
+                ple.printScore = pack.printScore;
+                if(pack.dead !== undefined)
+                ple.dead = pack.dead;
         }
     }
 
@@ -271,11 +276,15 @@ setInterval(function(){
         ctx.clearRect(0,0,500,500);
         ctx.fillStyle = '#0D061F'; //screen black
         ctx.fillRect(0,0,500,500);
-        drawGrass(); //draws my map
+        drawSpace(); //draws my map
         theScore();  //draws the score
         healthP(); //draws the health
         for(var i in Player.list)  //draws the playlist every set miliseconds
             Player.list[i].draw();
+            var t = Player.list[i]
+                if(t.dead == true){
+                       deadMan(); //draws end score
+                }
         for(var i in Bullet.list) //draws the bulletlist every set miliseconds
             Bullet.list[i].draw();
         for(var i in Target.list) //draws the targetlist every set miliseconds
@@ -292,10 +301,17 @@ var healthP = function(){
     ctx.fillStyle = 'lime'; //score on black text
     ctx.fillText(Player.list[meId].healthPoints,460,30);//shows score for that player only!
  }
-var drawGrass = function(){
+var deadMan = function(){
+    ctx.fillStyle = 'red'; //score on black text
+    ctx.font = 'BOLD 20px Arial';
+    ctx.fillText('GAME OVER',180,180);//shows score for that player only!
+    ctx.fillText('Your Score was ' + Player.list[meId].printScore,100,220)
+    ctx.fillText("Press SpaceBar to Try Again ",100,290);
+ } 
+var drawSpace = function(){
     var x = WIDTH/2 - Player.list[meId].x; //makes the character always on the middle of the map, which fixes the shots problem.
     var y = HEIGHT/2 - Player.list[meId].y; //same as above.
-    ctx.drawImage(Img.grass,x,y); //draw grass function
+    ctx.drawImage(Img.space,x,y); //draw grass function
         // ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
     }
 
@@ -334,6 +350,10 @@ if(event.target.attributes["id"].value !== "canvas"){ // only plays shot sound o
 document.onmouseup = function(event){
     socket.emit('movementKey',{inputId:'attack',state:false}); //when not attacking, (unlicked)*
     }
+// document.onmouseup = function(event){
+//     console.log('mouse up');
+//     socket.emit('movementKey',{inputId:'attack',state:false});
+//     }
 
 document.onmousemove = function(event){
     var x = -250 + event.clientX - 8;  //500 being the whole screen
