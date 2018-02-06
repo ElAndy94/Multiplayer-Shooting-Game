@@ -3,11 +3,11 @@ var removePack =  {player:[],bullet:[],target:[],monster:[]};
 
 Shared = function(){
     var me = {
+      id:"",
       x:250, // X of the character 
       y:250, // Y of the character 
       speedX:0, //speed X defult to 0
       speedY:0, //speed Y defult to 0
-      id:"",
     }
     me.update = function(){
       me.updatePos(); //update char or bullet position
@@ -66,40 +66,43 @@ Player = function(id){
     me.pAttack = false; //attacking set to fasle which is shooting!
     me.mouseAngle = 0; //mouse or touchpad angle
     me.maxSpeed = 6; //moving speed 10 (need to modify this)***
-    me.healthPoints = 2; // player hp
-    me.maxHealthPoints = 10; // the max hp a player starts with
+    me.healthPoints = 8; // player hp
+    me.maxHealthPoints = 8; // the max hp a player starts with
     me.score = 0; //score starts at 0, +1 for every kill.
     me.counter = 0; //killing counter
     me.speedCounter = 0;  //speed counter
     me.sCounter = 0; //special monster
     me.sSpeedCounter = 0; //speed for special monster
-    me.printScore = 0;
+    me.specialCounter = 0;
     me.dead = false;
+    me.spaceReset = false
 var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
   me.updateSpeed();
-    second_update();
-    // resetGame();
-    me.resetEverything();
+  second_update();
+  me.resetEverything(); //reset game
 if(me.sCounter == 6){ //special monster
       me.addMonster(); //call addMonster function
       me.sCounter = 0; //reset counter back to 0
-    }
+  }
 
-    if(me.counter == 5){ //if counter is 5 then
-      me.addEnemy(); //add enemy
-      me.counter = 0; //set counter back to 0
-    }
+if(me.counter == 5){ //if counter is 5 then
+      me.specialCounter ++;
+        if(me.specialCounter <= 4){
+        me.addEnemy(); //add enemy
+        me.counter = 0; //set counter back to 0
+        }
+  }
 
-    if(me.speedCounter == 3){ //if counter is 3 then
+if(me.speedCounter == 3){ //if counter is 3 then
       me.speedKiller(); //call the speedkiller function below
       me.speedCounter = 0; //set counter back to 0
-    }
+  }
 
-    if(me.sSpeedCounter == 5){ //if counter is 5 then
+if(me.sSpeedCounter == 5){ //if counter is 5 then
       me.speedKillerTwo(); //call the speedkiller function below
       me.sSpeedCounter = 0; //set counter back to 0
-    }
+  }
 
 if(me.pAttack){ 
       me.fireBullet(me.mouseAngle); //mouse angle attack
@@ -134,21 +137,14 @@ me.speedKiller = function(data){ //the speed killer function
 me.resetEverything = function(data){
   if(me.healthPoints <= 0){
     me.dead = true;
-    me.pRight = false; //moving right auto false
-    me.pLeft = false; //moving left auto false
-    me.pUp = false; //moving up auto false
-    me.pDown = false; //moving down auto false
     me.pAttack = false; //attacking set to fasle which is shooting!
-    me.healthPoints = 10; // player hp
-    me.maxHealthPoints = 10; // the max hp a player starts with
-    me.score = 0; //score starts at 0, +1 for every kill.
     me.counter = 0; //killing counter
     me.speedCounter = 0;  //speed counter
     me.sCounter = 0; //special monster
     me.sSpeedCounter = 0; //speed for special monster
+    me.specialCounter = 0; //stops creating too many targets
     me.x = 250;
     me.y = 250;
-    // var second_update = me.update;
     
       for (var i in Monster.list){ //looks into the target list
         var m = Monster.list[i] //t for target list
@@ -158,8 +154,14 @@ me.resetEverything = function(data){
           var t = Target.list[i] //t for target list
           t.toRemove = true;
         }
+        if(me.spaceReset == true){ //if i press spacebar when I die this will reset it
+          me.healthPoints = 10; // player hp
+          me.maxHealthPoints = 10; // the max hp a player starts with
+          me.score = 0; //score starts at 0, +1 for every kill.
+          me.dead = false; //reset to not dead
+          me.addEnemy();
+        }
     }
-    
  }
 me.speedKillerTwo = function(data){ //the speed killer function 
   for (var i in Monster.list){ //looks into the target list
@@ -169,7 +171,6 @@ me.speedKillerTwo = function(data){ //the speed killer function
       }  
   }
  }
-
 
 me.addEnemy = function(data){ //this is what makes the enemy
   var e = Target(data);
@@ -213,7 +214,7 @@ me.retrieveInfoPack = function(){ //this is what gets the info pack
           healthPoints:me.healthPoints,
           maxHealthPoints:me.maxHealthPoints,
           score:me.score,
-          printScore:me.printScore,
+          // printScore:me.printScore,
           dead:me.dead,
         };
  }
@@ -225,7 +226,7 @@ me.retrieveUpdatePack = function(){ //this gets the update pack
           y:me.y,
           healthPoints:me.healthPoints,
           score:me.score,
-          printScore:me.printScore,
+          // printScore:me.printScore,
           dead:me.dead,
         };
  }
@@ -251,6 +252,8 @@ Player.onConnect = function(socket){
           player.pAttack = data.state; //if click = true
       else if(data.inputId === 'mouseAngle')
           player.mouseAngle = data.state; //mouse angle (direction of shooting)
+      else if(data.inputId === 'space')
+          player.spaceReset = data.state;
     });
 
     for (var i in Monster.list){ 
@@ -347,7 +350,6 @@ for (var i in Target.list){ //WORKING BULLET COLLISION WITH TARGET **
       var enemy = Player.list[me.parent];
         if(enemy) 
           enemy.score += 1;  //enemy who shot you gets 1 point
-          enemy.printScore +=1; //sorted.
           enemy.counter +=1; //add counter after every kill
           enemy.speedCounter +=1; //add speed after every kill
           enemy.sCounter +=1; //special enemy
@@ -424,6 +426,8 @@ Bullet.mergePack = function(){
 
 Target = function(){ //Target 
   var me = Shared(); //uses shared properties with player
+  me.x = 1;
+  me.y = Math.random() * 500;
   me.life = 10;
   me.maxLife = 10;
   me.id = Math.random(); //random id
@@ -555,14 +559,14 @@ for (var i in Player.list){ ////ENEMY DETEC
     var p = Player.list[i]
     if(me.getDist(p) < 20 && me.monster !== p.id){ //gets distance (!== p.id)
       p.healthPoints -= 5; //takes away 1hp if you get hit by bullet
-      if(p.healthPoints <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
-        p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
-        p.x = Math.random() * 500; //you spawn random x
-        p.y = Math.random() * 500; //spawn random y after dying.
-        p.score = 0;
-        me.toRemove = true;
-        Target.toRemove = true;
-      }
+      // if(p.healthPoints <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
+      //   p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
+      //   p.x = Math.random() * 500; //you spawn random x
+      //   p.y = Math.random() * 500; //spawn random y after dying.
+      //   p.score = 0;
+      //   me.toRemove = true;
+      //   Target.toRemove = true;
+      // }
         me.x = Math.random() * 500; //sets the monster at random x
         me.y = 1; //sets the monster at random y
     }

@@ -95,7 +95,7 @@ var Player = function(infoPack){
         me.healthPoints = infoPack.healthPoints; //health Points
         me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10
         me.score = infoPack.score;  //the score of the player
-        me.printScore = infoPack.printScore;
+        // me.printScore = infoPack.printScore;
         me.dead = infoPack.dead;
         me.draw = function(){	
              var x = me.x - Player.list[meId].x + WIDTH/2;
@@ -213,8 +213,6 @@ socket.on('update',function(data){ // update player and bullet location - id
                 ple.healthPoints = pack.healthPoints;
                 if(pack.score !== undefined)
                 ple.score = pack.score;
-                if(pack.printScore !== undefined)
-                ple.printScore = pack.printScore;
                 if(pack.dead !== undefined)
                 ple.dead = pack.dead;
         }
@@ -305,7 +303,7 @@ var deadMan = function(){
     ctx.fillStyle = 'red'; //score on black text
     ctx.font = 'BOLD 20px Arial';
     ctx.fillText('GAME OVER',180,180);//shows score for that player only!
-    ctx.fillText('Your Score was ' + Player.list[meId].printScore,100,220)
+    ctx.fillText('Your Score was ' + Player.list[meId].score,100,220)
     ctx.fillText("Press SpaceBar to Try Again ",100,290);
  } 
 var drawSpace = function(){
@@ -324,6 +322,8 @@ document.onkeydown = function(event){ //keyboard controls
             socket.emit('movementKey' ,{inputId:'left',state:true});
         if(event.keyCode === 38) //up arrow
             socket.emit('movementKey' ,{inputId:'up',state:true});
+        if(event.keyCode === 32) //SPACE BAR RESET
+            socket.emit('movementKey' ,{inputId:'space',state:true});
         }
 
 document.onkeyup = function(event){
@@ -335,6 +335,8 @@ document.onkeyup = function(event){
             socket.emit('movementKey' ,{inputId:'left',state:false});
         if(event.keyCode === 38) //up arrow
             socket.emit('movementKey' ,{inputId:'up',state:false});
+        if(event.keyCode === 32) //up arrow
+            socket.emit('movementKey' ,{inputId:'space',state:false});
         }
 
 document.onmousedown = function(event){
