@@ -8,6 +8,7 @@ Shared = function(){
       y:250, // Y of the character 
       speedX:0, //speed X defult to 0
       speedY:0, //speed Y defult to 0
+      space:'blackGal',
     }
     me.update = function(){
       me.updatePos(); //update char or bullet position
@@ -76,6 +77,7 @@ Player = function(id){
     me.specialCounter = 0;
     me.dead = false;
     me.spaceReset = false
+
 var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
   me.updateSpeed();
@@ -214,7 +216,7 @@ me.retrieveInfoPack = function(){ //this is what gets the info pack
           healthPoints:me.healthPoints,
           maxHealthPoints:me.maxHealthPoints,
           score:me.score,
-          // printScore:me.printScore,
+          space:me.space,
           dead:me.dead,
         };
  }
@@ -226,7 +228,7 @@ me.retrieveUpdatePack = function(){ //this gets the update pack
           y:me.y,
           healthPoints:me.healthPoints,
           score:me.score,
-          // printScore:me.printScore,
+          space:me.space,
           dead:me.dead,
         };
  }
@@ -256,6 +258,14 @@ Player.onConnect = function(socket){
           player.spaceReset = data.state;
     });
 
+    var space = 'blackGal';
+    socket.on('changeMode',function(data){
+      if(player.space === 'blackGal')
+        player.space = 'galy';
+        else
+            player.space = 'blackGal';
+    })
+
     for (var i in Monster.list){ 
       var t = Monster.list[i] }
       // if(me.counter = 5){
@@ -270,20 +280,6 @@ Player.onConnect = function(socket){
         target:Target.mergePack(), //sends target info pack to client
         monster:Monster.mergePack(), //sends monster info pack to client
     })
-    // resetGame = function(socket){
-    //   for (var i in Player.list){
-    //     var ple = Player.list[i]
-    //     if(ple.healthPoints <= 0){
-    //       console.log('RESET');
-    //         delete Player.list[socket.id]; //delete player from players list
-    //         delete Target.list[socket.id]; 
-    //         delete Monster.list[socket.id];
-    //         removePack.player.push(socket.id);
-    //         removePack.target.push(socket.id); 
-    //         removePack.monster.push(socket.id);
-    //     }
-    //   }
-    //  }
  }
 
 Player.mergePack = function(){

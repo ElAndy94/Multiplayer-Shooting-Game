@@ -5,22 +5,30 @@
     <button id="signDiv-signUp">Sign Up</button> <!-- Sign UP in button -->
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<body style='margin:0px' onload="loadSound();">
+<body onload="loadSound();">
 
-  <div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
-      <canvas id="canvas" width="500" height="500" style="border:1px solid #000000;"> <!-- creating canvas -->
-      </canvas> 
-  </div>
-    </body>
+<div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
+<!-- <div id="game" style="position:absolute;width:500px;height:500px"> -->
+    <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas> 
+    <!-- <canvas id='ctx-GUI' width='500' height='500' style='position:absolute;border:1px solid #0000;'></canvas> -->
+</div>
+    <div id='GUI' style="position:absolute; width:350px; height:560px;">
+            <button onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
+            Change Dificulty To Hard! 
+            </button>
+    </div>
+</body>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
     <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
-    <!-- <script src="scriptDraw.js"></script> -->
 
 <script>
+var changeMode = function(){ //change dificulty (AKA map)
+    socket.emit('changeMode');
+    }
 var socket = io(); // socket io
     var WIDTH = 500;
     var HEIGHT = 500;
@@ -59,6 +67,9 @@ var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
             alert("Sign in was unsuccessful!"); // Not signing up
     });
 
+   
+	
+	
     //game
 
 function loadSound () {
@@ -70,7 +81,9 @@ function playSound () { //play sound function
     }
 var canvas = document.getElementById('canvas');
  var ctx = canvas.getContext('2d');
+//  var ctxGUI = document.getElementById("ctx-GUI").getContext("2d");
  ctx.font = '30px Arial';
+//  ctxGUI.font = '30px Arial';
  ctx.mozImageSmoothingEnabled = false;
  ctx.msImageSmoothingEnabled = false;
  ctx.imageSmoothingEnabled = false;
@@ -81,10 +94,14 @@ var Img = {}; //creats image array
     Img.player.src = '/client/images/enemyUFO.png'; //loads the player
     Img.target = new Image(); 
     Img.target.src = '/client/images/player.png'; //loads the target
-    Img.space = new Image(); 
-    Img.space.src = '/client/images/blackgal.png'; //loads the background
     Img.monster = new Image();
     Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
+
+    Img.space = {}; //two maps
+    Img.space['blackGal'] = new Image(); 
+    Img.space['blackGal'].src = '/client/images/blackgal.png'; //loads the background   
+    Img.space['galy'] = new Image(); 
+    Img.space['galy'].src = '/client/images/galy.png'; //loads the background     
 
 var Player = function(infoPack){
         var me = {};
@@ -92,14 +109,15 @@ var Player = function(infoPack){
         me.number = infoPack.number; //number
         me.x = infoPack.x;  // me.x location
         me.y = infoPack.y; // me.y location
-        me.healthPoints = infoPack.healthPoints; //health Points
-        me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10
         me.score = infoPack.score;  //the score of the player
-        // me.printScore = infoPack.printScore;
-        me.dead = infoPack.dead;
+        me.space = infoPack.space; //the map
+        me.dead = infoPack.dead; //if player is dead
+        me.healthPoints = infoPack.healthPoints; //health Points
+        me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10    
+
         me.draw = function(){	
-             var x = me.x - Player.list[meId].x + WIDTH/2;
-             var y = me.y - Player.list[meId].y + HEIGHT/2;
+            var x = me.x - Player.list[meId].x + WIDTH/2;
+            var y = me.y - Player.list[meId].y + HEIGHT/2;
             
             var width = Img.player.width/4;  //the width of the player img /25 because it was too big
             var height = Img.player.height/4; //the height of the player img /25 because it was too big
@@ -205,16 +223,19 @@ socket.on('update',function(data){ // update player and bullet location - id
         var pack = data.player[i];
         var ple = Player.list[pack.id]; //if the player is logged on then do this! SAVES ME FROM ERRORS!
         if(ple) {
-                if(pack.x !== undefined)
-                ple.x = pack.x;
-                if(pack.y !== undefined)
-                ple.y = pack.y;
-                if(pack.healthPoints !== undefined)
-                ple.healthPoints = pack.healthPoints;
-                if(pack.score !== undefined)
-                ple.score = pack.score;
-                if(pack.dead !== undefined)
-                ple.dead = pack.dead;
+            if(pack.x !== undefined)
+            ple.x = pack.x;
+            if(pack.y !== undefined)
+            ple.y = pack.y;
+            if(pack.healthPoints !== undefined)
+            ple.healthPoints = pack.healthPoints;
+            if(pack.score !== undefined)
+            ple.score = pack.score;
+            if(pack.dead !== undefined)
+            ple.dead = pack.dead;
+            if(pack.space !== undefined)
+            ple.space = pack.space;
+
         }
     }
 
@@ -309,8 +330,8 @@ var deadMan = function(){
 var drawSpace = function(){
     var x = WIDTH/2 - Player.list[meId].x; //makes the character always on the middle of the map, which fixes the shots problem.
     var y = HEIGHT/2 - Player.list[meId].y; //same as above.
-    ctx.drawImage(Img.space,x,y); //draw grass function
-        // ctx.drawImage(Img.grass,1,1,500,500); //draws the grass in that area
+    
+    ctx.drawImage(Img.space[Player.list[meId].space],x,y); //draw grass function
     }
 
 document.onkeydown = function(event){ //keyboard controls
