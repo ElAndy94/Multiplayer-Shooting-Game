@@ -6,11 +6,8 @@
 </div>
 <script src="/socket.io/socket.io.js"></script>
 <body onload="loadSound();">
-
 <div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
-<!-- <div id="game" style="position:absolute;width:500px;height:500px"> -->
     <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas> 
-    <!-- <canvas id='ctx-GUI' width='500' height='500' style='position:absolute;border:1px solid #0000;'></canvas> -->
 </div>
     <div id='GUI' style="position:absolute; width:350px; height:560px;">
             <button onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
@@ -18,17 +15,17 @@
             </button>
     </div>
 </body>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
-    <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
+<script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
 
 <script>
 var changeMode = function(){ //change dificulty (AKA map)
     socket.emit('changeMode');
-    }
+}
 var socket = io(); // socket io
     var WIDTH = 500;
     var HEIGHT = 500;
@@ -44,46 +41,41 @@ var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
     var signDivUp = document.getElementById('signDiv-signUp'); //<!-- password element -->
 
 
-    signDivSignIn.onclick = function(){  //<!-- clicking the sign in button does this function -->
+signDivSignIn.onclick = function(){  //<!-- clicking the sign in button does this function -->
         socket.emit('LogIn',{username:signDivUsername.value,password:signDivPassword.value}); //<!-- emits username + password to server -->
-        }
+}
 
-    signDivUp.onclick = function(){  //<!-- clicking the sign in button does this function -->
+signDivUp.onclick = function(){  //<!-- clicking the sign in button does this function -->
         socket.emit('signUp',{username:signDivUsername.value,password:signDivPassword.value}); //<!-- emits username + password to server -->
-        }
+}
 
-    socket.on('LogInResponse',function(data){  // Sign in Response function
+socket.on('LogInResponse',function(data){  // Sign in Response function
         if(data.success){
             signDiv.style.display = 'none'; //display none until the logging has been passed
             gameDiv.style.display = 'inline-block'; //when log in has been passed then it will display the gameDiv
         }  else
             alert("Sign in was unsuccessful!"); //if password or username is wrong, you get this alart
-    });
+});
 
-    socket.on('signPlayerRes',function(data){  // Sign UP*** in Response function
+socket.on('signPlayerRes',function(data){  // Sign UP*** in Response function
         if(data.success){
             alert("Sign up was successful!");
         }  else
             alert("Sign in was unsuccessful!"); // Not signing up
-    });
+});
 
-   
-	
-	
     //game
 
 function loadSound () {
     createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
-    }
+}
 
 function playSound () { //play sound function
     createjs.Sound.play(soundID);
-    }
+}
 var canvas = document.getElementById('canvas');
  var ctx = canvas.getContext('2d');
-//  var ctxGUI = document.getElementById("ctx-GUI").getContext("2d");
  ctx.font = '30px Arial';
-//  ctxGUI.font = '30px Arial';
  ctx.mozImageSmoothingEnabled = false;
  ctx.msImageSmoothingEnabled = false;
  ctx.imageSmoothingEnabled = false;
@@ -127,10 +119,9 @@ var Player = function(infoPack){
             x-width/2,y-height/2,width,height);
         }
         Player.list[me.id] = me;
-        
         return me;
-    }
-    Player.list = {};
+}
+Player.list = {};
 
         
 var Bullet = function(infoPack){
@@ -151,8 +142,8 @@ var Bullet = function(infoPack){
         
         Bullet.list[me.id] = me;		
         return me;
-    }
-    Bullet.list = {};
+}
+Bullet.list = {};
 
 
 var Target = function(infoPack){
@@ -173,8 +164,8 @@ var Target = function(infoPack){
     }
     Target.list[me.id] = me;		
     return me;
-    }
-    Target.list = {};
+}
+Target.list = {};
 
 var Monster = function(infoPack){
     var me = {};
@@ -193,12 +184,13 @@ var Monster = function(infoPack){
     }
     Monster.list[me.id] = me;		
     return me;
-    }
-    Monster.list = {};
-    var meId = null;
-    Player.list[meId];
+}
+Monster.list = {};
 
-    //player and bullet info big pack
+var meId = null;
+Player.list[meId];
+
+//player and bullet info big pack
 socket.on('starterPack',function(data){
     if(data.meId)
     meId = data.meId;
@@ -215,9 +207,7 @@ socket.on('starterPack',function(data){
     for(var i = 0; i < data.monster.length; i++){ //monster
         new Monster(data.monster[i]);
     }
- });
-
-    
+});  
 socket.on('update',function(data){ // update player and bullet location - id
     for(var i = 0; i < data.player.length; i++){
         var pack = data.player[i];
@@ -271,7 +261,7 @@ socket.on('update',function(data){ // update player and bullet location - id
                 tar.y = pack.y;
         }
     }
-    });
+});
 socket.on('remove',function(data){
     for(var i = 0; i < data.player.length; i++){ //removing player
         delete Player.list[data.player[i]];
@@ -285,7 +275,7 @@ socket.on('remove',function(data){
     for(var i = 0; i < data.monster.length; i++){ //removing monster
         delete Monster.list[data.monster[i]];
     }
-    });
+});
 
     //draw
 setInterval(function(){
@@ -310,29 +300,29 @@ setInterval(function(){
             Target.list[i].draw();
         for(var i in Monster.list) //draws the monsterlist every set miliseconds
             Monster.list[i].draw();
-    },40);
+},40);
 
 var theScore = function(){
     ctx.fillStyle = 'white'; //score on black text
     ctx.fillText(Player.list[meId].score,0,30); //draws the score for THAT player only!**
-    }
+}
 var healthP = function(){
     ctx.fillStyle = 'lime'; //score on black text
     ctx.fillText(Player.list[meId].healthPoints,460,30);//shows score for that player only!
- }
+}
 var deadMan = function(){
     ctx.fillStyle = 'red'; //score on black text
     ctx.font = 'BOLD 20px Arial';
     ctx.fillText('GAME OVER',180,180);//shows score for that player only!
     ctx.fillText('Your Score was ' + Player.list[meId].score,100,220)
     ctx.fillText("Press SpaceBar to Try Again ",100,290);
- } 
+} 
 var drawSpace = function(){
     var x = WIDTH/2 - Player.list[meId].x; //makes the character always on the middle of the map, which fixes the shots problem.
     var y = HEIGHT/2 - Player.list[meId].y; //same as above.
     
     ctx.drawImage(Img.space[Player.list[meId].space],x,y); //draw grass function
-    }
+}
 
 document.onkeydown = function(event){ //keyboard controls
         if(event.keyCode === 39) //right arrow
@@ -345,7 +335,7 @@ document.onkeydown = function(event){ //keyboard controls
             socket.emit('movementKey' ,{inputId:'up',state:true});
         if(event.keyCode === 32) //SPACE BAR RESET
             socket.emit('movementKey' ,{inputId:'space',state:true});
-        }
+}
 
 document.onkeyup = function(event){
         if(event.keyCode === 39) //right arrow
@@ -358,23 +348,21 @@ document.onkeyup = function(event){
             socket.emit('movementKey' ,{inputId:'up',state:false});
         if(event.keyCode === 32) //up arrow
             socket.emit('movementKey' ,{inputId:'space',state:false});
-        }
+}
 
 document.onmousedown = function(event){
     socket.emit('movementKey',{inputId:'attack',state:true}); //mouse down to attack (click)*
-
-if(event.target.attributes["id"].value !== "canvas"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
+    if(event.target.attributes["id"].value !== "canvas"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
         return;
     } else {
         playSound(); //plays the shot sound
-    }
-    }
+     }
+}
 
 document.onmouseup = function(event){
     socket.emit('movementKey',{inputId:'attack',state:false}); //when not attacking, (unlicked)*
-    }
-// document.onmouseup = function(event){
-//     console.log('mouse up');
+}
+// document.onmousedown = function(event){
 //     socket.emit('movementKey',{inputId:'attack',state:false});
 //     }
 

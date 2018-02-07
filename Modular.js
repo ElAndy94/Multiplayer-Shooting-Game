@@ -3,25 +3,25 @@ var removePack =  {player:[],bullet:[],target:[],monster:[]};
 
 Shared = function(){
     var me = {
-      id:"",
-      x:250, // X of the character 
-      y:250, // Y of the character 
-      speedX:0, //speed X defult to 0
-      speedY:0, //speed Y defult to 0
-      space:'blackGal',
+        id:"",
+        x:250, // X of the character 
+        y:250, // Y of the character 
+        speedX:0, //speed X defult to 0
+        speedY:0, //speed Y defult to 0
+        space:'blackGal',
     }
     me.update = function(){
       me.updatePos(); //update char or bullet position
     }
     me.updatePos = function(){
-      me.x += me.speedX;
-      me.y += me.speedY;
+        me.x += me.speedX;
+        me.y += me.speedY;
     }
     me.getDist = function(pt){
         return Math.sqrt(Math.pow(me.x-pt.x,2) + Math.pow(me.y-pt.y,2)); //calculates distance
-     }
+    }
      return me;
- }
+}
 
 Shared.makeModular = function(){ //this is what makes my project modular
 	var pack = {
@@ -45,7 +45,7 @@ Shared.makeModular = function(){ //this is what makes my project modular
 		}
   };
   
-infoPack.player = []; //sets to empty so it does not repeat/duplicate
+    infoPack.player = []; //sets to empty so it does not repeat/duplicate
     infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
     infoPack.target = []; //sets to empty so it does not repeat/duplicate
     infoPack.monster = [];
@@ -54,7 +54,7 @@ infoPack.player = []; //sets to empty so it does not repeat/duplicate
     removePack.target = [];  //sets to empty so it does not repeat/duplicate
     removePack.monster = [];
     return pack;
- }
+}
 
 Player = function(id){
   var me = Shared(); //shared properties between bullet and player
@@ -77,65 +77,67 @@ Player = function(id){
     me.specialCounter = 0;
     me.dead = false;
     me.spaceReset = false
+    me.shootingSpeed = 0;
 
-var second_update = me.update;
+    var second_update = me.update;
 me.update = function(){ //this function calls a secondary update
   me.updateSpeed();
   second_update();
   me.resetEverything(); //reset game
+
 if(me.sCounter == 6){ //special monster
       me.addMonster(); //call addMonster function
       me.sCounter = 0; //reset counter back to 0
-  }
+}
 
 if(me.counter == 5){ //if counter is 5 then
-      me.specialCounter ++;
+        me.specialCounter ++;
         if(me.specialCounter <= 4){
         me.addEnemy(); //add enemy
         me.counter = 0; //set counter back to 0
         }
-  }
+}
 
 if(me.speedCounter == 3){ //if counter is 3 then
       me.speedKiller(); //call the speedkiller function below
       me.speedCounter = 0; //set counter back to 0
-  }
+}
 
 if(me.sSpeedCounter == 5){ //if counter is 5 then
       me.speedKillerTwo(); //call the speedkiller function below
       me.sSpeedCounter = 0; //set counter back to 0
-  }
+}
 
 if(me.pAttack){ 
       me.fireBullet(me.mouseAngle); //mouse angle attack
-    }
+}
   
 if(me.x <= 10) {
       me.pLeft = false;
       me.x += 3; 
-    }
-    if(me.x >= 496) {
+}
+if(me.x >= 496) {
       me.pRight = false;
       me.x -=3; 
-    }
-    if(me.y <= 4) {
+}
+if(me.y <= 4) {
       me.pUp = false;
       me.y +=4;
-    }
-    if(me.y >= 496) {
+}
+if(me.y >= 496) {
       me.pDown = false;
       me.y -=4;
-    }
-  }
+}
+}
     
 me.speedKiller = function(data){ //the speed killer function 
     for (var i in Target.list){ //looks into the target list
         var t = Target.list[i] //t for target list
         if(t.speed < 2){
-          t.speed += 1; // add 1 to the target.speed that i set in target
-        }  //console.log(t.speed + 'speed'); //sorted
+            t.speed += 1; // add 1 to the target.speed that i set in target
+        } 
     }
- }
+}
 me.resetEverything = function(data){
   if(me.healthPoints <= 0){
     me.dead = true;
@@ -157,14 +159,14 @@ me.resetEverything = function(data){
           t.toRemove = true;
         }
         if(me.spaceReset == true){ //if i press spacebar when I die this will reset it
-          me.healthPoints = 10; // player hp
-          me.maxHealthPoints = 10; // the max hp a player starts with
-          me.score = 0; //score starts at 0, +1 for every kill.
-          me.dead = false; //reset to not dead
-          me.addEnemy();
+            me.healthPoints = 10; // player hp
+            me.maxHealthPoints = 10; // the max hp a player starts with
+            me.score = 0; //score starts at 0, +1 for every kill.
+            me.dead = false; //reset to not dead
+            me.addEnemy();
         }
-    }
- }
+  }
+}
 me.speedKillerTwo = function(data){ //the speed killer function 
   for (var i in Monster.list){ //looks into the target list
       var t = Monster.list[i] //t for target list
@@ -172,25 +174,29 @@ me.speedKillerTwo = function(data){ //the speed killer function
         t.speed += 1; // add 1 to the target.speed that i set in target
       }  
   }
- }
+}
 
 me.addEnemy = function(data){ //this is what makes the enemy
   var e = Target(data);
   e.x = 1; //the x of the new enemy
   e.y = Math.random() * 500; //the y of the new enemy
- }
+}
 
 me.addMonster = function(data){ //this is what makes the enemy
   var e = Monster(data);
   e.x = Math.random() * 500; //the x of the new enemy
   e.y = 1; //the y of the new enemy
- }
+}
   
 me.fireBullet = function(angle){
-    var b = Bullet(me.id,angle); //bullet id, with angle pack
-    b.x = me.x;
-    b.y = me.y;
-  }
+    me.shootingSpeed ++;
+    if(me.shootingSpeed == 5){
+      var b = Bullet(me.id,angle); //bullet id, with angle pack
+      b.x = me.x;
+      b.y = me.y;
+      me.shootingSpeed = 0;
+    } 
+}
 
 me.updateSpeed = function(){
     if(me.pRight)
@@ -206,7 +212,7 @@ me.updateSpeed = function(){
         me.speedY = me.maxSpeed;
     else
         me.speedY = 0; //reset movement speeds
-    }
+}
 me.retrieveInfoPack = function(){ //this is what gets the info pack
   return {
           id:me.id, //all the players info ->
@@ -219,7 +225,7 @@ me.retrieveInfoPack = function(){ //this is what gets the info pack
           space:me.space,
           dead:me.dead,
         };
- }
+}
 
 me.retrieveUpdatePack = function(){ //this gets the update pack
   return {
@@ -235,7 +241,7 @@ me.retrieveUpdatePack = function(){ //this gets the update pack
     Player.list[id] = me;
     infoPack.player.push(me.retrieveInfoPack());
     return me;
- }
+}
 
 Player.list = {};
 Player.onConnect = function(socket){
