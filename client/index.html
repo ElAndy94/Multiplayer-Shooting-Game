@@ -9,11 +9,11 @@
 <div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
     <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas> 
 </div>
-    <div id='GUI' style="position:absolute; width:350px; height:560px;">
+<div id='GUI' style="position:absolute; width:350px; height:560px;">
             <button onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
             Change Dificulty To Hard! 
             </button>
-    </div>
+</div>
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -64,6 +64,11 @@ socket.on('signPlayerRes',function(data){  // Sign UP*** in Response function
             alert("Sign in was unsuccessful!"); // Not signing up
 });
 
+socket.on('allScores', function(data){
+    console.log(data);
+    // console.dir(data);
+    // console.log(JSON.stringify(data));
+})
     //game
 
 function loadSound () {
@@ -362,23 +367,11 @@ document.onmousedown = function(event){
 document.onmouseup = function(event){
     socket.emit('movementKey',{inputId:'attack',state:false}); //when not attacking, (unlicked)*
 }
-// document.onmousedown = function(event){
-//     socket.emit('movementKey',{inputId:'attack',state:false});
-//     }
 
 document.onmousemove = function(event){
     var x = -250 + event.clientX - 8;  //500 being the whole screen
     var y = -250 + event.clientY - 8;
     var angle = Math.atan2(y,x) / Math.PI * 180;
     socket.emit('movementKey',{inputId:'mouseAngle',state:angle});
-    }
-    // document.onmousemove = function(mouse){
-    // var mouseX = mouse.clientX - canvas.getBoundingClientRect().left;
-    // var mouseY = mouse.clientX - canvas.getBoundingClientRect().top;
-    // mouseX -= canvasWidth/2;
-    // mouseY -= canvasHeight/2;
-    // var angle = Math.atan2(mouseY,mouseX) / Math.PI * 180;
-    // socket.emit('movementKey',{inputId:'mouseAngle',state:angle});
-    // }
-
+}
   </script>
