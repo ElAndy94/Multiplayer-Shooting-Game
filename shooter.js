@@ -139,10 +139,10 @@ function resolveAfter1() {
               reject(err);
           else
               resolve(result);
+              // console.log(result);
     });
   });
 }
-
 
 resolveAfter1() // resolve function
     .then((result)=>{console.log(result);})
@@ -154,6 +154,9 @@ async function asyncCall() {
   // console.log(result);
 }
 
+// asyncCall().then((res) => console.log(res)); *****************************
+// console.log(asyncCall(), ' why is it still pending?');
+
 // (async () => {
 //   console.log(await asyncCall(), 'is it pending?')
 // })
@@ -163,7 +166,6 @@ async function asyncCall() {
   //  }
    
   //  run();
-    console.log(asyncCall(), ' why is it still pending?');
     
 // resolveAfter1().then(function(result){
   //   console.log(result);
@@ -251,7 +253,9 @@ io.sockets.on('connection', function (socket) {
 //     scores: getAllScores
 // });
 
-  socket.emit('allScores', asyncCall());
+// socket.emit('allScores', asyncCall());
+// asyncCall.then((res) => socket.emit('allScores', res))
+asyncCall().then((res) => socket.emit('allScores', res));
  
 
 });
