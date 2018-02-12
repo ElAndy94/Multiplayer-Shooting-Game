@@ -1,26 +1,34 @@
+<!DOCTYPE html>
 <div id="signDiv">   <!-- Signing in Div -->
     Username: <input id="signDiv-username" type="text"></input><br>  <!--input username box -->
     Password: <input id="signDiv-password" type="password"></input> <!--input password box -->
     <button id="signDiv-signIn">Sign In</button> <!-- Sign in button -->
     <button id="signDiv-signUp">Sign Up</button> <!-- Sign UP in button -->
 </div>
+
 <script src="/socket.io/socket.io.js"></script>
 <body onload="loadSound();">
+    
 <div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
     <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas> 
 </div>
+
+<div id='scoreBoard'style='position: relative; left: 520px; display:none;'>
+</div>
+
 <div id='GUI' style="position:absolute; width:350px; height:560px;">
             <button onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
             Change Dificulty To Hard! 
             </button>
 </div>
 </body>
-<script src="/socket.io/socket.io.js"></script>
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
 <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script>
 var changeMode = function(){ //change dificulty (AKA map)
@@ -53,6 +61,8 @@ socket.on('LogInResponse',function(data){  // Sign in Response function
         if(data.success){
             signDiv.style.display = 'none'; //display none until the logging has been passed
             gameDiv.style.display = 'inline-block'; //when log in has been passed then it will display the gameDiv
+            scoreBoard.style.display = 'inline';
+            // scoreBoard.style += 'vertical-align:top';
         }  else
             alert("Sign in was unsuccessful!"); //if password or username is wrong, you get this alart
 });
@@ -64,11 +74,6 @@ socket.on('signPlayerRes',function(data){  // Sign UP*** in Response function
             alert("Sign in was unsuccessful!"); // Not signing up
 });
 
-socket.on('allScores', function(data){
-    console.log(data);
-    // console.dir(data);
-    // console.log(JSON.stringify(data));
-})
     //game
 
 function loadSound () {
@@ -295,10 +300,10 @@ setInterval(function(){
         healthP(); //draws the health
         for(var i in Player.list)  //draws the playlist every set miliseconds
             Player.list[i].draw();
-            var t = Player.list[i]
-                if(t.dead == true){
-                       deadMan(); //draws end score
-                }
+                var t = Player.list[i]
+                    if(t.dead == true){
+                        deadMan(); //draws end score
+                    }
         for(var i in Bullet.list) //draws the bulletlist every set miliseconds
             Bullet.list[i].draw();
         for(var i in Target.list) //draws the targetlist every set miliseconds
@@ -306,6 +311,27 @@ setInterval(function(){
         for(var i in Monster.list) //draws the monsterlist every set miliseconds
             Monster.list[i].draw();
 },40);
+
+
+socket.on('allScores', function(data){
+    var tableHtml = "";
+    var playerScores = data;
+    // document.getElementById("scoreBoard").innerHTML="Sup";
+    tableHtml += "<table>";
+    tableHtml += "<tr> <th> Name </th> <th> Score </th> </tr>";  
+    // document.write('<table>');
+    // document.write('<tr> <th>Player</th> <th>Score</th> </tr>');
+
+    for(var i = 0; i < playerScores.length; i++)
+    {
+        // tableHtml += "<tr><td>" + 'Player Name' + '</td><td>' + 'Player Score' + '</td></tr>'; 
+        tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>'; 
+    // document.write('<tr><td>' + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>');
+    }
+    // document.write('</table>');
+    tableHtml += "</table>";
+    document.getElementById("scoreBoard").innerHTML=tableHtml;
+})
 
 var theScore = function(){
     ctx.fillStyle = 'white'; //score on black text
@@ -328,6 +354,7 @@ var drawSpace = function(){
     
     ctx.drawImage(Img.space[Player.list[meId].space],x,y); //draw grass function
 }
+
 
 document.onkeydown = function(event){ //keyboard controls
         if(event.keyCode === 39) //right arrow
