@@ -16,9 +16,9 @@
 <div id='scoreBoard'style='position: relative; left: 520px; display:none;'>
 </div>
 
-<div id='GUI' style="position:absolute; width:350px; height:560px;">
+<div id='GUI' style="position:absolute; width:350px; height:500px;"> <!-- change background -->
             <button onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
-            Change Dificulty To Hard! 
+            Change BackGround Theme! 
             </button>
 </div>
 </body>
@@ -98,6 +98,8 @@ var Img = {}; //creats image array
     Img.target.src = '/client/images/player.png'; //loads the target
     Img.monster = new Image();
     Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
+    Img.meteo = new Image();
+    Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
 
     Img.space = {}; //two maps
     Img.space['blackGal'] = new Image(); 
@@ -197,6 +199,26 @@ var Monster = function(infoPack){
 }
 Monster.list = {};
 
+var Meteo = function(infoPack){
+    var me = {};
+    me.id = infoPack.id; //target id
+    me.x = infoPack.x; //target x
+    me.y = infoPack.y; //target y
+    me.draw = function(){
+        var width = Img.meteo.width/4; //target width size
+        var height = Img.meteo.height/4; //target height size
+
+        var x = me.x - Player.list[meId].x + WIDTH/2;
+        var y = me.y - Player.list[meId].y + HEIGHT/2;
+
+        ctx.drawImage(Img.meteo,0,0,Img.meteo.width,Img.meteo.height,
+        x-width/2,y-height/2,width,height); //draw enemy (Target)
+    }
+    Meteo.list[me.id] = me;		
+    return me;
+}
+Meteo.list = {};
+
 var meId = null;
 Player.list[meId];
 
@@ -216,6 +238,9 @@ socket.on('starterPack',function(data){
     }
     for(var i = 0; i < data.monster.length; i++){ //monster
         new Monster(data.monster[i]);
+    }
+    for(var i = 0; i < data.meteo.length; i++){ //meteo
+        new Meteo(data.meteo[i]);
     }
 });  
 socket.on('update',function(data){ // update player and bullet location - id
@@ -271,6 +296,17 @@ socket.on('update',function(data){ // update player and bullet location - id
                 tar.y = pack.y;
         }
     }
+
+    for(var i = 0; i < data.meteo.length; i++){
+        var pack = data.meteo[i];
+        var tar = Meteo.list[data.meteo[i].id];
+        if(tar) {
+                if(pack.x !== undefined)
+                tar.x = pack.x;
+                if(pack.y !== undefined)
+                tar.y = pack.y;
+        }
+    }
 });
 socket.on('remove',function(data){
     for(var i = 0; i < data.player.length; i++){ //removing player
@@ -284,6 +320,9 @@ socket.on('remove',function(data){
     }
     for(var i = 0; i < data.monster.length; i++){ //removing monster
         delete Monster.list[data.monster[i]];
+    }
+    for(var i = 0; i < data.meteo.length; i++){ //removing monster
+        delete Meteo.list[data.meteo[i]];
     }
 });
 
@@ -310,25 +349,22 @@ setInterval(function(){
             Target.list[i].draw();
         for(var i in Monster.list) //draws the monsterlist every set miliseconds
             Monster.list[i].draw();
+        for(var i in Meteo.list) //draws the monsterlist every set miliseconds
+            Meteo.list[i].draw();
 },40);
 
 
 socket.on('allScores', function(data){
     var tableHtml = "";
     var playerScores = data;
-    // document.getElementById("scoreBoard").innerHTML="Sup";
     tableHtml += "<table>";
     tableHtml += "<tr> <th> Name </th> <th> Score </th> </tr>";  
-    // document.write('<table>');
-    // document.write('<tr> <th>Player</th> <th>Score</th> </tr>');
-
+    
     for(var i = 0; i < playerScores.length; i++)
     {
         // tableHtml += "<tr><td>" + 'Player Name' + '</td><td>' + 'Player Score' + '</td></tr>'; 
         tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>'; 
-    // document.write('<tr><td>' + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>');
     }
-    // document.write('</table>');
     tableHtml += "</table>";
     document.getElementById("scoreBoard").innerHTML=tableHtml;
 })

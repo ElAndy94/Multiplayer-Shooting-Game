@@ -1,5 +1,5 @@
-var infoPack = { player: [], bullet: [], target: [], monster: [] };
-var removePack = { player: [], bullet: [], target: [], monster: [] };
+var infoPack = { player: [], bullet: [], target: [], monster: [], meteo: [] };
+var removePack = { player: [], bullet: [], target: [], monster: [], meteo: [] };
 var shooter = require('./shooter');
 
 Shared = function () {
@@ -31,18 +31,21 @@ Shared.makeModular = function () { //this is what makes my project modular
       bullet: infoPack.bullet, //pack with info for bullet
       target: infoPack.target, //pack with info for target
       monster: infoPack.monster, //pack with info for special target
+      meteo: infoPack.meteo,
     },
     removePack: {
       player: removePack.player, //this is the pack that removes the players info
       bullet: removePack.bullet, //this is the pack that removes the bullet info
       target: removePack.target, //this is the pack that removes the target info
       monster: removePack.monster,
+      meteo: removePack.meteo,
     },
     updatePack: {
       player: Player.update(),  //this sends only the basic info (hence update pack)
       bullet: Bullet.update(),  //same for these
       target: Target.update(), //same for this one too
       monster: Monster.update(),
+      meteo: Meteo.update(),
     }
   };
 
@@ -54,6 +57,7 @@ Shared.makeModular = function () { //this is what makes my project modular
   removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
   removePack.target = [];  //sets to empty so it does not repeat/duplicate
   removePack.monster = [];
+  removePack.Meteo = [];
   return pack;
 }
 
@@ -81,7 +85,7 @@ Player = function (id) {
   me.shootingSpeed = 0;
 
   var second_update = me.update;
-  me.update = function () { //this function calls a secondary update
+me.update = function () { //this function calls a secondary update
     me.updateSpeed();
     second_update();
     me.resetEverything(); //reset game
@@ -101,6 +105,7 @@ Player = function (id) {
 
     if (me.speedCounter == 3) { //if counter is 3 then
       me.speedKiller(); //call the speedkiller function below
+      me.addMeteo();
       me.speedCounter = 0; //set counter back to 0
     }
 
@@ -187,6 +192,11 @@ Player = function (id) {
       e.x = Math.random() * 500; //the x of the new enemy
       e.y = 1; //the y of the new enemy
     }
+    me.addMeteo = function (data) { //this is what makes the meteo
+      var e = Meteo(data);
+      e.x = Math.random() * 500; //the x of the new meteo
+      e.y = 1; //the y of the new meteo
+    }
     me.fireBullet = function (angle) {
       me.shootingSpeed++;
       if (me.shootingSpeed == 4) {
@@ -272,6 +282,10 @@ Player = function (id) {
     for (var i in Monster.list) {
       var t = Monster.list[i]
     }
+
+    for (var i in Meteo.list) {
+      var t = Meteo.list[i]
+    }
     // if(me.counter = 5){
     // var monster = Monster(socket.id);
     // Math.random() * 500;
@@ -283,6 +297,7 @@ Player = function (id) {
       bullet: Bullet.mergePack(), //sends bullet info pack to client
       target: Target.mergePack(), //sends target info pack to client
       monster: Monster.mergePack(), //sends monster info pack to client
+      meteo: Meteo.mergePack(), //sends meteo pack
     })
   }
 
@@ -615,6 +630,97 @@ Player = function (id) {
     for (var i in Monster.list)
       monster.push(Monster.list[i].retrieveInfoPack()); //pushes the info pack for the target
     return monster;
+  }
+
+  Meteo = function () { //Target 
+    var me = Shared(); //uses shared properties with player
+    me.life = 10;
+    me.maxLife = 10;
+    me.id = Math.random(); //random id
+    me.toRemove = false; //if shot yourself then = true.
+    me.xSpeed = 1;
+    me.ySpeed = 4;
+
+    var second_update = me.update;
+    me.update = function () { //this function calls a secondary update
+      second_update();
+
+      me.x = me.x + me.xSpeed;
+      me.y = me.y + me.ySpeed;
+
+      var checkX = me.x;
+      var checkY = me.y;
+
+      // if(checkX || checkY == -30|| 530){
+      //   console.log('letmeknow');
+      //   // me.toRemove = true;
+      // }
+
+      if(checkX <= -30){
+        console.log('x - 30');
+        // me.toRemove = true;
+      }
+      if(checkY <= -30){
+        console.log('y - 30');
+        // me.toRemove = true;
+      }
+      if(checkX >= 510 || checkY >= 510){
+        // console.log('x PAST 530');
+        // me.toRemove = true;
+        me.toRemove = true;
+      }
+
+      for (var i in Player.list) { ////ENEMY DETEC
+        var p = Player.list[i]
+        if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
+          p.healthPoints -= 8; //takes away 1hp if you get hit by bullet
+          me.toRemove = true;
+        }
+      }
+    }
+
+    me.retrieveInfoPack = function () { //info pack for the monster
+      return {
+        id: me.id, //monster id, x and y 
+        x: me.x,
+        y: me.y,
+      };
+    }
+
+    me.retrieveUpdatePack = function () { //update pack for the monster
+      return {
+        id: me.id, //monster UPDATED id, x and y 
+        x: me.x,
+        y: me.y,
+      };
+    }
+
+    Meteo.list[me.id] = me;
+
+    infoPack.meteo.push(me.retrieveInfoPack()); //pushes the info pack on the target
+    return me;
+  }
+  Meteo.list = {}; //monster
+
+  Meteo.update = function () {  //pushes monster
+    var pack = [];
+    for (var i in Meteo.list) {
+      var meteo = Meteo.list[i];
+      meteo.update(); //cals for the update on the target INFO
+      if (meteo.toRemove) { //if triggered it will remove the Target pack but its currently disabled!
+        delete Meteo.list[i]
+        removePack.meteo.push(meteo.id);
+      } else
+        pack.push(meteo.retrieveUpdatePack()); //pushes the UPDATE pack for the target
+    }
+    return pack;
+  }
+
+  Meteo.mergePack = function () {
+    var meteo = [];
+    for (var i in Meteo.list)
+      meteo.push(Meteo.list[i].retrieveInfoPack()); //pushes the info pack for the target
+    return meteo;
   }
 
 

@@ -21,12 +21,6 @@ var playerName = null;
 //   console.log(result.username);
 // }}
 
-// db.collection('account').find({}).toArray(function(err, result) {
-//     if (err) throw err;
-//   console.log(result);
-// });
-
-
 // var checkingInfo = function(data,cb){
 // db.account.find({username:data.username},function(err,res){
 //   if(res.length > 0) {
@@ -63,73 +57,6 @@ var isValidPassword = function (data, cb) { //data + call back
   });
 }
 
-// var getAllScores = db.account.find({}, { username: 1, score: 1 }).toArray(function (err, result) {
-//   if (err) throw err;
-//   // console.log(result);
-//   return result;
-//   // return {result};
-// });
-
-// function getAllScores(result) {
-//   db.account.find({}, { username: 1, score: 1 }).toArray(function(err, result) {
-//     if (err) throw err;
-//     return result;
-//   });
-// }
-
-// function getAllScores() {  /////////////////////
-//   var scoresFromDb = db.account.find({}, { username: 1, score: 1 }).toArray(function(err, result) {
-//     if (err) throw err;
-
-//     return result;
-//   })
-//   return scoresFromDb;
-// }
-
-// var allScores = getAllScores();
-
-// console.log(allScores + ' all');
-// console.log(getAllScores());   //////////////////
-
-// function resolveAfter1() {
-//   return new Promise(resolve => {
-//     var scoresFromDb = db.account.find({}, { username: 1, score: 1 }).toArray(function(err, result) {
-//           if (err) throw err;
-//           // return result;
-//     })
-//     setTimeout(() => {
-//       resolve('resolved');
-//     }, 1000);
-//   });
-// }
-
-// async function asyncCall() {
-//   var result = await resolveAfter1();
-//   return result;
-// }
-
-// asyncCall();
-
-// console.log(asyncCall());
-
-// function resolveAfter1() {
-//   return new Promise(resolve => {
-//     var scoresFromDb = db.account.find({}, { username: 1, score: 1 }).toArray(function(err, result) {
-//           if (err) throw err;
-//           // return result;
-//     })
-//     setTimeout(() => {
-//       resolve('resolved');
-//     }, 1000);
-//   });
-// }
-
-// async function asyncCall() {
-//   var result = await resolveAfter1();
-//   console.log(result); // here's your result
-//   return result;
-// }
-
 // asyncCall().then(result => console.log(result));
 
 function resolveAfter1() {
@@ -151,30 +78,9 @@ resolveAfter1() // resolve function
 async function asyncCall() {
   var result = await resolveAfter1();
   return result
-  // console.log(result);
 }
-
 // asyncCall().then((res) => console.log(res)); *****************************
-// console.log(asyncCall(), ' why is it still pending?');
 
-// (async () => {
-//   console.log(await asyncCall(), 'is it pending?')
-// })
-
-  //   async function run() {
-  //     console.log(await asyncCall());
-  //  }
-   
-  //  run();
-    
-// resolveAfter1().then(function(result){
-  //   console.log(result);
-  //   return 'normalReturn';
-  // })
-  // .then(function(result){
-  //   console.log(result);
-  // })
-// socket.on('playerData',function(data){
 module.exports.checkInfo = function (obj) {
   db.account.findOne({ username: playerName }, function (err, result) {
     if (err) console.log(err);
@@ -249,14 +155,9 @@ io.sockets.on('connection', function (socket) {
     Player.onDisconnect(socket);
   });
 
-//   socket.emit('allScores', {
-//     scores: getAllScores
-// });
-
 // socket.emit('allScores', asyncCall());
 // asyncCall.then((res) => socket.emit('allScores', res))
 asyncCall().then((res) => socket.emit('allScores', res));
- 
 
 });
 
