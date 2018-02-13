@@ -364,7 +364,7 @@ me.update = function () { //this function calls a secondary update
           if (t.life <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
             var enemy = Player.list[me.parent];
             if (enemy)
-              enemy.score += 1;  //enemy who shot you gets 1 point
+              enemy.score += 5;  //enemy who shot you gets 1 point
             enemy.counter += 1; //add counter after every kill
             enemy.speedCounter += 1; //add speed after every kill
             enemy.sCounter += 1; //special enemy
@@ -384,13 +384,28 @@ me.update = function () { //this function calls a secondary update
           if (t.life <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
             var enemy = Player.list[me.parent];
             if (enemy)
-              enemy.score += 10;  //enemy who shot you gets 1 point
+              enemy.score += 15;  //enemy who shot you gets 1 point
             enemy.sCounter += 1; //add 1 to counter after every kill
             enemy.sSpeedCounter += 1; //add speed after every kill
             t.life = t.maxLife; // you get 10 healthpoints again
             t.x = Math.random() * 500; //enemy spawn random x
             t.y = Math.random() * 500; //enemy random y after dying.
             t.toRemove = true; //removes monster
+          }
+          me.toRemove = true; //remove bullet when it hits target
+        }
+      }
+      for (var i in Meteo.list) { //WORKING BULLET COLLISION WITH METEORITE **
+        var t = Meteo.list[i]
+        if (me.getDist(t) < 20 && me.parent !== t.id) { //gets distance
+          t.life -= 1; //takes away 1hp if you get hit by bullet
+
+          if (t.life <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
+            var enemy = Player.list[me.parent];
+            if (enemy)
+              enemy.score += 30;  //enemy who shot you gets 30 point
+            t.toRemove = true; //removes monster
+            enemy.addMeteo(); //adds another meteorite
           }
           me.toRemove = true; //remove bullet when it hits target
         }
@@ -632,7 +647,7 @@ me.update = function () { //this function calls a secondary update
     return monster;
   }
 
-  Meteo = function () { //Target 
+  Meteo = function () { //meteorite 
     var me = Shared(); //uses shared properties with player
     me.life = 10;
     me.maxLife = 10;
@@ -664,19 +679,33 @@ me.update = function () { //this function calls a secondary update
         console.log('y - 30');
         // me.toRemove = true;
       }
-      if(checkX >= 510 || checkY >= 510){
+      if(checkX >= 505 || checkY >= 505){
         // console.log('x PAST 530');
-        // me.toRemove = true;
         me.toRemove = true;
       }
 
       for (var i in Player.list) { ////ENEMY DETEC
         var p = Player.list[i]
         if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
-          p.healthPoints -= 8; //takes away 1hp if you get hit by bullet
+          p.healthPoints -= 8; //takes away 8hp if you get hit by bullet
           me.toRemove = true;
         }
       }
+      for (var i in Monster.list) { ////ENEMY DETEC
+        var p = Monster.list[i]
+        if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
+          p.healthPoints -= 10; //takes away 10hp if you get hit by bullet
+          // me.toRemove = true;
+        }
+      }
+      for (var i in Target.list) { ////ENEMY DETEC
+        var p = Target.list[i]
+        if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
+          p.healthPoints -= 5; //takes away 5hp if you get hit by bullet
+          // me.toRemove = true;
+        }
+      }
+
     }
 
     me.retrieveInfoPack = function () { //info pack for the monster
@@ -702,16 +731,16 @@ me.update = function () { //this function calls a secondary update
   }
   Meteo.list = {}; //monster
 
-  Meteo.update = function () {  //pushes monster
+  Meteo.update = function () {  //pushes meteorite
     var pack = [];
     for (var i in Meteo.list) {
       var meteo = Meteo.list[i];
-      meteo.update(); //cals for the update on the target INFO
-      if (meteo.toRemove) { //if triggered it will remove the Target pack but its currently disabled!
+      meteo.update(); //cals for the update on the meteorite INFO
+      if (meteo.toRemove) { //if triggered it will remove the meteorite pack but its currently disabled!
         delete Meteo.list[i]
         removePack.meteo.push(meteo.id);
       } else
-        pack.push(meteo.retrieveUpdatePack()); //pushes the UPDATE pack for the target
+        pack.push(meteo.retrieveUpdatePack()); //pushes the UPDATE pack for the meteorite
     }
     return pack;
   }
@@ -719,7 +748,7 @@ me.update = function () { //this function calls a secondary update
   Meteo.mergePack = function () {
     var meteo = [];
     for (var i in Meteo.list)
-      meteo.push(Meteo.list[i].retrieveInfoPack()); //pushes the info pack for the target
+      meteo.push(Meteo.list[i].retrieveInfoPack()); //pushes the info pack for the meteorite
     return meteo;
   }
 
