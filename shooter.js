@@ -61,19 +61,19 @@ var isValidPassword = function (data, cb) { //data + call back
 
 function resolveAfter1() {
   return new Promise((resolve, reject) => {
-    var scoresFromDb = db.account.find({}, { username: 1, score: 1 }).toArray(function(err, result) {
-          if (err) 
-              reject(err);
-          else
-              resolve(result);
-              // console.log(result);
+    var scoresFromDb = db.account.find({}, { username: 1, score: 1 }).toArray(function (err, result) {
+      if (err)
+        reject(err);
+      else
+        resolve(result);
+      // console.log(result);
     });
   });
 }
 
 resolveAfter1() // resolve function
-    .then((result)=>{console.log(result);})
-    .catch((error)=>{console.log(error);})
+  .then((result) => { console.log(result); })
+  .catch((error) => { console.log(error); })
 
 async function asyncCall() {
   var result = await resolveAfter1();
@@ -155,9 +155,9 @@ io.sockets.on('connection', function (socket) {
     Player.onDisconnect(socket);
   });
 
-// socket.emit('allScores', asyncCall());
-// asyncCall.then((res) => socket.emit('allScores', res))
-asyncCall().then((res) => socket.emit('allScores', res));
+  // socket.emit('allScores', asyncCall());
+  // asyncCall.then((res) => socket.emit('allScores', res))
+  asyncCall().then((res) => socket.emit('allScores', res));
 
 });
 

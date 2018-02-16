@@ -1,40 +1,53 @@
 <!DOCTYPE html>
-<div id="signDiv">   <!-- Signing in Div -->
-    Username: <input id="signDiv-username" type="text"></input><br>  <!--input username box -->
-    Password: <input id="signDiv-password" type="password"></input> <!--input password box -->
-    <button id="signDiv-signIn">Sign In</button> <!-- Sign in button -->
-    <button id="signDiv-signUp">Sign Up</button> <!-- Sign UP in button -->
+<div id="signDiv">
+    <!-- Signing in Div -->
+    Username:
+    <input id="signDiv-username" type="text"></input>
+    <br>
+    <!--input username box -->
+    Password:
+    <input id="signDiv-password" type="password"></input>
+    <!--input password box -->
+    <button id="signDiv-signIn">Sign In</button>
+    <!-- Sign in button -->
+    <button id="signDiv-signUp">Sign Up</button>
+    <!-- Sign UP in button -->
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
+
 <body onload="loadSound();">
-    
-<div id="gameDiv" style="display:none;">   <!-- Game Div, display none, until logged in! -->
-    <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas> 
-</div>
 
-<div id='scoreBoard'style='position: relative; left: 520px; display:none;'>
-</div>
+    <div id="gameDiv" style="display:none;">
+        <!-- Game Div, display none, until logged in! -->
+        <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas>
+    </div>
 
-<div id='GUI' style="position:absolute; width:350px; height:505px;"> <!-- change background -->
-            <button onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
-            Change BackGround Theme! 
-            </button>
-</div>
+    <div id='scoreBoard' style='position: relative; left: 520px; display:none;'>
+    </div>
+
+    <div id='GUI' style="position:absolute; width:350px; height:505px;">
+        <!-- change background -->
+        <button onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
+            Change BackGround Theme!
+        </button>
+    </div>
 </body>
 <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> <!--Mobile functionality -->
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<!--Mobile functionality -->
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> <!--Mobile functionality -->
+<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<!--Mobile functionality -->
 <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script>
-var changeMode = function(){ //change dificulty (AKA map)
-    socket.emit('changeMode');
-}
-var socket = io(); // socket io
+    var changeMode = function () { //change dificulty (AKA map)
+        socket.emit('changeMode');
+    }
+    var socket = io(); // socket io
     var WIDTH = 500;
     var HEIGHT = 500;
     var soundID = "Shot"; //sound
@@ -42,59 +55,59 @@ var socket = io(); // socket io
     var canvasWidth = 500;
 
     //signIn/Out
-var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
+    var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
     var signDivUsername = document.getElementById('signDiv-username'); //<!-- username element -->
     var signDivSignIn = document.getElementById('signDiv-signIn'); //<!-- sign in element -->
     var signDivPassword = document.getElementById('signDiv-password'); //<!-- password element -->
     var signDivUp = document.getElementById('signDiv-signUp'); //<!-- password element -->
 
 
-signDivSignIn.onclick = function(){  //<!-- clicking the sign in button does this function -->
-        socket.emit('LogIn',{username:signDivUsername.value,password:signDivPassword.value}); //<!-- emits username + password to server -->
-}
+    signDivSignIn.onclick = function () {  //<!-- clicking the sign in button does this function -->
+        socket.emit('LogIn', { username: signDivUsername.value, password: signDivPassword.value }); //<!-- emits username + password to server -->
+    }
 
-signDivUp.onclick = function(){  //<!-- clicking the sign in button does this function -->
-        socket.emit('signUp',{username:signDivUsername.value,password:signDivPassword.value}); //<!-- emits username + password to server -->
-}
+    signDivUp.onclick = function () {  //<!-- clicking the sign in button does this function -->
+        socket.emit('signUp', { username: signDivUsername.value, password: signDivPassword.value }); //<!-- emits username + password to server -->
+    }
 
-socket.on('LogInResponse',function(data){  // Sign in Response function
-        if(data.success){
+    socket.on('LogInResponse', function (data) {  // Sign in Response function
+        if (data.success) {
             signDiv.style.display = 'none'; //display none until the logging has been passed
             gameDiv.style.display = 'inline-block'; //when log in has been passed then it will display the gameDiv
             scoreBoard.style.display = 'inline';
             // scoreBoard.style += 'vertical-align:top';
-        }  else
+        } else
             alert("Sign in was unsuccessful!"); //if password or username is wrong, you get this alart
-});
+    });
 
-socket.on('signPlayerRes',function(data){  // Sign UP*** in Response function
-        if(data.success){
+    socket.on('signPlayerRes', function (data) {  // Sign UP*** in Response function
+        if (data.success) {
             alert("Sign up was successful!");
-        }  else
+        } else
             alert("Sign in was unsuccessful!"); // Not signing up
-});
+    });
 
     //game
 
-function loadSound () {
-    createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
-}
+    function loadSound() {
+        createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
+    }
 
-function playSound () { //play sound function
-    createjs.Sound.play(soundID);
-}
-var canvas = document.getElementById('canvas');
- var ctx = canvas.getContext('2d');
- ctx.font = '30px Arial';
- ctx.mozImageSmoothingEnabled = false;
- ctx.msImageSmoothingEnabled = false;
- ctx.imageSmoothingEnabled = false;
-var Img = {}; //creats image array
-    Img.bullet = new Image(); 
+    function playSound() { //play sound function
+        createjs.Sound.play(soundID);
+    }
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.font = '30px Arial';
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+    var Img = {}; //creats image array
+    Img.bullet = new Image();
     Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
-    Img.player = new Image(); 
+    Img.player = new Image();
     Img.player.src = '/client/images/enemyUFO.png'; //loads the player
-    Img.target = new Image(); 
+    Img.target = new Image();
     Img.target.src = '/client/images/player.png'; //loads the target
     Img.monster = new Image();
     Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
@@ -102,12 +115,12 @@ var Img = {}; //creats image array
     Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
 
     Img.space = {}; //two maps
-    Img.space['blackGal'] = new Image(); 
+    Img.space['blackGal'] = new Image();
     Img.space['blackGal'].src = '/client/images/blackgal.png'; //loads the background   
-    Img.space['galy'] = new Image(); 
+    Img.space['galy'] = new Image();
     Img.space['galy'].src = '/client/images/galy.png'; //loads the background     
 
-var Player = function(infoPack){
+    var Player = function (infoPack) {
         var me = {};
         me.id = infoPack.id; //id
         me.number = infoPack.number; //number
@@ -119,322 +132,321 @@ var Player = function(infoPack){
         me.healthPoints = infoPack.healthPoints; //health Points
         me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10    
 
-        me.draw = function(){	
-            var x = me.x - Player.list[meId].x + WIDTH/2;
-            var y = me.y - Player.list[meId].y + HEIGHT/2;
-            
-            var width = Img.player.width/4;  //the width of the player img /25 because it was too big
-            var height = Img.player.height/4; //the height of the player img /25 because it was too big
+        me.draw = function () {
+            var x = me.x - Player.list[meId].x + WIDTH / 2;
+            var y = me.y - Player.list[meId].y + HEIGHT / 2;
+
+            var width = Img.player.width / 4;  //the width of the player img /25 because it was too big
+            var height = Img.player.height / 4; //the height of the player img /25 because it was too big
 
             ctx.drawImage(Img.player,  //draws the image here.
-            0,0,Img.player.width,Img.player.height,
-            x-width/2,y-height/2,width,height);
+                0, 0, Img.player.width, Img.player.height,
+                x - width / 2, y - height / 2, width, height);
         }
         Player.list[me.id] = me;
         return me;
-}
-Player.list = {};
+    }
+    Player.list = {};
 
-        
-var Bullet = function(infoPack){
+
+    var Bullet = function (infoPack) {
         var me = {};
         me.id = infoPack.id;
         me.x = infoPack.x; //bullet x
         me.y = infoPack.y; //bullet y
-        me.draw = function(){
-            var width = Img.bullet.width/10; //bullet width size
-            var height = Img.bullet.height/10; //bullet height size
+        me.draw = function () {
+            var width = Img.bullet.width / 10; //bullet width size
+            var height = Img.bullet.height / 10; //bullet height size
 
-            var x = me.x - Player.list[meId].x + WIDTH/2;
-            var y = me.y - Player.list[meId].y + HEIGHT/2;
+            var x = me.x - Player.list[meId].x + WIDTH / 2;
+            var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
-            ctx.drawImage(Img.bullet,0,0,Img.bullet.width,Img.bullet.height,
-            x-width/2,y-height/2,width,height); //draws bullet
+            ctx.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height,
+                x - width / 2, y - height / 2, width, height); //draws bullet
         }
-        
-        Bullet.list[me.id] = me;		
+
+        Bullet.list[me.id] = me;
         return me;
-}
-Bullet.list = {};
-
-
-var Target = function(infoPack){
-    var me = {};
-    me.id = infoPack.id; //target id
-    me.x = infoPack.x; //target x
-    me.y = infoPack.y; //target y
-
-    me.draw = function(){
-        var width = Img.target.width/4; //target width size
-        var height = Img.target.height/4; //target height size
-
-        var x = me.x - Player.list[meId].x + WIDTH/2;
-        var y = me.y - Player.list[meId].y + HEIGHT/2;
-
-        ctx.drawImage(Img.target,0,0,Img.target.width,Img.target.height,
-        x-width/2,y-height/2,width,height); //draw enemy (Target)
     }
-    Target.list[me.id] = me;		
-    return me;
-}
-Target.list = {};
+    Bullet.list = {};
 
-var Monster = function(infoPack){
-    var me = {};
-    me.id = infoPack.id; //target id
-    me.x = infoPack.x; //target x
-    me.y = infoPack.y; //target y
-    me.draw = function(){
-        var width = Img.monster.width/4; //target width size
-        var height = Img.monster.height/4; //target height size
 
-        var x = me.x - Player.list[meId].x + WIDTH/2;
-        var y = me.y - Player.list[meId].y + HEIGHT/2;
+    var Target = function (infoPack) {
+        var me = {};
+        me.id = infoPack.id; //target id
+        me.x = infoPack.x; //target x
+        me.y = infoPack.y; //target y
 
-        ctx.drawImage(Img.monster,0,0,Img.monster.width,Img.monster.height,
-        x-width/2,y-height/2,width,height); //draw enemy (Target)
-    }
-    Monster.list[me.id] = me;		
-    return me;
-}
-Monster.list = {};
+        me.draw = function () {
+            var width = Img.target.width / 4; //target width size
+            var height = Img.target.height / 4; //target height size
 
-var Meteo = function(infoPack){
-    var me = {};
-    me.id = infoPack.id; //target id
-    me.x = infoPack.x; //target x
-    me.y = infoPack.y; //target y
-    me.draw = function(){
-        var width = Img.meteo.width/4; //target width size
-        var height = Img.meteo.height/4; //target height size
+            var x = me.x - Player.list[meId].x + WIDTH / 2;
+            var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
-        var x = me.x - Player.list[meId].x + WIDTH/2;
-        var y = me.y - Player.list[meId].y + HEIGHT/2;
-
-        ctx.drawImage(Img.meteo,0,0,Img.meteo.width,Img.meteo.height,
-        x-width/2,y-height/2,width,height); //draw enemy (Target)
-    }
-    Meteo.list[me.id] = me;		
-    return me;
-}
-Meteo.list = {};
-
-var meId = null;
-Player.list[meId];
-
-//player and bullet info big pack
-socket.on('starterPack',function(data){
-    if(data.meId)
-    meId = data.meId;
-
-    for(var i = 0; i < data.player.length; i++){ //player
-        new Player(data.player[i]);
-    }
-    for(var i = 0; i < data.bullet.length; i++){ //bullet
-        new Bullet(data.bullet[i]);
-    }
-    for(var i = 0; i < data.target.length; i++){ //target
-        new Target(data.target[i]);
-    }
-    for(var i = 0; i < data.monster.length; i++){ //monster
-        new Monster(data.monster[i]);
-    }
-    for(var i = 0; i < data.meteo.length; i++){ //meteo
-        new Meteo(data.meteo[i]);
-    }
-});  
-socket.on('update',function(data){ // update player and bullet location - id
-    for(var i = 0; i < data.player.length; i++){
-        var pack = data.player[i];
-        var ple = Player.list[pack.id]; //if the player is logged on then do this! SAVES ME FROM ERRORS!
-        if(ple) {
-            if(pack.x !== undefined)
-            ple.x = pack.x;
-            if(pack.y !== undefined)
-            ple.y = pack.y;
-            if(pack.healthPoints !== undefined)
-            ple.healthPoints = pack.healthPoints;
-            if(pack.score !== undefined)
-            ple.score = pack.score;
-            if(pack.dead !== undefined)
-            ple.dead = pack.dead;
-            if(pack.space !== undefined)
-            ple.space = pack.space;
-
+            ctx.drawImage(Img.target, 0, 0, Img.target.width, Img.target.height,
+                x - width / 2, y - height / 2, width, height); //draw enemy (Target)
         }
+        Target.list[me.id] = me;
+        return me;
     }
+    Target.list = {};
 
-    for(var i = 0; i < data.bullet.length; i++){
-        var pack = data.bullet[i];
-        var bul = Bullet.list[data.bullet[i].id];
-        if(bul) {
-                if(pack.x !== undefined)
-                bul.x = pack.x;
-                if(pack.y !== undefined)
-                bul.y = pack.y;
-        }
-    }
+    var Monster = function (infoPack) {
+        var me = {};
+        me.id = infoPack.id; //target id
+        me.x = infoPack.x; //target x
+        me.y = infoPack.y; //target y
+        me.draw = function () {
+            var width = Img.monster.width / 4; //target width size
+            var height = Img.monster.height / 4; //target height size
 
-    for(var i = 0; i < data.target.length; i++){
-        var pack = data.target[i];
-        var tar = Target.list[data.target[i].id];
-        if(tar) {
-                if(pack.x !== undefined)
-                tar.x = pack.x;
-                if(pack.y !== undefined)
-                tar.y = pack.y;
-        }
-    }
+            var x = me.x - Player.list[meId].x + WIDTH / 2;
+            var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
-    for(var i = 0; i < data.monster.length; i++){
-        var pack = data.monster[i];
-        var tar = Monster.list[data.monster[i].id];
-        if(tar) {
-                if(pack.x !== undefined)
-                tar.x = pack.x;
-                if(pack.y !== undefined)
-                tar.y = pack.y;
+            ctx.drawImage(Img.monster, 0, 0, Img.monster.width, Img.monster.height,
+                x - width / 2, y - height / 2, width, height); //draw enemy (Target)
         }
+        Monster.list[me.id] = me;
+        return me;
     }
+    Monster.list = {};
 
-    for(var i = 0; i < data.meteo.length; i++){
-        var pack = data.meteo[i];
-        var tar = Meteo.list[data.meteo[i].id];
-        if(tar) {
-                if(pack.x !== undefined)
-                tar.x = pack.x;
-                if(pack.y !== undefined)
-                tar.y = pack.y;
+    var Meteo = function (infoPack) {
+        var me = {};
+        me.id = infoPack.id; //target id
+        me.x = infoPack.x; //target x
+        me.y = infoPack.y; //target y
+        me.draw = function () {
+            var width = Img.meteo.width / 4; //target width size
+            var height = Img.meteo.height / 4; //target height size
+
+            var x = me.x - Player.list[meId].x + WIDTH / 2;
+            var y = me.y - Player.list[meId].y + HEIGHT / 2;
+
+            ctx.drawImage(Img.meteo, 0, 0, Img.meteo.width, Img.meteo.height,
+                x - width / 2, y - height / 2, width, height); //draw enemy (Target)
         }
+        Meteo.list[me.id] = me;
+        return me;
     }
-});
-socket.on('remove',function(data){
-    for(var i = 0; i < data.player.length; i++){ //removing player
-        delete Player.list[data.player[i]];
-    }
-    for(var i = 0; i < data.bullet.length; i++){ //removing bullet
-        delete Bullet.list[data.bullet[i]];
-    }
-    for(var i = 0; i < data.target.length; i++){ //removing target
-        delete Target.list[data.target[i]];
-    }
-    for(var i = 0; i < data.monster.length; i++){ //removing monster
-        delete Monster.list[data.monster[i]];
-    }
-    for(var i = 0; i < data.meteo.length; i++){ //removing monster
-        delete Meteo.list[data.meteo[i]];
-    }
-});
+    Meteo.list = {};
+
+    var meId = null;
+    Player.list[meId];
+
+    //player and bullet info big pack
+    socket.on('starterPack', function (data) {
+        if (data.meId)
+            meId = data.meId;
+
+        for (var i = 0; i < data.player.length; i++) { //player
+            new Player(data.player[i]);
+        }
+        for (var i = 0; i < data.bullet.length; i++) { //bullet
+            new Bullet(data.bullet[i]);
+        }
+        for (var i = 0; i < data.target.length; i++) { //target
+            new Target(data.target[i]);
+        }
+        for (var i = 0; i < data.monster.length; i++) { //monster
+            new Monster(data.monster[i]);
+        }
+        for (var i = 0; i < data.meteo.length; i++) { //meteo
+            new Meteo(data.meteo[i]);
+        }
+    });
+    socket.on('update', function (data) { // update player and bullet location - id
+        for (var i = 0; i < data.player.length; i++) {
+            var pack = data.player[i];
+            var ple = Player.list[pack.id]; //if the player is logged on then do this! SAVES ME FROM ERRORS!
+            if (ple) {
+                if (pack.x !== undefined)
+                    ple.x = pack.x;
+                if (pack.y !== undefined)
+                    ple.y = pack.y;
+                if (pack.healthPoints !== undefined)
+                    ple.healthPoints = pack.healthPoints;
+                if (pack.score !== undefined)
+                    ple.score = pack.score;
+                if (pack.dead !== undefined)
+                    ple.dead = pack.dead;
+                if (pack.space !== undefined)
+                    ple.space = pack.space;
+
+            }
+        }
+
+        for (var i = 0; i < data.bullet.length; i++) {
+            var pack = data.bullet[i];
+            var bul = Bullet.list[data.bullet[i].id];
+            if (bul) {
+                if (pack.x !== undefined)
+                    bul.x = pack.x;
+                if (pack.y !== undefined)
+                    bul.y = pack.y;
+            }
+        }
+
+        for (var i = 0; i < data.target.length; i++) {
+            var pack = data.target[i];
+            var tar = Target.list[data.target[i].id];
+            if (tar) {
+                if (pack.x !== undefined)
+                    tar.x = pack.x;
+                if (pack.y !== undefined)
+                    tar.y = pack.y;
+            }
+        }
+
+        for (var i = 0; i < data.monster.length; i++) {
+            var pack = data.monster[i];
+            var tar = Monster.list[data.monster[i].id];
+            if (tar) {
+                if (pack.x !== undefined)
+                    tar.x = pack.x;
+                if (pack.y !== undefined)
+                    tar.y = pack.y;
+            }
+        }
+
+        for (var i = 0; i < data.meteo.length; i++) {
+            var pack = data.meteo[i];
+            var tar = Meteo.list[data.meteo[i].id];
+            if (tar) {
+                if (pack.x !== undefined)
+                    tar.x = pack.x;
+                if (pack.y !== undefined)
+                    tar.y = pack.y;
+            }
+        }
+    });
+    socket.on('remove', function (data) {
+        for (var i = 0; i < data.player.length; i++) { //removing player
+            delete Player.list[data.player[i]];
+        }
+        for (var i = 0; i < data.bullet.length; i++) { //removing bullet
+            delete Bullet.list[data.bullet[i]];
+        }
+        for (var i = 0; i < data.target.length; i++) { //removing target
+            delete Target.list[data.target[i]];
+        }
+        for (var i = 0; i < data.monster.length; i++) { //removing monster
+            delete Monster.list[data.monster[i]];
+        }
+        for (var i = 0; i < data.meteo.length; i++) { //removing monster
+            delete Meteo.list[data.meteo[i]];
+        }
+    });
 
     //draw
-setInterval(function(){
-    if(!meId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
-        return;             //if player logs on then the below will work.
+    setInterval(function () {
+        if (!meId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
+            return;             //if player logs on then the below will work.
 
-        ctx.clearRect(0,0,500,500);
+        ctx.clearRect(0, 0, 500, 500);
         ctx.fillStyle = '#0D061F'; //screen black
-        ctx.fillRect(0,0,500,500);
+        ctx.fillRect(0, 0, 500, 500);
         drawSpace(); //draws my map
         theScore();  //draws the score
         healthP(); //draws the health
-        for(var i in Player.list)  //draws the playlist every set miliseconds
+        for (var i in Player.list)  //draws the playlist every set miliseconds
             Player.list[i].draw();
-                var t = Player.list[i]
-                    if(t.dead == true){
-                        deadMan(); //draws end score
-                    }
-        for(var i in Bullet.list) //draws the bulletlist every set miliseconds
+        var t = Player.list[i]
+        if (t.dead == true) {
+            deadMan(); //draws end score
+        }
+        for (var i in Bullet.list) //draws the bulletlist every set miliseconds
             Bullet.list[i].draw();
-        for(var i in Target.list) //draws the targetlist every set miliseconds
+        for (var i in Target.list) //draws the targetlist every set miliseconds
             Target.list[i].draw();
-        for(var i in Monster.list) //draws the monsterlist every set miliseconds
+        for (var i in Monster.list) //draws the monsterlist every set miliseconds
             Monster.list[i].draw();
-        for(var i in Meteo.list) //draws the monsterlist every set miliseconds
+        for (var i in Meteo.list) //draws the monsterlist every set miliseconds
             Meteo.list[i].draw();
-},40);
+    }, 40);
 
 
-socket.on('allScores', function(data){
-    var tableHtml = "";
-    var playerScores = data;
-    tableHtml += "<table>";
-    tableHtml += "<tr> <th> Name </th> <th> Score </th> </tr>";  
-    
-    for(var i = 0; i < playerScores.length; i++)
-    {
-        // tableHtml += "<tr><td>" + 'Player Name' + '</td><td>' + 'Player Score' + '</td></tr>'; 
-        tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>'; 
+    socket.on('allScores', function (data) {
+        var tableHtml = "";
+        var playerScores = data;
+        tableHtml += "<table>";
+        tableHtml += "<tr> <th> Name </th> <th> Score </th> </tr>";
+
+        for (var i = 0; i < playerScores.length; i++) {
+            // tableHtml += "<tr><td>" + 'Player Name' + '</td><td>' + 'Player Score' + '</td></tr>'; 
+            tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
+        }
+        tableHtml += "</table>";
+        document.getElementById("scoreBoard").innerHTML = tableHtml;
+    })
+
+    var theScore = function () {
+        ctx.fillStyle = 'white'; //score on black text
+        ctx.fillText(Player.list[meId].score, 0, 30); //draws the score for THAT player only!**
     }
-    tableHtml += "</table>";
-    document.getElementById("scoreBoard").innerHTML=tableHtml;
-})
+    var healthP = function () {
+        ctx.fillStyle = 'lime'; //score on black text
+        ctx.fillText(Player.list[meId].healthPoints, 460, 30);//shows score for that player only!
+    }
+    var deadMan = function () {
+        ctx.fillStyle = 'red'; //score on black text
+        ctx.font = 'BOLD 20px Arial';
+        ctx.fillText('GAME OVER', 180, 180);//shows score for that player only!
+        ctx.fillText('Your Score was ' + Player.list[meId].score, 100, 220)
+        ctx.fillText("Press SpaceBar to Try Again ", 100, 290);
+    }
+    var drawSpace = function () {
+        var x = WIDTH / 2 - Player.list[meId].x; //makes the character always on the middle of the map, which fixes the shots problem.
+        var y = HEIGHT / 2 - Player.list[meId].y; //same as above.
 
-var theScore = function(){
-    ctx.fillStyle = 'white'; //score on black text
-    ctx.fillText(Player.list[meId].score,0,30); //draws the score for THAT player only!**
-}
-var healthP = function(){
-    ctx.fillStyle = 'lime'; //score on black text
-    ctx.fillText(Player.list[meId].healthPoints,460,30);//shows score for that player only!
-}
-var deadMan = function(){
-    ctx.fillStyle = 'red'; //score on black text
-    ctx.font = 'BOLD 20px Arial';
-    ctx.fillText('GAME OVER',180,180);//shows score for that player only!
-    ctx.fillText('Your Score was ' + Player.list[meId].score,100,220)
-    ctx.fillText("Press SpaceBar to Try Again ",100,290);
-} 
-var drawSpace = function(){
-    var x = WIDTH/2 - Player.list[meId].x; //makes the character always on the middle of the map, which fixes the shots problem.
-    var y = HEIGHT/2 - Player.list[meId].y; //same as above.
-    
-    ctx.drawImage(Img.space[Player.list[meId].space],x,y); //draw grass function
-}
+        ctx.drawImage(Img.space[Player.list[meId].space], x, y); //draw grass function
+    }
 
 
-document.onkeydown = function(event){ //keyboard controls
-        if(event.keyCode === 39) //right arrow
-            socket.emit('movementKey' ,{inputId:'right',state:true});
-        if(event.keyCode === 40) //down arrow
-            socket.emit('movementKey' ,{inputId:'down',state:true});
-        if(event.keyCode === 37) //left arrow
-            socket.emit('movementKey' ,{inputId:'left',state:true});
-        if(event.keyCode === 38) //up arrow
-            socket.emit('movementKey' ,{inputId:'up',state:true});
-        if(event.keyCode === 32) //SPACE BAR RESET
-            socket.emit('movementKey' ,{inputId:'space',state:true});
-}
+    document.onkeydown = function (event) { //keyboard controls
+        if (event.keyCode === 39) //right arrow
+            socket.emit('movementKey', { inputId: 'right', state: true });
+        if (event.keyCode === 40) //down arrow
+            socket.emit('movementKey', { inputId: 'down', state: true });
+        if (event.keyCode === 37) //left arrow
+            socket.emit('movementKey', { inputId: 'left', state: true });
+        if (event.keyCode === 38) //up arrow
+            socket.emit('movementKey', { inputId: 'up', state: true });
+        if (event.keyCode === 32) //SPACE BAR RESET
+            socket.emit('movementKey', { inputId: 'space', state: true });
+    }
 
-document.onkeyup = function(event){
-        if(event.keyCode === 39) //right arrow
-            socket.emit('movementKey' ,{inputId:'right',state:false});
-        if(event.keyCode === 40) //down arrow
-            socket.emit('movementKey' ,{inputId:'down',state:false});
-        if(event.keyCode === 37) //left arrow
-            socket.emit('movementKey' ,{inputId:'left',state:false});
-        if(event.keyCode === 38) //up arrow
-            socket.emit('movementKey' ,{inputId:'up',state:false});
-        if(event.keyCode === 32) //up arrow
-            socket.emit('movementKey' ,{inputId:'space',state:false});
-}
+    document.onkeyup = function (event) {
+        if (event.keyCode === 39) //right arrow
+            socket.emit('movementKey', { inputId: 'right', state: false });
+        if (event.keyCode === 40) //down arrow
+            socket.emit('movementKey', { inputId: 'down', state: false });
+        if (event.keyCode === 37) //left arrow
+            socket.emit('movementKey', { inputId: 'left', state: false });
+        if (event.keyCode === 38) //up arrow
+            socket.emit('movementKey', { inputId: 'up', state: false });
+        if (event.keyCode === 32) //up arrow
+            socket.emit('movementKey', { inputId: 'space', state: false });
+    }
 
-document.onmousedown = function(event){
-    socket.emit('movementKey',{inputId:'attack',state:true}); //mouse down to attack (click)*
-    if(event.target.attributes["id"].value !== "canvas"){ // only plays shot sound once im logged in, had clickdown sound when pressing login!*
-        return;
-    } else {
-        playSound(); //plays the shot sound
-     }
-}
+    document.onmousedown = function (event) {
+        socket.emit('movementKey', { inputId: 'attack', state: true }); //mouse down to attack (click)*
+        if (event.target.attributes["id"].value !== "canvas") { // only plays shot sound once im logged in, had clickdown sound when pressing login!*
+            return;
+        } else {
+            playSound(); //plays the shot sound
+        }
+    }
 
-document.onmouseup = function(event){
-    socket.emit('movementKey',{inputId:'attack',state:false}); //when not attacking, (unlicked)*
-}
+    document.onmouseup = function (event) {
+        socket.emit('movementKey', { inputId: 'attack', state: false }); //when not attacking, (unlicked)*
+    }
 
-document.onmousemove = function(event){
-    var x = -250 + event.clientX - 8;  //500 being the whole screen
-    var y = -250 + event.clientY - 8;
-    var angle = Math.atan2(y,x) / Math.PI * 180;
-    socket.emit('movementKey',{inputId:'mouseAngle',state:angle});
-}
-  </script>
+    document.onmousemove = function (event) {
+        var x = -250 + event.clientX - 8;  //500 being the whole screen
+        var y = -250 + event.clientY - 8;
+        var angle = Math.atan2(y, x) / Math.PI * 180;
+        socket.emit('movementKey', { inputId: 'mouseAngle', state: angle });
+    }
+</script>
