@@ -66,7 +66,6 @@ function resolveAfter1() {
         reject(err);
       else
         resolve(result);
-      // console.log(result);
     });
   });
 }
