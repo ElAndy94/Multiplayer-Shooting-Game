@@ -1,5 +1,5 @@
-var infoPack = { player: [], bullet: [], target: [], monster: [], meteo: [] };
-var removePack = { player: [], bullet: [], target: [], monster: [], meteo: [] };
+var infoPack = { player: [], bullet: [], target: [], monster: [], meteo: [], hP: [] };
+var removePack = { player: [], bullet: [], target: [], monster: [], meteo: [], hP: [] };
 var shooter = require('./shooter');
 
 Shared = function () {
@@ -31,14 +31,16 @@ Shared.makeModular = function () { //this is what makes my project modular
       bullet: infoPack.bullet, //pack with info for bullet
       target: infoPack.target, //pack with info for target
       monster: infoPack.monster, //pack with info for special target
-      meteo: infoPack.meteo,
+      meteo: infoPack.meteo, //pack with meteorite
+      hP: infoPack.hP,
     },
     removePack: {
       player: removePack.player, //this is the pack that removes the players info
       bullet: removePack.bullet, //this is the pack that removes the bullet info
       target: removePack.target, //this is the pack that removes the target info
-      monster: removePack.monster,
+      monster: removePack.monster, // monster
       meteo: removePack.meteo,
+      hP: removePack.hP, 
     },
     updatePack: {
       player: Player.update(),  //this sends only the basic info (hence update pack)
@@ -46,6 +48,7 @@ Shared.makeModular = function () { //this is what makes my project modular
       target: Target.update(), //same for this one too
       monster: Monster.update(),
       meteo: Meteo.update(),
+      hP: HP.update(),
     }
   };
 
@@ -53,11 +56,14 @@ Shared.makeModular = function () { //this is what makes my project modular
   infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
   infoPack.target = []; //sets to empty so it does not repeat/duplicate
   infoPack.monster = [];
+  infoPack.meteo = [];
+  infoPack.hP = [];
   removePack.player = [];  //sets to empty so it does not repeat/duplicate
   removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
   removePack.target = [];  //sets to empty so it does not repeat/duplicate
   removePack.monster = [];
-  removePack.Meteo = [];
+  removePack.meteo = [];
+  removePack.hP = [];
   return pack;
 }
 
@@ -92,6 +98,7 @@ Player = function (id) {
 
     if (me.sCounter == 6) { //special monster
       me.addMonster(); //call addMonster function
+      me.addHP();
       me.sCounter = 0; //reset counter back to 0
     }
 
@@ -197,6 +204,11 @@ Player = function (id) {
     e.x = Math.random() * 500; //the x of the new meteo
     e.y = 1; //the y of the new meteo
   }
+  me.addHP = function (data) { //this is what makes the meteo
+    var e = HP(data);
+    e.x = Math.random() * 200; //the x of the new meteo
+    e.y = Math.random() * 300; //the y of the new meteo
+  }
   me.fireBullet = function (angle) {
     me.shootingSpeed++;
     if (me.shootingSpeed == 4) {
@@ -285,6 +297,10 @@ Player.onConnect = function (socket) {
 
   for (var i in Meteo.list) {
     var t = Meteo.list[i]
+  }
+
+  for (var i in HP.list) {
+    var t = HP.list[i]
   }
   // if(me.counter = 5){
   // var monster = Monster(socket.id);
@@ -750,6 +766,85 @@ Meteo.mergePack = function () {
   for (var i in Meteo.list)
     meteo.push(Meteo.list[i].retrieveInfoPack()); //pushes the info pack for the meteorite
   return meteo;
+}
+
+HP = function () { //hp
+  var me = Shared(); //uses shared properties with player
+  me.id = Math.random(); //random id
+  me.toRemove = false; // to remove heart
+  
+
+  var second_update = me.update;
+  me.update = function () { //this function calls a secondary update
+    second_update();
+
+
+    for (var i in Player.list) { ////ENEMY DETEC
+      var p = Player.list[i]
+      if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
+        p.healthPoints += 1; //takes away 8hp if you get hit by bullet
+        me.toRemove = true;
+      }
+    }
+    // for (var i in Monster.list) { ////ENEMY DETEC
+    //   var p = Monster.list[i]
+    //   if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
+    //     p.healthPoints -= 10; //takes away 10hp if you get hit by bullet
+    //     // me.toRemove = true;
+    //   }
+    // }
+    // for (var i in Target.list) { ////ENEMY DETEC
+    //   var p = Target.list[i]
+    //   if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
+    //     p.healthPoints -= 5; //takes away 5hp if you get hit by bullet
+    //     // me.toRemove = true;
+    //   }
+    // }
+
+  }
+
+  me.retrieveInfoPack = function () { //info pack for the hp
+    return {
+      id: me.id, //hp id, x and y 
+      x: me.x,
+      y: me.y,
+    };
+  }
+
+  me.retrieveUpdatePack = function () { //update pack for the hp
+    return {
+      id: me.id, //hp UPDATED id, x and y 
+      x: me.x,
+      y: me.y,
+    };
+  }
+
+  HP.list[me.id] = me;
+
+  infoPack.hP.push(me.retrieveInfoPack()); //pushes the info pack on the hp
+  return me;
+}
+HP.list = {}; //hp
+
+HP.update = function () {  //pushes hp
+  var pack = [];
+  for (var i in HP.list) {
+    var hP = HP.list[i];
+    hP.update(); //cals for the update on the meteorite INFO
+    if (hP.toRemove) { //if triggered it will remove the meteorite pack but its currently disabled!
+      delete HP.list[i]
+      removePack.hP.push(hP.id);
+    } else
+      pack.push(hP.retrieveUpdatePack()); //pushes the UPDATE pack for the meteorite
+  }
+  return pack;
+}
+
+HP.mergePack = function () {
+  var hP = [];
+  for (var i in HP.list)
+    hP.push(HP.list[i].retrieveInfoPack()); //pushes the info pack for the meteorite
+  return hP;
 }
 
 

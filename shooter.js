@@ -21,18 +21,6 @@ var playerName = null;
 //   console.log(result.username);
 // }}
 
-// var checkingInfo = function(data,cb){
-// db.account.find({username:data.username},function(err,res){
-//   if(res.length > 0) {
-//     cb(true);
-//     console.log(res.data.username);
-//   }
-//   else{
-//     cb(false);
-//     console.log('not found');
-//   }
-// });
-// }
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/client/index.html');

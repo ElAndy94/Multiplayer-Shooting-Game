@@ -112,6 +112,8 @@
     Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
     Img.meteo = new Image();
     Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
+    Img.hP = new Image();
+    Img.hP.src = '/client/images/hp.png'; //loads hp
 
     Img.space = {}; //two maps
     Img.space['blackGal'] = new Image();
@@ -147,7 +149,6 @@
     }
     Player.list = {};
 
-
     var Bullet = function (infoPack) {
         var me = {};
         me.id = infoPack.id;
@@ -168,7 +169,6 @@
         return me;
     }
     Bullet.list = {};
-
 
     var Target = function (infoPack) {
         var me = {};
@@ -231,6 +231,26 @@
     }
     Meteo.list = {};
 
+    var HP = function (infoPack) {
+        var me = {};
+        me.id = infoPack.id; //target id
+        me.x = infoPack.x; //target x
+        me.y = infoPack.y; //target y
+        me.draw = function () {
+            var width = Img.hP.width / 22; //target width size
+            var height = Img.hP.height / 22; //target height size
+
+            var x = me.x - Player.list[meId].x + WIDTH / 2;
+            var y = me.y - Player.list[meId].y + HEIGHT / 2;
+
+            ctx.drawImage(Img.hP, 0, 0, Img.hP.width, Img.hP.height,
+                x - width / 2, y - height / 2, width, height); //draw enemy (Target)
+        }
+        HP.list[me.id] = me;
+        return me;
+    }
+    HP.list = {};
+
     var meId = null;
     Player.list[meId];
 
@@ -253,6 +273,9 @@
         }
         for (var i = 0; i < data.meteo.length; i++) { //meteo
             new Meteo(data.meteo[i]);
+        }
+        for (var i = 0; i < data.hP.length; i++) { //hp
+            new HP(data.hP[i]);
         }
     });
     socket.on('update', function (data) { // update player and bullet location - id
@@ -319,6 +342,17 @@
                     tar.y = pack.y;
             }
         }
+
+        for (var i = 0; i < data.hP.length; i++) {
+            var pack = data.hP[i];
+            var tar = HP.list[data.hP[i].id];
+            if (tar) {
+                if (pack.x !== undefined)
+                    tar.x = pack.x;
+                if (pack.y !== undefined)
+                    tar.y = pack.y;
+            }
+        }
     });
     socket.on('remove', function (data) {
         for (var i = 0; i < data.player.length; i++) { //removing player
@@ -335,6 +369,9 @@
         }
         for (var i = 0; i < data.meteo.length; i++) { //removing monster
             delete Meteo.list[data.meteo[i]];
+        }
+        for (var i = 0; i < data.hP.length; i++) { //removing HP
+            delete HP.list[data.hP[i]];
         }
     });
 
@@ -361,8 +398,10 @@
             Target.list[i].draw();
         for (var i in Monster.list) //draws the monsterlist every set miliseconds
             Monster.list[i].draw();
-        for (var i in Meteo.list) //draws the monsterlist every set miliseconds
+        for (var i in Meteo.list) //draws the meteorite every set miliseconds
             Meteo.list[i].draw();
+        for (var i in HP.list) //draws the hp every set miliseconds
+            HP.list[i].draw();
     }, 40);
 
 
