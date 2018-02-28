@@ -326,12 +326,12 @@ Player.mergePack = function () {
 
 Player.onDisconnect = function (socket) {
   delete Player.list[socket.id]; //delete player from players list
-  delete Target.list[socket.id]; //NEED TO FIX THIS
+  delete Target.list[socket.id];
   delete Monster.list[socket.id];
   removePack.player.push(socket.id);
-  removePack.target.push(socket.id); //not really working
+  removePack.target.push(socket.id);
   removePack.monster.push(socket.id);
-  for (var i in Target.list) { //WORKING BULLET COLLISION WITH METEORITE **
+  for (var i in Target.list) { //Calls target list, to be able to remove all targets when you exit **
     var t = Target.list[i]
     t.toRemove = true;
   }
