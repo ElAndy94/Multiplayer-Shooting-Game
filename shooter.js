@@ -9,19 +9,6 @@ var playerName = null;
 //db.account.insert({username:"Melissa",password:"Astbury"});
 // db.account.remove( {"_id": ObjectId("4d512b45cc9374271b02ec4f")});
 
-// db.collection("account").findOne({}, function(err, result) {
-//   if (err) throw err;
-//   console.log(result.name);
-//   // db.close();
-// });
-
-// var checkingInfo = function(data){
-// db.collection("account").find(), function (err, result){
-//   if (err) throw err;
-//   console.log(result.username);
-// }}
-
-
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/client/index.html');
 });
