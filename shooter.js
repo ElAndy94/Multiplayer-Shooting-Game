@@ -1,6 +1,6 @@
 require('./Modular');
 var mongojs = require("mongojs"); //require mongo js packages
-var db = mongojs('localhost/shooterGame', ['account', 'score']);
+var db = mongojs('localhost/shooterGame', ['account']);
 var express = require('express'); //require the express package
 var app = express();  //use the express package
 var server = require('http').Server(app);  //require http

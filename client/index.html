@@ -1,17 +1,29 @@
 <!DOCTYPE html>
-<div id="signDiv">
-    <!-- Signing in Div -->
-    Username:
-    <input id="signDiv-username" type="text"></input>
-    <br>
-    <!--input username box -->
+<div class="container" style="width:45%" id="signDiv">
+    User Name:
+    <p class="control has-icons-left">
+        <input class="input" id="signDiv-username" type="text" placeholder="Username">
+        <span class="icon is-small is-left">
+            <i class="fas fa-user"></i>
+        </span>
+    </p>
     Password:
-    <input id="signDiv-password" type="password"></input>
-    <!--input password box -->
-    <button id="signDiv-signIn">Sign In</button>
-    <!-- Sign in button -->
-    <button id="signDiv-signUp">Sign Up</button>
-    <!-- Sign UP in button -->
+    <p class="control has-icons-left">
+        <input class="input" id="signDiv-password" type="password" placeholder="Password">
+        <span class="icon is-small is-left">
+            <i class="fas fa-lock"></i>
+        </span>
+    </p>
+
+    <p class="control">
+        <a class="button is-success" id="signDiv-signIn">Login</a>
+        </button>
+    </p>
+
+    <p class="control" style="padding-top:0.3em">
+        <a class="button is-success" id="signDiv-signUp">Sign Up</a>
+        </button>
+    </p>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -21,26 +33,28 @@
     <div id="gameDiv" style="display:none;">
         <!-- Game Div, display none, until logged in! -->
         <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas>
-    </div>
 
-    <div id='scoreBoard' style='position: relative; left: 520px; display:none;'>
-    </div>
+        <div id='scoreBoard' style='position: relative; left: 520px; display:none;'>
+        </div>
 
-    <div id='GUI' style="position:absolute; width:350px; height:505px;">
-        <!-- change background -->
-        <button onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
-            Change BackGround Theme!
-        </button>
+        <div id='GUI' style="position:absolute; width:350px; height:410px;">
+            <button class="button is-primary" onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
+                <!-- change background -->
+                Change BackGround Theme
+            </button>
+        </div>
     </div>
 </body>
-<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 <!--Mobile functionality -->
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+<script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
 
 <script>
     var changeMode = function () { //change dificulty (AKA map)
@@ -193,18 +207,18 @@
 
     var Monster = function (infoPack) {
         var me = {};
-        me.id = infoPack.id; //target id
-        me.x = infoPack.x; //target x
-        me.y = infoPack.y; //target y
+        me.id = infoPack.id; //monster id
+        me.x = infoPack.x; //monster x
+        me.y = infoPack.y; //monster y
         me.draw = function () {
-            var width = Img.monster.width / 4; //target width size
-            var height = Img.monster.height / 4; //target height size
+            var width = Img.monster.width / 4; //monster width size
+            var height = Img.monster.height / 4; //monster height size
 
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
             ctx.drawImage(Img.monster, 0, 0, Img.monster.width, Img.monster.height,
-                x - width / 2, y - height / 2, width, height); //draw enemy (Target)
+                x - width / 2, y - height / 2, width, height); //draw enemy (Monster)
         }
         Monster.list[me.id] = me;
         return me;
@@ -213,18 +227,18 @@
 
     var Meteo = function (infoPack) {
         var me = {};
-        me.id = infoPack.id; //target id
-        me.x = infoPack.x; //target x
-        me.y = infoPack.y; //target y
+        me.id = infoPack.id; //Meteo id
+        me.x = infoPack.x; //Meteo x
+        me.y = infoPack.y; //Meteo y
         me.draw = function () {
-            var width = Img.meteo.width / 4; //target width size
-            var height = Img.meteo.height / 4; //target height size
+            var width = Img.meteo.width / 4; //Meteo width size
+            var height = Img.meteo.height / 4; //Meteo height size
 
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
             ctx.drawImage(Img.meteo, 0, 0, Img.meteo.width, Img.meteo.height,
-                x - width / 2, y - height / 2, width, height); //draw enemy (Target)
+                x - width / 2, y - height / 2, width, height); //draw enemy (Meteo)
         }
         Meteo.list[me.id] = me;
         return me;
@@ -233,18 +247,18 @@
 
     var HP = function (infoPack) {
         var me = {};
-        me.id = infoPack.id; //target id
-        me.x = infoPack.x; //target x
-        me.y = infoPack.y; //target y
+        me.id = infoPack.id; //HP id
+        me.x = infoPack.x; //HP x
+        me.y = infoPack.y; //HP y
         me.draw = function () {
-            var width = Img.hP.width / 22; //target width size
-            var height = Img.hP.height / 22; //target height size
+            var width = Img.hP.width / 22; //HP width size
+            var height = Img.hP.height / 22; //HP height size
 
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
             ctx.drawImage(Img.hP, 0, 0, Img.hP.width, Img.hP.height,
-                x - width / 2, y - height / 2, width, height); //draw enemy (Target)
+                x - width / 2, y - height / 2, width, height); //draw enemy (HP)
         }
         HP.list[me.id] = me;
         return me;
@@ -408,14 +422,14 @@
     socket.on('allScores', function (data) {
         var tableHtml = "";
         var playerScores = data;
-        tableHtml += "<table>";
-        tableHtml += "<tr> <th> Name </th> <th> Score </th> </tr>";
+        tableHtml += "<table class=\"table is-striped is-hoverable is-bordered>\"";
+        tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
+        tableHtml += "<tbody>";
 
         for (var i = 0; i < playerScores.length; i++) {
-            // tableHtml += "<tr><td>" + 'Player Name' + '</td><td>' + 'Player Score' + '</td></tr>'; 
             tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
         }
-        tableHtml += "</table>";
+        tableHtml += "</tbody></table>";
         document.getElementById("scoreBoard").innerHTML = tableHtml;
     })
 
