@@ -34,7 +34,6 @@ var isValidPassword = function (data, cb) { //data + call back
 }
 
 // asyncCall().then(result => console.log(result));
-
 function resolveAfter1() {
   return new Promise((resolve, reject) => {
     var scoresFromDb = db.accounts.find({}, { username: 1, score: 1 }).toArray(function (err, result) {
@@ -71,9 +70,6 @@ module.exports.checkInfo = function (obj) {
             'score': obj.score
           }
         })
-      //   console.log('before' + obj.highestScore);
-      // obj.highestScore = obj.score;
-      // console.log(obj.highestScore);
       console.log('High Score Updated');
     }
   });
@@ -143,8 +139,5 @@ setInterval(function () {
     socket.emit('starterPack', packs.infoPack);
     socket.emit('update', packs.updatePack);
     socket.emit('remove', packs.removePack);
-    // socket.emit('allScores', getAllScores);
   }
 }, 1000 / 25);
-
-// module.exports = checkInfo;
