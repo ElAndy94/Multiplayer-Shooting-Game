@@ -22,7 +22,7 @@ console.log("Server started.");  //Sends "sever started" to the server, so i can
 var SOCKET_LIST = {};
 
 var isValidPassword = function (data, cb) { //data + call back
-  db.account.find({ username: data.username, password: data.password }, function (err, res) {
+  db.accounts.find({ username: data.username, password: data.password }, function (err, res) {
     if (res.length > 0) { //if match then its correct! SO LET USER LOG IN!
       playerName = data.username;
       cb(true);
@@ -37,7 +37,7 @@ var isValidPassword = function (data, cb) { //data + call back
 
 function resolveAfter1() {
   return new Promise((resolve, reject) => {
-    var scoresFromDb = db.account.find({}, { username: 1, score: 1 }).toArray(function (err, result) {
+    var scoresFromDb = db.accounts.find({}, { username: 1, score: 1 }).toArray(function (err, result) {
       if (err)
         reject(err);
       else
@@ -57,14 +57,14 @@ async function asyncCall() {
 // asyncCall().then((res) => console.log(res)); *****************************
 
 module.exports.checkInfo = function (obj) {
-  db.account.findOne({ username: playerName }, function (err, result) {
+  db.accounts.findOne({ username: playerName }, function (err, result) {
     if (err) console.log(err);
     var currentHighScore = result.score;
 
     // Check the new score is higher than current high score
     if (obj.score > currentHighScore) {
       // update the db if it is
-      db.account.update({ username: playerName },
+      db.accounts.update({ username: playerName },
         {
           $set: {
             // 'username' : playerName,
@@ -80,7 +80,7 @@ module.exports.checkInfo = function (obj) {
 }
 
 var takenUser = function (data, cb) {
-  db.account.find({ username: data.username }, function (err, res) {
+  db.accounts.find({ username: data.username }, function (err, res) {
     if (res.length > 0) //if match then its correct! SO LET USER LOG IN!
       cb(true);
     else
@@ -89,7 +89,7 @@ var takenUser = function (data, cb) {
 }
 
 var addPlayer = function (data, cb) {
-  db.account.insert({ username: data.username, password: data.password, score: 0 }, function (err, res) {
+  db.accounts.insert({ username: data.username, password: data.password, score: 0 }, function (err, res) {
     if (res.length > 0) //if match then its correct! SO LET USER LOG IN!
       cb();
   });
