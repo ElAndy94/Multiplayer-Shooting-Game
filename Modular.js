@@ -331,10 +331,10 @@ Player.onDisconnect = function (socket) {
   removePack.player.push(socket.id);
   removePack.target.push(socket.id); //not really working
   removePack.monster.push(socket.id);
-  for (var i in Target.list) { //WORKING BULLET COLLISION WITH METEORITE **
-    var t = Target.list[i]
-    t.toRemove = true;
-  }
+  // for (var i in Target.list) { //WORKING BULLET COLLISION WITH METEORITE **
+  //   var t = Target.list[i]
+  //   t.toRemove = true;
+  // }
 
   Player.update = function () {
     var pack = [];
@@ -850,5 +850,3 @@ Player.onDisconnect = function (socket) {
       hP.push(HP.list[i].retrieveInfoPack()); //pushes the info pack for the meteorite
     return hP;
   }
-
-
