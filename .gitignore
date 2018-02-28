@@ -2,4 +2,4 @@ client/.DS_Store
 /node_modules
 npm-debug.log
 .DS_Store
-/*.env
+/*.envnode_modules
