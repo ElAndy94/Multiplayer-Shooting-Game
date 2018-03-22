@@ -1,12 +1,13 @@
-require('./Modular');
+require('./server-logic');
 var mongojs = require("mongojs"); //require mongo js packages
-// var db = mongojs('localhost/shooterGame', ['account']);
 var db = mongojs('mongodb://admin:password@ds151908.mlab.com:51908/elandy', ['accounts']);
+
 var express = require('express'); //require the express package
 var app = express();  //use the express package
 var server = require('http').Server(app);  //require http
 var playerName = null;
 
+// var db = mongojs('localhost/shooterGame', ['account']);
 //db.account.insert({username:"Melissa",password:"Astbury"});
 // db.account.remove( {"_id": ObjectId("4d512b45cc9374271b02ec4f")});
 
@@ -14,14 +15,13 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/client/index.html');
 });
 app.use('/client', express.static(__dirname + '/client'));  //use the client file, which contails index.html
-// connection.connect();
-server.listen(process.env.PORT || 5000);
-// server.listen(8081);   //listens to the localhost:8081
+// server.listen(process.env.PORT || 5000);
+server.listen(8081);   //listens to the localhost:8081
 console.log("Server started.");  //Sends "sever started" to the server, so i can see when ive connected.
 
 var SOCKET_LIST = {};
 
-var isValidPassword = function (data, cb) { //data + call back
+var isValidPassword = function (data, cb) { 
   db.accounts.find({ username: data.username, password: data.password }, function (err, res) {
     if (res.length > 0) { //if match then its correct! SO LET USER LOG IN!
       playerName = data.username;
@@ -33,7 +33,6 @@ var isValidPassword = function (data, cb) { //data + call back
   });
 }
 
-// asyncCall().then(result => console.log(result));
 function resolveAfter1() {
   return new Promise((resolve, reject) => {
     var scoresFromDb = db.accounts.find({}, { username: 1, score: 1 }).toArray(function (err, result) {
@@ -53,13 +52,11 @@ async function asyncCall() {
   var result = await resolveAfter1();
   return result
 }
-// asyncCall().then((res) => console.log(res)); *****************************
 
 module.exports.checkInfo = function (obj) {
   db.accounts.findOne({ username: playerName }, function (err, result) {
     if (err) console.log(err);
     var currentHighScore = result.score;
-
     // Check the new score is higher than current high score
     if (obj.score > currentHighScore) {
       // update the db if it is
@@ -77,7 +74,7 @@ module.exports.checkInfo = function (obj) {
 
 var takenUser = function (data, cb) {
   db.accounts.find({ username: data.username }, function (err, res) {
-    if (res.length > 0) //if match then its correct! SO LET USER LOG IN!
+    if (res.length > 0) //if match then error
       cb(true);
     else
       cb(false);
@@ -86,7 +83,6 @@ var takenUser = function (data, cb) {
 
 var addPlayer = function (data, cb) {
   db.accounts.insert({ username: data.username, password: data.password, score: 0 }, function (err, res) {
-    if (res.length > 0) //if match then its correct! SO LET USER LOG IN!
       cb();
   });
 }
@@ -102,7 +98,6 @@ io.sockets.on('connection', function (socket) {
       if (res) {
         Player.onConnect(socket);
         socket.emit('LogInResponse', { success: true });
-        // socket.emit('playerData',(data.username));
       } else {
         socket.emit('LogInResponse', { success: false });
       }
@@ -126,8 +121,6 @@ io.sockets.on('connection', function (socket) {
     Player.onDisconnect(socket);
   });
 
-  // socket.emit('allScores', asyncCall());
-  // asyncCall.then((res) => socket.emit('allScores', res))
   asyncCall().then((res) => socket.emit('allScores', res));
 
 });

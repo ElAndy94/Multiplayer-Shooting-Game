@@ -2,7 +2,7 @@
 <div class="container" style="width:45%" id="signDiv">
     User Name:
     <p class="control has-icons-left">
-        <input class="input" id="signDiv-username" type="text" placeholder="Username">
+        <input class="input" id="signDiv-username" type="text" min="3" max="25" placeholder="Username">
         <span class="icon is-small is-left">
             <i class="fas fa-user"></i>
         </span>
@@ -36,13 +36,6 @@
 
         <div id='scoreBoard' style='position: relative; left: 520px; display:none;'>
         </div>
-
-        <div id='GUI' style="position:absolute; width:350px; height:410px;">
-            <button class="button is-primary" onclick='changeMode()' style='position:absolute; bottom:0px; left:0px;'>
-                <!-- change background -->
-                Change BackGround Theme
-            </button>
-        </div>
     </div>
 </body>
 
@@ -57,15 +50,12 @@
 <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
 
 <script>
-    var changeMode = function () { //change dificulty (AKA map)
-        socket.emit('changeMode');
-    }
     var socket = io(); // socket io
     var WIDTH = 500;
     var HEIGHT = 500;
     var soundID = "Shot"; //sound
-    var canvasHeight = 500;
-    var canvasWidth = 500;
+    // var canvasHeight = 500;
+    // var canvasWidth = 500;
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -88,7 +78,6 @@
             signDiv.style.display = 'none'; //display none until the logging has been passed
             gameDiv.style.display = 'inline-block'; //when log in has been passed then it will display the gameDiv
             scoreBoard.style.display = 'inline';
-            // scoreBoard.style += 'vertical-align:top';
         } else
             alert("Sign in was unsuccessful!"); //if password or username is wrong, you get this alart
     });
@@ -101,7 +90,6 @@
     });
 
     //game
-
     function loadSound() {
         createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
     }
@@ -151,8 +139,8 @@
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
-            var width = Img.player.width / 4;  //the width of the player img /25 because it was too big
-            var height = Img.player.height / 4; //the height of the player img /25 because it was too big
+            var width = Img.player.width / 4;  //the width of the player img /4 because it was too big
+            var height = Img.player.height / 4; //the height of the player img /4 because it was too big
 
             ctx.drawImage(Img.player,  //draws the image here.
                 0, 0, Img.player.width, Img.player.height,

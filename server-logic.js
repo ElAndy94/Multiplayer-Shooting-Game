@@ -11,13 +11,16 @@ Shared = function () {
     speedY: 0, //speed Y defult to 0
     space: 'blackGal',
   }
+
   me.update = function () {
     me.updatePos(); //update char or bullet position
   }
+
   me.updatePos = function () {
     me.x += me.speedX;
     me.y += me.speedY;
   }
+
   me.getDist = function (pt) {
     return Math.sqrt(Math.pow(me.x - pt.x, 2) + Math.pow(me.y - pt.y, 2)); //calculates distance
   }
@@ -153,7 +156,7 @@ Player = function (id) {
   me.resetEverything = function (data) {
     if (me.healthPoints <= 0) {
       me.dead = true;
-      me.pAttack = false; //attacking set to fasle which is shooting!
+      me.pAttack = false;
       me.counter = 0; //killing counter
       me.speedCounter = 0;  //speed counter
       me.sCounter = 0; //special monster
@@ -161,7 +164,6 @@ Player = function (id) {
       me.specialCounter = 0; //stops creating too many targets
       me.x = 250;
       me.y = 250;
-      //checkInfo();
       shooter.checkInfo(me);
 
       for (var i in Monster.list) { //looks into the target list
@@ -172,6 +174,11 @@ Player = function (id) {
         var t = Target.list[i] //t for target list
         t.toRemove = true;
       }
+      for (var i in HP.list) { //looks into the hp list
+        var t = HP.list[i] //t for hp list
+        t.toRemove = true;
+      }
+
       if (me.spaceReset == true) { //if i press spacebar when I die this will reset it
         me.healthPoints = 10; // player hp
         me.maxHealthPoints = 10; // the max hp a player starts with
@@ -302,10 +309,6 @@ Player.onConnect = function (socket) {
   for (var i in HP.list) {
     var t = HP.list[i]
   }
-  // if(me.counter = 5){
-  // var monster = Monster(socket.id);
-  // Math.random() * 500;
-  // }}
 
   socket.emit('starterPack', {
     meId: socket.id, //sends the id over to the client
@@ -518,14 +521,6 @@ Target = function () { //Target
       // var t = Monster.list[i]
       if (me.getDist(p) < 20 && me.target !== p.id) { //gets distance (!== p.id)
         p.healthPoints -= 1; //takes away 1hp if you get hit by bullet    
-        // if(p.healthPoints <= 0){  //if healthpoints are lower than 0 or = to 0 then this happens ->
-        //   p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
-        //   p.x = Math.random() * 500; //you spawn random x
-        //   p.y = Math.random() * 500; //spawn random y after dying.
-        //   p.score = 0;
-        //   me.toRemove = true;
-        //   Monster.toRemove = true;
-        // }
         me.x = Math.random() * 500; //sets the target at random x
         me.y = 1; //sets the target at random y
       }
@@ -686,11 +681,6 @@ Meteo = function () { //meteorite
     var checkX = me.x;
     var checkY = me.y;
 
-    // if(checkX || checkY == -30|| 530){
-    //   console.log('letmeknow');
-    //   // me.toRemove = true;
-    // }
-
     if (checkX <= -30) {
       console.log('x - 30');
       // me.toRemove = true;
@@ -715,14 +705,12 @@ Meteo = function () { //meteorite
       var p = Monster.list[i]
       if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
         p.healthPoints -= 10; //takes away 10hp if you get hit by bullet
-        // me.toRemove = true;
       }
     }
     for (var i in Target.list) { ////ENEMY DETEC
       var p = Target.list[i]
       if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
-        p.healthPoints -= 5; //takes away 5hp if you get hit by bullet
-        // me.toRemove = true;
+        p.healthPoints -= 5; //takes away 5hp if you get hit by bullet   
       }
     }
 
@@ -790,21 +778,6 @@ HP = function () { //hp
         me.toRemove = true;
       }
     }
-    // for (var i in Monster.list) { ////ENEMY DETEC
-    //   var p = Monster.list[i]
-    //   if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
-    //     p.healthPoints -= 10; //takes away 10hp if you get hit by bullet
-    //     // me.toRemove = true;
-    //   }
-    // }
-    // for (var i in Target.list) { ////ENEMY DETEC
-    //   var p = Target.list[i]
-    //   if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
-    //     p.healthPoints -= 5; //takes away 5hp if you get hit by bullet
-    //     // me.toRemove = true;
-    //   }
-    // }
-
   }
 
   me.retrieveInfoPack = function () { //info pack for the hp
