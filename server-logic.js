@@ -504,7 +504,7 @@ Target = function () { //Target
       else
         me.x -= me.speed;
 
-      if (differenceX = 0)
+      if (differenceX == 0)
         me.x = 0;
 
       if (differenceY > 0)
@@ -512,7 +512,7 @@ Target = function () { //Target
       else
         me.y -= me.speed;
 
-      if (differenceY = 0)
+      if (differenceY == 0)
         me.y = 0;
     }
 

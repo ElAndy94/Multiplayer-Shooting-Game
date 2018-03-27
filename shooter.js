@@ -1,13 +1,13 @@
 require('./server-logic');
 var mongojs = require("mongojs"); //require mongo js packages
-var db = mongojs('mongodb://admin:password@ds151908.mlab.com:51908/elandy', ['accounts']);
+// var db = mongojs('mongodb://admin:password@ds151908.mlab.com:51908/elandy', ['accounts']);
 
 var express = require('express'); //require the express package
 var app = express();  //use the express package
 var server = require('http').Server(app);  //require http
 var playerName = null;
 
-// var db = mongojs('localhost/shooterGame', ['account']);
+var db = mongojs('localhost/shooterGame', ['account']);
 //db.account.insert({username:"Melissa",password:"Astbury"});
 // db.account.remove( {"_id": ObjectId("4d512b45cc9374271b02ec4f")});
 

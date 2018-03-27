@@ -2,26 +2,26 @@
 <div class="container" style="width:45%" id="signDiv">
     User Name:
     <p class="control has-icons-left">
-        <input class="input" id="signDiv-username" type="text" min="3" max="25" placeholder="Username">
+        <input class="input" id="signDiv-username" type="text" min="4" max="12" placeholder="Username">
         <span class="icon is-small is-left">
             <i class="fas fa-user"></i>
         </span>
     </p>
     Password:
     <p class="control has-icons-left">
-        <input class="input" id="signDiv-password" type="password" placeholder="Password">
+        <input class="input" id="signDiv-password" type="password" placeholder="Password" required>
         <span class="icon is-small is-left">
             <i class="fas fa-lock"></i>
         </span>
     </p>
 
     <p class="control">
-        <a class="button is-success" id="signDiv-signIn">Login</a>
+        <button class="button is-success" type="submit" id="signDiv-signIn">Login</button>
         </button>
     </p>
 
     <p class="control" style="padding-top:0.3em">
-        <a class="button is-success" id="signDiv-signUp">Sign Up</a>
+        <button class="button is-success" type="submit" id="signDiv-signUp">Sign Up</button>
         </button>
     </p>
 </div>
@@ -70,8 +70,9 @@
     }
 
     signDivUp.onclick = function () {  //<!-- clicking the sign in button does this function -->
+        if (signDivUsername.value.length >= 4 && signDivUsername.value.length <= 12) { 
         socket.emit('signUp', { username: signDivUsername.value, password: signDivPassword.value }); //<!-- emits username + password to server -->
-    }
+    }}
 
     socket.on('LogInResponse', function (data) {  // Sign in Response function
         if (data.success) {
