@@ -1,31 +1,31 @@
 <!DOCTYPE html>
-<div class="container" style="width:45%" id="signDiv">
-    User Name:
-    <p class="control has-icons-left">
-        <input class="input" id="signDiv-username" type="text" min="3" max="25" placeholder="Username">
-        <span class="icon is-small is-left">
-            <i class="fas fa-user"></i>
-        </span>
-    </p>
-    Password:
-    <p class="control has-icons-left">
-        <input class="input" id="signDiv-password" type="password" placeholder="Password">
-        <span class="icon is-small is-left">
-            <i class="fas fa-lock"></i>
-        </span>
-    </p>
+<form>
+    <div class="container" style="width:45%" id="signDiv">
+        User Name:
+        <p class="control has-icons-left">
+            <input class="input" id="signDiv-username" type="text" minlength="4" maxlength="12" placeholder="Username" required>
+            <span class="icon is-small is-left">
+                <i class="fas fa-user"></i>
+            </span>
+        </p>
+        <!-- pattern="([A-z]){4,25}" -->
+        Password:
+        <p class="control has-icons-left">
+            <input class="input" id="signDiv-password" type="password" minlength="4" maxlength="12" placeholder="Password" required>
+            <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+            </span>
+        </p>
 
-    <p class="control">
-        <a class="button is-success" id="signDiv-signIn">Login</a>
-        </button>
-    </p>
+        <p class="control">
+            <button class="button is-success" type="submit" id="signDiv-signIn">Login</button>
+        </p>
 
-    <p class="control" style="padding-top:0.3em">
-        <a class="button is-success" id="signDiv-signUp">Sign Up</a>
-        </button>
-    </p>
-</div>
-
+        <p class="control" style="padding-top:0.3em">
+            <button class="button is-success" type="submit" id="signDiv-signUp">Sign Up</button>
+        </p>
+    </div>
+</form>
 <script src="/socket.io/socket.io.js"></script>
 
 <body onload="loadSound();">
@@ -45,7 +45,6 @@
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
-<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
 
@@ -54,8 +53,6 @@
     var WIDTH = 500;
     var HEIGHT = 500;
     var soundID = "Shot"; //sound
-    // var canvasHeight = 500;
-    // var canvasWidth = 500;
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -69,8 +66,10 @@
         socket.emit('LogIn', { username: signDivUsername.value, password: signDivPassword.value }); //<!-- emits username + password to server -->
     }
 
-    signDivUp.onclick = function () {  //<!-- clicking the sign in button does this function -->
-        socket.emit('signUp', { username: signDivUsername.value, password: signDivPassword.value }); //<!-- emits username + password to server -->
+    signDivUp.onclick = function () {
+        if (signDivUsername.value.length >= 4 && signDivUsername.value.length <= 12) {
+            socket.emit('signUp', { username: signDivUsername.value, password: signDivPassword.value }); //<!-- emits username + password to server -->
+        }
     }
 
     socket.on('LogInResponse', function (data) {  // Sign in Response function
