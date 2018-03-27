@@ -7,7 +7,7 @@ var app = express();  //use the express package
 var server = require('http').Server(app);  //require http
 var playerName = null;
 
-var db = mongojs('localhost/shooterGame', ['account']);
+// var db = mongojs('localhost/shooterGame', ['account']);
 //db.account.insert({username:"Melissa",password:"Astbury"});
 // db.account.remove( {"_id": ObjectId("4d512b45cc9374271b02ec4f")});
 
