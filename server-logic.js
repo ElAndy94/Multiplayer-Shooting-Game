@@ -499,21 +499,21 @@ Target = function () { //Target
 
       me.targetAim = Math.atan2(differenceX, differenceY) / Math.PI * 180 // TARGET AIM, NEED TO SORT IT OUT**
 
-      if (differenceX > 0) //this is what makes the target move towards the player.
+      if (differenceX > 0) {
         me.x += me.speed;
-      else
+        console.log('in x if');
+      } else {
         me.x -= me.speed;
+        console.log('in x else');
+      }
 
-      if (differenceX == 0)
-        me.x = 0;
-
-      if (differenceY > 0)
+      if (differenceY > 0) {
+        console.log('in the y if');
         me.y += me.speed;
-      else
+      } else {
         me.y -= me.speed;
-
-      if (differenceY == 0)
-        me.y = 0;
+        console.log('in y else');
+      }
     }
 
     for (var i in Player.list) { ////ENEMY DETEC
