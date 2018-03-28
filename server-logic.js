@@ -291,12 +291,12 @@ Player.onConnect = function (socket) {
   });
 
   var space = 'blackGal';
-  socket.on('changeMode', function (data) {
-    if (player.space === 'blackGal')
-      player.space = 'galy';
-    else
-      player.space = 'blackGal';
-  })
+  // socket.on('changeMode', function (data) {
+  //   if (player.space === 'blackGal')
+  //     player.space = 'galy';
+  //   else
+  //     player.space = 'blackGal';
+  // })
 
   for (var i in Monster.list) {
     var t = Monster.list[i]
@@ -317,6 +317,7 @@ Player.onConnect = function (socket) {
     target: Target.mergePack(), //sends target info pack to client
     monster: Monster.mergePack(), //sends monster info pack to client
     meteo: Meteo.mergePack(), //sends meteo pack
+    hP: HP.mergePack()
   })
 }
 
@@ -334,6 +335,7 @@ Player.onDisconnect = function (socket) {
   removePack.player.push(socket.id);
   removePack.target.push(socket.id);
   removePack.monster.push(socket.id);
+  removePack.hP.push(socket.id);
   for (var i in Target.list) { //Calls target list, to be able to remove all targets when you exit **
     var t = Target.list[i]
     t.toRemove = true;
@@ -501,18 +503,14 @@ Target = function () { //Target
 
       if (differenceX > 0) {
         me.x += me.speed;
-        console.log('in x if');
-      } else {
+      } else if (differenceX < 0) {
         me.x -= me.speed;
-        console.log('in x else');
       }
 
       if (differenceY > 0) {
-        console.log('in the y if');
         me.y += me.speed;
-      } else {
+      } else if (differenceY < 0) {
         me.y -= me.speed;
-        console.log('in y else');
       }
     }
 

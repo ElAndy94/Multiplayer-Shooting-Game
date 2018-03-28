@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <div class="container" style="width:45%" id="signDiv">
-    User Name:
-    <p class="control has-icons-left">
-        <input class="input" id="signDiv-username" type="text" min="4" max="12" placeholder="Username">
-        <span class="icon is-small is-left">
-            <i class="fas fa-user"></i>
-        </span>
-    </p>
-    Password:
-    <p class="control has-icons-left">
-        <input class="input" id="signDiv-password" type="password" placeholder="Password" required>
-        <span class="icon is-small is-left">
-            <i class="fas fa-lock"></i>
-        </span>
-    </p>
-
+    <form>
+        User Name:
+        <p class="control has-icons-left">
+            <input class="input" id="signDiv-username" type="text" min="4" max="12" placeholder="Username">
+            <span class="icon is-small is-left">
+                <i class="fas fa-user"></i>
+            </span>
+        </p>
+        Password:
+        <p class="control has-icons-left">
+            <input class="input" id="signDiv-password" type="password" placeholder="Password" required>
+            <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+            </span>
+        </p>
+    </form>
     <p class="control">
         <button class="button is-success" type="submit" id="signDiv-signIn">Login</button>
         </button>
@@ -62,14 +63,15 @@
     var signDivUp = document.getElementById('signDiv-signUp'); //<!-- password element -->
 
 
-    signDivSignIn.onclick = function () {  //<!-- clicking the sign in button does this function -->
-        socket.emit('LogIn', { username: signDivUsername.value, password: signDivPassword.value }); //<!-- emits username + password to server -->
+    signDivSignIn.onclick = function () {
+        socket.emit('LogIn', { username: signDivUsername.value, password: signDivPassword.value });
     }
 
-    signDivUp.onclick = function () {  //<!-- clicking the sign in button does this function -->
-        if (signDivUsername.value.length >= 4 && signDivUsername.value.length <= 12) { 
-        socket.emit('signUp', { username: signDivUsername.value, password: signDivPassword.value }); //<!-- emits username + password to server -->
-    }}
+    signDivUp.onclick = function () {
+        if (signDivUsername.value.length >= 4 && signDivUsername.value.length <= 12) {
+            socket.emit('signUp', { username: signDivUsername.value, password: signDivPassword.value });
+        }
+    }
 
     socket.on('LogInResponse', function (data) {  // Sign in Response function
         if (data.success) {
@@ -84,7 +86,7 @@
         if (data.success) {
             alert("Sign up was successful!");
         } else
-            alert("Sign in was unsuccessful!"); // Not signing up
+            alert("Sign in was unsuccessful, please try other credentials!"); // Not signing up
     });
 
     //game
@@ -295,7 +297,6 @@
                     ple.dead = pack.dead;
                 if (pack.space !== undefined)
                     ple.space = pack.space;
-
             }
         }
 
@@ -406,9 +407,10 @@
 
 
     socket.on('allScores', function (data) {
-        var tableHtml = "";
+        var tableHtml = "<h3 class=\"title is-size-4\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
         var playerScores = data;
         tableHtml += "<table class=\"table is-striped is-hoverable is-bordered>\"";
+        // tableHtml += "<thead> <tr><th> HighScore Board </th><tr> </thead>";
         tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
         tableHtml += "<tbody>";
 
