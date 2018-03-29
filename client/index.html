@@ -1,32 +1,28 @@
 <!DOCTYPE html>
-<div class="container" style="width:45%" id="signDiv">
-    <form>
-        User Name:
-        <p class="control has-icons-left">
-            <input class="input" id="signDiv-username" type="text" min="4" max="12" placeholder="Username">
-            <span class="icon is-small is-left">
-                <i class="fas fa-user"></i>
-            </span>
-        </p>
-        Password:
-        <p class="control has-icons-left">
-            <input class="input" id="signDiv-password" type="password" placeholder="Password" required>
-            <span class="icon is-small is-left">
-                <i class="fas fa-lock"></i>
-            </span>
-        </p>
-    </form>
-    <p class="control">
-        <button class="button is-success" type="submit" id="signDiv-signIn">Login</button>
-        </button>
-    </p>
+<div class="container" id="signDiv" style="width:45%">
 
+    User Name:
+    <p class="control has-icons-left">
+        <input class="input" id="signDiv-username" type="text" minlength="4" maxlength="12" placeholder="Username">
+        <span class="icon is-small is-left">
+            <i class="fas fa-user"></i>
+        </span>
+    </p>
+    Password:
+    <p class="control has-icons-left">
+        <input class="input" id="signDiv-password" type="password" minlength="4" maxlength="12" placeholder="Password" required>
+        <span class="icon is-small is-left">
+            <i class="fas fa-lock"></i>
+        </span>
+    </p>
+    <p class="control">
+        <button class="button is-success" id="signDiv-signIn">Login</button>
+
+    </p>
     <p class="control" style="padding-top:0.3em">
-        <button class="button is-success" type="submit" id="signDiv-signUp">Sign Up</button>
-        </button>
+        <button class="button is-success" id="signDiv-signUp">Sign Up</button>
     </p>
 </div>
-
 <script src="/socket.io/socket.io.js"></script>
 
 <body onload="loadSound();">
@@ -48,6 +44,26 @@
 <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
+<!-- <link rel="stylesheet" type="text/html" href="/client/public/styles.css"> -->
+<style>
+    td,
+    th,
+    .title {
+        -webkit-touch-callout: none;
+        /* iOS Safari */
+        -webkit-user-select: none;
+        /* Safari */
+        -khtml-user-select: none;
+        /* Konqueror HTML */
+        -moz-user-select: none;
+        /* Firefox */
+        -ms-user-select: none;
+        /* Internet Explorer/Edge */
+        user-select: none !important;
+        /* Non-prefixed version, currently
+        supported by Chrome and Opera */
+    }
+</style>
 
 <script>
     var socket = io(); // socket io
@@ -61,10 +77,13 @@
     var signDivSignIn = document.getElementById('signDiv-signIn'); //<!-- sign in element -->
     var signDivPassword = document.getElementById('signDiv-password'); //<!-- password element -->
     var signDivUp = document.getElementById('signDiv-signUp'); //<!-- password element -->
-
+    // var gameDiv = document.getElementById('gameDiv');
+    // var scoreBoard = document.getElementById('scoreBoard');
 
     signDivSignIn.onclick = function () {
-        socket.emit('LogIn', { username: signDivUsername.value, password: signDivPassword.value });
+        if (signDivUsername.value.length >= 4 && signDivUsername.value.length <= 12) {
+            socket.emit('LogIn', { username: signDivUsername.value, password: signDivPassword.value });
+        }
     }
 
     signDivUp.onclick = function () {
@@ -74,6 +93,7 @@
     }
 
     socket.on('LogInResponse', function (data) {  // Sign in Response function
+        console.log(data);
         if (data.success) {
             signDiv.style.display = 'none'; //display none until the logging has been passed
             gameDiv.style.display = 'inline-block'; //when log in has been passed then it will display the gameDiv
@@ -119,9 +139,7 @@
 
     Img.space = {}; //two maps
     Img.space['blackGal'] = new Image();
-    Img.space['blackGal'].src = '/client/images/blackgal.png'; //loads the background   
-    Img.space['galy'] = new Image();
-    Img.space['galy'].src = '/client/images/galy.png'; //loads the background     
+    Img.space['blackGal'].src = '/client/images/blackgal.png'; //loads the background       
 
     var Player = function (infoPack) {
         var me = {};
@@ -407,10 +425,11 @@
 
 
     socket.on('allScores', function (data) {
-        var tableHtml = "<h3 class=\"title is-size-4\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
-        var playerScores = data;
+        var tableHtml = "<h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
+        var playerScores = data.sort((a, b)=>{
+            return b.score - a.score;
+        });
         tableHtml += "<table class=\"table is-striped is-hoverable is-bordered>\"";
-        // tableHtml += "<thead> <tr><th> HighScore Board </th><tr> </thead>";
         tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
         tableHtml += "<tbody>";
 
@@ -472,10 +491,12 @@
 
     document.onmousedown = function (event) {
         socket.emit('movementKey', { inputId: 'attack', state: true }); //mouse down to attack (click)*
-        if (event.target.attributes["id"].value !== "canvas") { // only plays shot sound once im logged in, had clickdown sound when pressing login!*
-            return;
-        } else {
-            playSound(); //plays the shot sound
+        if (event.target.attributes['id']) {
+            if (event.target.attributes["id"].value !== "canvas") { // only plays shot sound once im logged in, had clickdown sound when pressing login!*
+                return;
+            } else {
+                playSound(); //plays the shot sound
+            }
         }
     }
 

@@ -6,6 +6,7 @@ var express = require('express'); //require the express package
 var app = express();  //use the express package
 var server = require('http').Server(app);  //require http
 var playerName = null;
+var path = require('path');
 
 // var db = mongojs('localhost/shooterGame', ['account']);
 //db.account.insert({username:"Melissa",password:"Astbury"});
@@ -15,8 +16,9 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/client/index.html');
 });
 app.use('/client', express.static(__dirname + '/client'));  //use the client file, which contails index.html
-server.listen(process.env.PORT || 5000);
-// server.listen(8081);   //listens to the localhost:8081
+app.use(express.static(path.join(__dirname, 'public')));
+// server.listen(process.env.PORT || 5000);
+server.listen(8081);   //listens to the localhost:8081
 console.log("Server started.");  //Sends "sever started" to the server, so i can see when ive connected.
 
 var SOCKET_LIST = {};
