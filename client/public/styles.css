@@ -7,3 +7,8 @@ td {
               user-select: none !important; /* Non-prefixed version, currently
                                     supported by Chrome and Opera */
   }
+
+#results {
+  padding-left: 6em;
+  padding-top: 2em;
+}

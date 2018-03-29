@@ -44,7 +44,7 @@
 <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
-<!-- <link rel="stylesheet" type="text/html" href="/client/public/styles.css"> -->
+<link rel="stylesheet" type="text/html" href="/client/public/styles.css">
 <style>
     td,
     th,
@@ -425,10 +425,11 @@
 
 
     socket.on('allScores', function (data) {
-        var tableHtml = "<h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
+        var tableHtml = "<div id=\"results\"> <h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
         var playerScores = data.sort((a, b)=>{
             return b.score - a.score;
         });
+
         tableHtml += "<table class=\"table is-striped is-hoverable is-bordered>\"";
         tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
         tableHtml += "<tbody>";
@@ -436,7 +437,7 @@
         for (var i = 0; i < playerScores.length; i++) {
             tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
         }
-        tableHtml += "</tbody></table>";
+        tableHtml += "</tbody></table></div>";
         document.getElementById("scoreBoard").innerHTML = tableHtml;
     })
 
