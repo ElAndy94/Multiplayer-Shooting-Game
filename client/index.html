@@ -44,26 +44,8 @@
 <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
-<link rel="stylesheet" type="text/html" href="/client/public/styles.css">
-<style>
-    td,
-    th,
-    .title {
-        -webkit-touch-callout: none;
-        /* iOS Safari */
-        -webkit-user-select: none;
-        /* Safari */
-        -khtml-user-select: none;
-        /* Konqueror HTML */
-        -moz-user-select: none;
-        /* Firefox */
-        -ms-user-select: none;
-        /* Internet Explorer/Edge */
-        user-select: none !important;
-        /* Non-prefixed version, currently
-        supported by Chrome and Opera */
-    }
-</style>
+<link rel="stylesheet" type="text/css" href="/client/public/styles.css">
+
 
 <script>
     var socket = io(); // socket io
@@ -83,17 +65,20 @@
     signDivSignIn.onclick = function () {
         if (signDivUsername.value.length >= 4 && signDivUsername.value.length <= 12) {
             socket.emit('LogIn', { username: signDivUsername.value, password: signDivPassword.value });
+        } else {
+            alert("Sign in was unsuccessful!");
         }
     }
 
     signDivUp.onclick = function () {
         if (signDivUsername.value.length >= 4 && signDivUsername.value.length <= 12) {
             socket.emit('signUp', { username: signDivUsername.value, password: signDivPassword.value });
+        } else {
+            alert("Sign up was unsuccessful!");
         }
     }
 
     socket.on('LogInResponse', function (data) {  // Sign in Response function
-        console.log(data);
         if (data.success) {
             signDiv.style.display = 'none'; //display none until the logging has been passed
             gameDiv.style.display = 'inline-block'; //when log in has been passed then it will display the gameDiv
@@ -104,7 +89,7 @@
 
     socket.on('signPlayerRes', function (data) {  // Sign UP*** in Response function
         if (data.success) {
-            alert("Sign up was successful!");
+            alert("Sign up was successful, please press log in");
         } else
             alert("Sign in was unsuccessful, please try other credentials!"); // Not signing up
     });
@@ -426,7 +411,7 @@
 
     socket.on('allScores', function (data) {
         var tableHtml = "<div id=\"results\"> <h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
-        var playerScores = data.sort((a, b)=>{
+        var playerScores = data.sort((a, b) => {
             return b.score - a.score;
         });
 
