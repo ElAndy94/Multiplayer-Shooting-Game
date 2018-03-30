@@ -145,7 +145,7 @@
             
             var hpBar = 30 * me.healthPoints / me.maxHealthPoints;
             ctx.fillStyle = 'red';
-            ctx.fillRect(x - hpBar/2, y - 40, hpBar,4);
+            ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
             if(me.healthPoints <= 0){
                hpBar = 0;
             } 
@@ -167,6 +167,7 @@
         me.id = infoPack.id;
         me.x = infoPack.x; //bullet x
         me.y = infoPack.y; //bullet y
+
         me.draw = function () {
             var width = Img.bullet.width / 10; //bullet width size
             var height = Img.bullet.height / 10; //bullet height size
@@ -270,8 +271,8 @@
         me.x = infoPack.x; //fire x
         me.y = infoPack.y; //fire y
         me.draw = function () {
-            var width = Img.fire.width / 2; //fire width size
-            var height = Img.fire.height / 2; //fire height size
+            var width = Img.fire.width / 4; //fire width size
+            var height = Img.fire.height / 4; //fire height size
 
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
