@@ -120,6 +120,8 @@
     Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
     Img.hP = new Image();
     Img.hP.src = '/client/images/hp.png'; //loads hp
+    Img.fire = new Image();
+    Img.fire.src = '/client/images/energy.png';//loads the fire
 
     Img.space = {}; //two maps
     Img.space['blackGal'] = new Image();
@@ -140,10 +142,13 @@
         me.draw = function () {
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
-
+            
             var hpBar = 30 * me.healthPoints / me.maxHealthPoints;
             ctx.fillStyle = 'red';
             ctx.fillRect(x - hpBar/2, y - 40, hpBar,4);
+            if(me.healthPoints <= 0){
+               hpBar = 0;
+            } 
 
             var width = Img.player.width / 4;  //the width of the player img /4 because it was too big
             var height = Img.player.height / 4; //the height of the player img /4 because it was too big
@@ -265,13 +270,13 @@
         me.x = infoPack.x; //fire x
         me.y = infoPack.y; //fire y
         me.draw = function () {
-            var width = Img.bullet.width / 10; //fire width size
-            var height = Img.bullet.height / 10; //fire height size
+            var width = Img.fire.width / 2; //fire width size
+            var height = Img.fire.height / 2; //fire height size
 
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
-            ctx.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height,
+            ctx.drawImage(Img.fire, 0, 0, Img.fire.width, Img.fire.height,
                 x - width / 2, y - height / 2, width, height); //draws fire
         }
 
@@ -395,7 +400,7 @@
                     bul.y = pack.y;
             }
         }
-        
+
     });
     socket.on('remove', function (data) {
         for (var i = 0; i < data.player.length; i++) { //removing player

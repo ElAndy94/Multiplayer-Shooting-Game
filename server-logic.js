@@ -172,8 +172,8 @@ Player = function (id) {
       me.y = 250;
       shooter.checkInfo(me);
 
-      for (var i in Monster.list) { //looks into the target list
-        var m = Monster.list[i] //t for target list
+      for (var i in Monster.list) { //looks into the monster list
+        var m = Monster.list[i] //t for monster list
         m.toRemove = true;
       }
       for (var i in Target.list) { //looks into the target list
@@ -184,6 +184,15 @@ Player = function (id) {
         var t = HP.list[i] //t for hp list
         t.toRemove = true;
       }
+      for (var i in Fire.list) { //looks into the fire list
+        var t = Fire.list[i] //t for fire list
+        t.toRemove = true;
+      }
+      for (var i in Bullet.list) { //looks into the fire list
+        var t = Bullet.list[i] //t for fire list
+        t.toRemove = true;
+      }
+
 
       if (me.spaceReset == true) { //if i press spacebar when I die this will reset it
         me.healthPoints = 10; // player hp
@@ -335,13 +344,19 @@ Player.onDisconnect = function (socket) {
   delete Target.list[socket.id];
   delete Monster.list[socket.id];
   delete Fire.list[socket.id];
+  delete Bullet.list[socket.id];
   removePack.player.push(socket.id);
   removePack.target.push(socket.id);
   removePack.monster.push(socket.id);
   removePack.hP.push(socket.id);
   removePack.fire.push(socket.id);
+  removePack.bullet.push(socket.id);
   for (var i in Target.list) { //Calls target list, to be able to remove all targets when you exit **
     var t = Target.list[i]
+    t.toRemove = true;
+  }
+  for (var i in Fire.list) { //Calls Fire list, to be able to remove all Fire when you exit **
+    var t = Fire.list[i]
     t.toRemove = true;
   }
 }
@@ -375,15 +390,15 @@ Bullet = function (parent, angle) { //bullet
       if (me.getDist(p) < 32 && me.parent !== p.id) { //gets distance
         p.healthPoints -= 1; //takes away 1hp if you get hit by bullet
         if (p.healthPoints <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
-          var enemy = Player.list[me.parent];
-          if (enemy)
-            enemy.score += 1;  //enemy who shot you gets 1 point
-          p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
-          p.x = Math.random() * 500; //you spawn random x
-          p.y = Math.random() * 500; //spawn random y after dying.
-          p.score = 0;
+          // var enemy = Player.list[me.parent];
+          // if (enemy)
+          //   enemy.score += 1;  //enemy who shot you gets 1 point
+          // // p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
+          // // p.x = Math.random() * 500; //you spawn random x
+          // // p.y = Math.random() * 500; //spawn random y after dying.
+          // p.score = 0;
+          me.toRemove = true;
         }
-        me.toRemove = true;
       }
     }
     for (var i in Target.list) { //WORKING BULLET COLLISION WITH TARGET **
@@ -493,6 +508,7 @@ Target = function () { //Target
   me.id = Math.random(); //random id
   me.speed = 1; //target speed
   me.targetAim = 0; //target aim
+  me.toRemove = false;
 
   for (var i in Player.list) { //Player list
     var p = Player.list[i]
@@ -506,16 +522,17 @@ Target = function () { //Target
     }
 
     setInterval(function () {
-      var differenceX = p.x - me.x; //players x - targets x
-      var differenceY = p.y - me.y; //players y - targets y
-      me.angle = Math.atan2(differenceY, differenceX) / Math.PI * 180
-      // me.angle = Math.atan((me.y - p.y) / (me.x - p.x)) || 0;
-      // console.log(me.angle);
-      me.fireBullet(me.angle); //target angle attack
+      if (p.healthPoints > 0) {
+        var differenceX = p.x - me.x; //players x - targets x
+        var differenceY = p.y - me.y; //players y - targets y
+        me.angle = Math.atan2(differenceY, differenceX) / Math.PI * 180
+        // me.angle = Math.atan((me.y - p.y) / (me.x - p.x)) || 0;
+        me.fireBullet(me.angle); //target angle attack
+      }
     }
-      , 1500);
-  }
+      , 1800);
 
+  }
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
     second_update();
@@ -525,8 +542,6 @@ Target = function () { //Target
 
       var differenceX = p.x - me.x; //players x - targets x
       var differenceY = p.y - me.y; //players y - targets y
-
-      // me.targetAim = Math.atan2(differenceX, differenceY) / Math.PI * 180 // TARGET AIM, NEED TO SORT IT OUT**
 
       if (differenceX > 0) {
         me.x += me.speed;
@@ -544,10 +559,13 @@ Target = function () { //Target
     for (var i in Player.list) { ////ENEMY DETEC
       var p = Player.list[i]
       if (me.getDist(p) < 20 && me.target !== p.id) { //gets distance (!== p.id)
-        p.healthPoints -= 1; //takes away 1hp if you get hit by bullet    
+        p.healthPoints -= 1; //takes away 1hp if you get hit by bullet 
         me.x = Math.random() * 500; //sets the target at random x
         me.y = 1; //sets the target at random y
-      }
+        if (p.healthPoints <= 0) {
+          me.toRemove = true;
+        }
+      } //might need to remove this me.toremove
     }
   }
 
@@ -589,10 +607,10 @@ Target.update = function () {  //pushes target
 }
 
 Target.mergePack = function () {
-  var target = [];
+  var targets = [];
   for (var i in Target.list)
-    target.push(Target.list[i].retrieveInfoPack()); //pushes the info pack for the target
-  return target;
+    targets.push(Target.list[i].retrieveInfoPack()); //pushes the info pack for the target
+  return targets;
 }
 
 Monster = function () { //Target 
@@ -843,75 +861,72 @@ HP.mergePack = function () {
 Fire = function (parent, angle) { //fire 
   var me = Shared(); //uses shared properties with player
   me.id = Math.random(); //random id
-  me.speedX = Math.cos(angle / 180 * Math.PI) * 10;
-  me.speedY = Math.sin(angle / 180 * Math.PI) * 10;
+  me.speedX = Math.cos(angle / 180 * Math.PI) * 7;
+  me.speedY = Math.sin(angle / 180 * Math.PI) * 7;
   me.parent = parent; //so you dont shoot yourself.
   me.timer = 0; //fire timer - dies at 100.
   me.toRemove = false; //if shot yourself then = true.
   var second_update = me.update;
 
   me.update = function () {
-    if (me.timer++ > 35) //timeout on fire traveling
+    if (me.timer++ > 50) //timeout on fire traveling
       me.toRemove = true; //removes it
     second_update();
 
     for (var i in Player.list) {
       var p = Player.list[i]
-      if (me.getDist(p) < 32 && me.parent !== p.id) { //gets distance
+      if (me.getDist(p) < 20 && me.parent !== p.id) { //gets distance
         p.healthPoints -= 1; //takes away 1hp if you get hit by the fire
         if (p.healthPoints <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
-          var enemy = Player.list[me.parent];
-          if (enemy)
-            enemy.score += 1;  //enemy who shot you gets 1 point
-          p.healthPoints = p.maxHealthPoints; // you get 10 healthpoints again
-          p.x = Math.random() * 500; //you spawn random x
-          p.y = Math.random() * 500; //spawn random y after dying.
-          p.score = 0;
+          me.toRemove = true;
+          for (var i in Target.list) {
+            var t = Target.list[i]
+            t.toRemove = true;
+          }
         }
-        me.toRemove = true;
       }
     }
   }
-    me.retrieveInfoPack = function () { //retrives the info pack for the fire
-      return {
-        id: me.id, //fire ID, x and y
-        x: me.x,
-        y: me.y,
-      };
-    }
-
-    me.retrieveUpdatePack = function () { //retrives the UPDATE pack for the fire
-      return {
-        id: me.id, //Updated fire ID, x and y
-        x: me.x,
-        y: me.y,
-      };
-    }
-
-    Fire.list[me.id] = me;
-    infoPack.fire.push(me.retrieveInfoPack());
-    return me;
-  }
-  Fire.list = {}; //fire 
-
-  Fire.update = function () {  //pushes fire
-    var pack = [];
-    for (var i in Fire.list) {
-      var fire = Fire.list[i];
-      fire.update(); //calls for the update on the pack
-      if (fire.toRemove) {
-        delete Fire.list[i] //remove the fire list if .toRemove is triggered at the collision stage.
-        removePack.fire.push(fire.id);
-      } else
-        pack.push(fire.retrieveUpdatePack()); //pushes the fire updated pack
-    }
-    return pack;
+  me.retrieveInfoPack = function () { //retrives the info pack for the fire
+    return {
+      id: me.id, //fire ID, x and y
+      x: me.x,
+      y: me.y,
+    };
   }
 
-  Fire.mergePack = function () {
-    var fires = [];
-    for (var i in Fire.list)
-      fires.push(Fire.list[i].retrieveInfoPack()); //pushes the fire info pack
-    return fires;
+  me.retrieveUpdatePack = function () { //retrives the UPDATE pack for the fire
+    return {
+      id: me.id, //Updated fire ID, x and y
+      x: me.x,
+      y: me.y,
+    };
   }
+
+  Fire.list[me.id] = me;
+  infoPack.fire.push(me.retrieveInfoPack());
+  return me;
+}
+Fire.list = {}; //fire 
+
+Fire.update = function () {  //pushes fire
+  var pack = [];
+  for (var i in Fire.list) {
+    var fire = Fire.list[i];
+    fire.update(); //calls for the update on the pack
+    if (fire.toRemove) {
+      delete Fire.list[i] //remove the fire list if .toRemove is triggered at the collision stage.
+      removePack.fire.push(fire.id);
+    } else
+      pack.push(fire.retrieveUpdatePack()); //pushes the fire updated pack
+  }
+  return pack;
+}
+
+Fire.mergePack = function () {
+  var fires = [];
+  for (var i in Fire.list)
+    fires.push(Fire.list[i].retrieveInfoPack()); //pushes the fire info pack
+  return fires;
+}
 
