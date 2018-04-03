@@ -52,7 +52,7 @@
     var WIDTH = 500;
     var HEIGHT = 500;
     var soundID = "Shot"; //sound
-    var soundD = "Death";
+    // var soundD = "Death";
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -98,16 +98,16 @@
     //game
     function loadSound() {
         createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
-        createjs.Sound.registerSound("assets/thunder.mp3", soundD);
+        // createjs.Sound.registerSound("assets/thunder.mp3", soundD);
     }
 
     function playSound() { //play sound function
         createjs.Sound.play(soundID);
     }
 
-    function dSound(){
-        createjs.Sound.play(soundD);
-    }
+    // function dSound(){
+    //     createjs.Sound.play(soundD);
+    // }
 
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
@@ -156,7 +156,7 @@
             
             var hpBar = 20 * me.healthPoints / me.maxHealthPoints;
             
-            console.log('ontop ', me.soundBeenPlayed);
+            // console.log('ontop ', me.soundBeenPlayed);
             if(me.healthPoints >= 5){ 
                 ctx.fillStyle = 'green';         
             } else if(me.healthPoints >=3 && me.healthPoints <= 4){               

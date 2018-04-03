@@ -133,6 +133,7 @@ Player = function (id) {
     if (me.pAttack) {
       me.fireBullet(me.mouseAngle); //mouse angle attack
     }
+    
     if (me.x <= 10) {
       me.pLeft = false;
       me.x += 3;
@@ -204,6 +205,10 @@ Player = function (id) {
     }
     for (var i in Bullet.list) { //looks into the fire list
       var t = Bullet.list[i] //t for fire list
+      t.toRemove = true;
+    }
+    for (var i in Meteo.list) { //looks into the fire list
+      var t = Meteo.list[i] //t for fire list
       t.toRemove = true;
     }
   }
@@ -895,7 +900,7 @@ Fire = function (parent, angle) { //fire
   var second_update = me.update;
 
   me.update = function () {
-    if (me.timer++ > 60) //timeout on fire traveling
+    if (me.timer++ > 57) //timeout on fire traveling
       me.toRemove = true; //removes it
     second_update();
 
