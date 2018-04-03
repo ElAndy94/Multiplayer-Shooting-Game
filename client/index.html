@@ -41,17 +41,18 @@
 <!--Mobile functionality -->
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-<script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
+<!-- <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script> -->
+<script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
 <link rel="stylesheet" type="text/css" href="/client/public/styles.css">
-
 
 <script>
     var socket = io(); // socket io
     var WIDTH = 500;
     var HEIGHT = 500;
     var soundID = "Shot"; //sound
+    var soundD = "Death";
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -97,11 +98,17 @@
     //game
     function loadSound() {
         createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
+        createjs.Sound.registerSound("assets/thunder.mp3", soundD);
     }
 
     function playSound() { //play sound function
         createjs.Sound.play(soundID);
     }
+
+    function dSound(){
+        createjs.Sound.play(soundD);
+    }
+
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     ctx.font = '30px Arial';
@@ -121,6 +128,10 @@
     Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
     Img.hP = new Image();
     Img.hP.src = '/client/images/hp.png'; //loads hp
+    Img.fire = new Image();
+    Img.fire.src = '/client/images/energy.png';//loads the fire
+    Img.key = new Image();
+    Img.key.src = '/client/images/keyboard.png'; //wasd control and arrow png
 
     Img.space = {}; //two maps
     Img.space['blackGal'] = new Image();
@@ -137,11 +148,33 @@
         me.dead = infoPack.dead; //if player is dead
         me.healthPoints = infoPack.healthPoints; //health Points
         me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10    
-
+        // me.soundBeenPlayed = infoPack.soundBeenPlayed;
+        
         me.draw = function () {
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
-
+            
+            var hpBar = 20 * me.healthPoints / me.maxHealthPoints;
+            
+            console.log('ontop ', me.soundBeenPlayed);
+            if(me.healthPoints >= 7){ 
+                ctx.fillStyle = 'green';         
+            } else if(me.healthPoints >=4 && me.healthPoints <= 6){               
+                ctx.fillStyle = 'yellow';        
+            } else if(me.healthPoints <= 3){     
+                ctx.fillStyle = 'red';      
+            }
+            ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
+            
+            if(me.healthPoints <= 0){
+               hpBar = 0;
+            //    if(me.soundBeenPlayed === false) {
+            //        playSound();
+            //        console.log('i Should be false ', me.soundBeenPlayed);
+            //         me.soundBeenPlayed = true;
+            //         console.log('I should be true ', me.soundBeenPlayed);
+            //    }
+            } 
             var width = Img.player.width / 4;  //the width of the player img /4 because it was too big
             var height = Img.player.height / 4; //the height of the player img /4 because it was too big
 
@@ -159,6 +192,7 @@
         me.id = infoPack.id;
         me.x = infoPack.x; //bullet x
         me.y = infoPack.y; //bullet y
+
         me.draw = function () {
             var width = Img.bullet.width / 10; //bullet width size
             var height = Img.bullet.height / 10; //bullet height size
@@ -180,13 +214,28 @@
         me.id = infoPack.id; //target id
         me.x = infoPack.x; //target x
         me.y = infoPack.y; //target y
+        me.life = infoPack.life;
+        me.maxLife = infoPack.maxLife;
 
         me.draw = function () {
             var width = Img.target.width / 4; //target width size
             var height = Img.target.height / 4; //target height size
-
+            
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
+
+            var hpBar = 20 * me.life / me.maxLife;
+            ctx.fillStyle = 'red';
+
+            if(me.life >= 7){ 
+                ctx.fillStyle = 'green';         
+            } else if(me.life >=4 && me.life <= 6){               
+                ctx.fillStyle = 'yellow';        
+            } else if(me.life <= 3){     
+                ctx.fillStyle = 'red';      
+            }
+            ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
+
 
             ctx.drawImage(Img.target, 0, 0, Img.target.width, Img.target.height,
                 x - width / 2, y - height / 2, width, height); //draw enemy (Target)
@@ -201,12 +250,27 @@
         me.id = infoPack.id; //monster id
         me.x = infoPack.x; //monster x
         me.y = infoPack.y; //monster y
+        me.life = infoPack.life;
+        me.maxLife = infoPack.maxLife;
+
         me.draw = function () {
             var width = Img.monster.width / 4; //monster width size
             var height = Img.monster.height / 4; //monster height size
 
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
+
+            var hpBar = 20 * me.life / me.maxLife;
+            ctx.fillStyle = 'red';
+
+            if(me.life >= 20){ 
+                ctx.fillStyle = 'green';         
+            } else if(me.life >=10 && me.life <= 19){               
+                ctx.fillStyle = 'yellow';        
+            } else if(me.life <= 9){     
+                ctx.fillStyle = 'red';      
+            }
+            ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
 
             ctx.drawImage(Img.monster, 0, 0, Img.monster.width, Img.monster.height,
                 x - width / 2, y - height / 2, width, height); //draw enemy (Monster)
@@ -256,6 +320,27 @@
     }
     HP.list = {};
 
+    var Fire = function (infoPack) {
+        var me = {};
+        me.id = infoPack.id;
+        me.x = infoPack.x; //fire x
+        me.y = infoPack.y; //fire y
+        me.draw = function () {
+            var width = Img.fire.width / 4; //fire width size
+            var height = Img.fire.height / 4; //fire height size
+
+            var x = me.x - Player.list[meId].x + WIDTH / 2;
+            var y = me.y - Player.list[meId].y + HEIGHT / 2;
+
+            ctx.drawImage(Img.fire, 0, 0, Img.fire.width, Img.fire.height,
+                x - width / 2, y - height / 2, width, height); //draws fire
+        }
+
+        Fire.list[me.id] = me;
+        return me;
+    }
+    Fire.list = {};
+
     var meId = null;
     Player.list[meId];
 
@@ -282,6 +367,9 @@
         for (var i = 0; i < data.hP.length; i++) { //hp
             new HP(data.hP[i]);
         }
+        for (var i = 0; i < data.fire.length; i++) { //fire
+            new Fire(data.fire[i]);
+        }
     });
     socket.on('update', function (data) { // update player and bullet location - id
         for (var i = 0; i < data.player.length; i++) {
@@ -300,6 +388,8 @@
                     ple.dead = pack.dead;
                 if (pack.space !== undefined)
                     ple.space = pack.space;
+                // if (pack.soundBeenPlayed !== undefined)
+                //     ple.soundBeenPlayed = pack.soundBeenPlayed;    
             }
         }
 
@@ -322,6 +412,10 @@
                     tar.x = pack.x;
                 if (pack.y !== undefined)
                     tar.y = pack.y;
+                if (pack.life !== undefined)
+                    tar.life = pack.life;
+                if (pack.maxLife !== undefined)
+                    tar.maxLife = pack.maxLife;        
             }
         }
 
@@ -333,6 +427,10 @@
                     tar.x = pack.x;
                 if (pack.y !== undefined)
                     tar.y = pack.y;
+                if (pack.life !== undefined)
+                    tar.life = pack.life;
+                if (pack.maxLife !== undefined)
+                    tar.maxLife = pack.maxLife;    
             }
         }
 
@@ -357,6 +455,18 @@
                     tar.y = pack.y;
             }
         }
+
+        for (var i = 0; i < data.fire.length; i++) {
+            var pack = data.fire[i];
+            var bul = Fire.list[data.fire[i].id];
+            if (bul) {
+                if (pack.x !== undefined)
+                    bul.x = pack.x;
+                if (pack.y !== undefined)
+                    bul.y = pack.y;
+            }
+        }
+
     });
     socket.on('remove', function (data) {
         for (var i = 0; i < data.player.length; i++) { //removing player
@@ -376,6 +486,9 @@
         }
         for (var i = 0; i < data.hP.length; i++) { //removing HP
             delete HP.list[data.hP[i]];
+        }
+        for (var i = 0; i < data.fire.length; i++) { //removing fire
+            delete Fire.list[data.fire[i]];
         }
     });
 
@@ -406,6 +519,8 @@
             Meteo.list[i].draw();
         for (var i in HP.list) //draws the hp every set miliseconds
             HP.list[i].draw();
+        for (var i in Fire.list) //draws the fire every set miliseconds
+            Fire.list[i].draw();
     }, 40);
 
 
@@ -424,6 +539,7 @@
         }
         tableHtml += "</tbody></table></div>";
         document.getElementById("scoreBoard").innerHTML = tableHtml;
+        // ctx.fillText('WASD or Arrow Key Movements', 180, 180);//shows score for that player only!
     })
 
     var theScore = function () {
@@ -450,26 +566,26 @@
 
 
     document.onkeydown = function (event) { //keyboard controls
-        if (event.keyCode === 39) //right arrow
+        if (event.keyCode === 39 || event.keyCode === 68) //right arrow || d
             socket.emit('movementKey', { inputId: 'right', state: true });
-        if (event.keyCode === 40) //down arrow
+        if (event.keyCode === 40 || event.keyCode === 83) //down arrow || s
             socket.emit('movementKey', { inputId: 'down', state: true });
-        if (event.keyCode === 37) //left arrow
+        if (event.keyCode === 37 || event.keyCode === 65) //left arrow || a
             socket.emit('movementKey', { inputId: 'left', state: true });
-        if (event.keyCode === 38) //up arrow
+        if (event.keyCode === 38 || event.keyCode === 87) //up arrow || w
             socket.emit('movementKey', { inputId: 'up', state: true });
         if (event.keyCode === 32) //SPACE BAR RESET
             socket.emit('movementKey', { inputId: 'space', state: true });
     }
 
     document.onkeyup = function (event) {
-        if (event.keyCode === 39) //right arrow
+        if (event.keyCode === 39 || event.keyCode === 68) //right arrow || d
             socket.emit('movementKey', { inputId: 'right', state: false });
-        if (event.keyCode === 40) //down arrow
+        if (event.keyCode === 40 || event.keyCode === 83) //down arrow || s
             socket.emit('movementKey', { inputId: 'down', state: false });
-        if (event.keyCode === 37) //left arrow
+        if (event.keyCode === 37 || event.keyCode === 65) //left arrow || a 
             socket.emit('movementKey', { inputId: 'left', state: false });
-        if (event.keyCode === 38) //up arrow
+        if (event.keyCode === 38 || event.keyCode === 87) //up arrow || w
             socket.emit('movementKey', { inputId: 'up', state: false });
         if (event.keyCode === 32) //up arrow
             socket.emit('movementKey', { inputId: 'space', state: false });
