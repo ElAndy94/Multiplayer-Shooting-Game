@@ -535,9 +535,16 @@
         tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
         tableHtml += "<tbody>";
 
-        for (var i = 0; i < playerScores.length; i++) {
-            tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
+        if (playerScores.length > 10) {
+            for (var i = 0; i < 10; i++) {
+                tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
+            }
+        } else {
+            for (var i = 0; i < playerScores.length; i++) {
+                tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
+            }
         }
+
         tableHtml += "</tbody></table></div>";
         document.getElementById("scoreBoard").innerHTML = tableHtml;
         // ctx.fillText('WASD or Arrow Key Movements', 180, 180);//shows score for that player only!
