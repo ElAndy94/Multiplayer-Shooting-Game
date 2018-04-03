@@ -97,6 +97,7 @@ Player = function (id) {
   me.dead = false;
   me.spaceReset = false
   me.shootingSpeed = 0;
+  // me.soundBeenPlayed = false;
 
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
@@ -112,7 +113,7 @@ Player = function (id) {
 
     if (me.counter == 5) { //if counter is 5 then
       me.specialCounter++;
-      if (me.specialCounter <= 4) {
+      if (me.specialCounter <= 3) {
         me.addEnemy(); //add enemy
         me.counter = 0; //set counter back to 0
       }
@@ -171,6 +172,7 @@ Player = function (id) {
       me.y = 250;
       me.remove();
       shooter.checkInfo(me);
+      // me.soundBeenPlayed = true;
 
       if (me.spaceReset == true) { //if i press spacebar when I die this will reset it
         me.healthPoints = 10; // player hp
@@ -178,6 +180,8 @@ Player = function (id) {
         me.score = 0; //score starts at 0, +1 for every kill.
         me.dead = false; //reset to not dead
         me.addEnemy();
+        // me.soundBeenPlayed = false;
+        // console.log('im false now', me.soundBeenPlayed);
       }
     }
   }
@@ -266,6 +270,7 @@ Player = function (id) {
       score: me.score,
       space: me.space,
       dead: me.dead,
+      soundBeenPlayed: me.soundBeenPlayed
     };
   }
   me.retrieveUpdatePack = function () { //this gets the update pack
@@ -277,6 +282,7 @@ Player = function (id) {
       score: me.score,
       space: me.space,
       dead: me.dead,
+      soundBeenPlayed: me.soundBeenPlayed
     };
   }
   Player.list[id] = me;
@@ -496,7 +502,6 @@ Bullet.mergePack = function () {
   return bullets;
 }
 
-
 Target = function () { //Target 
   var me = Shared(); //uses shared properties with player
   me.x = 1;
@@ -587,6 +592,8 @@ Target = function () { //Target
       id: me.id, //targets id, x and y 
       x: me.x,
       y: me.y,
+      life: me.life,
+      maxLife: me.maxLife
     };
   }
 
@@ -595,6 +602,8 @@ Target = function () { //Target
       id: me.id, //targets UPDATED id, x and y 
       x: me.x,
       y: me.y,
+      life: me.life,
+      maxLife: me.maxLife
     };
   }
 
@@ -670,6 +679,8 @@ Monster = function () { //Target
       id: me.id, //monster id, x and y 
       x: me.x,
       y: me.y,
+      life: me.life,
+      maxLife: me.maxLife
     };
   }
 
@@ -678,6 +689,8 @@ Monster = function () { //Target
       id: me.id, //monster UPDATED id, x and y 
       x: me.x,
       y: me.y,
+      life: me.life,
+      maxLife: me.maxLife
     };
   }
 
