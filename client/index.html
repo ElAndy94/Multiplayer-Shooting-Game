@@ -157,11 +157,11 @@
             var hpBar = 20 * me.healthPoints / me.maxHealthPoints;
             
             console.log('ontop ', me.soundBeenPlayed);
-            if(me.healthPoints >= 7){ 
+            if(me.healthPoints >= 5){ 
                 ctx.fillStyle = 'green';         
-            } else if(me.healthPoints >=4 && me.healthPoints <= 6){               
+            } else if(me.healthPoints >=3 && me.healthPoints <= 4){               
                 ctx.fillStyle = 'yellow';        
-            } else if(me.healthPoints <= 3){     
+            } else if(me.healthPoints <= 2){     
                 ctx.fillStyle = 'red';      
             }
             ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
