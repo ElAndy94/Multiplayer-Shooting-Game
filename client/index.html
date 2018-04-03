@@ -41,7 +41,8 @@
 <!--Mobile functionality -->
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-<script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
+<!-- <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script> -->
+<script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
 <link rel="stylesheet" type="text/css" href="/client/public/styles.css">
@@ -51,6 +52,7 @@
     var WIDTH = 500;
     var HEIGHT = 500;
     var soundID = "Shot"; //sound
+    var soundD = "Death";
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -96,11 +98,17 @@
     //game
     function loadSound() {
         createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
+        createjs.Sound.registerSound("assets/thunder.mp3", soundD);
     }
 
     function playSound() { //play sound function
         createjs.Sound.play(soundID);
     }
+
+    function dSound(){
+        createjs.Sound.play(soundD);
+    }
+
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     ctx.font = '30px Arial';
@@ -122,6 +130,8 @@
     Img.hP.src = '/client/images/hp.png'; //loads hp
     Img.fire = new Image();
     Img.fire.src = '/client/images/energy.png';//loads the fire
+    Img.key = new Image();
+    Img.key.src = '/client/images/keyboard.png'; //wasd control and arrow png
 
     Img.space = {}; //two maps
     Img.space['blackGal'] = new Image();
@@ -148,8 +158,8 @@
             ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
             if(me.healthPoints <= 0){
                hpBar = 0;
+            //    playSound();
             } 
-
             var width = Img.player.width / 4;  //the width of the player img /4 because it was too big
             var height = Img.player.height / 4; //the height of the player img /4 because it was too big
 
@@ -474,7 +484,12 @@
         }
         tableHtml += "</tbody></table></div>";
         document.getElementById("scoreBoard").innerHTML = tableHtml;
+        // ctx.fillText('WASD or Arrow Key Movements', 180, 180);//shows score for that player only!
     })
+
+    // var controls = function(){
+    //     ctx.drawImage(Img.key, x+50, y+50); //draw grass function
+    // }
 
     var theScore = function () {
         ctx.fillStyle = 'white'; //score on black text

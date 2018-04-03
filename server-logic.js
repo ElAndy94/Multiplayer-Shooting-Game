@@ -354,12 +354,14 @@ Player.onDisconnect = function (socket) {
   for (var i in Target.list) { //Calls target list, to be able to remove all targets when you exit **
     var t = Target.list[i]
     t.toRemove = true;
+    t.disConnect = true;
   }
   for (var i in Fire.list) { //Calls Fire list, to be able to remove all Fire when you exit **
-    var t = Fire.list[i]
-    t.toRemove = true;
+    var f = Fire.list[i]
+    f.toRemove = true;
   }
 }
+
 Player.update = function () {
   var pack = [];
   for (var i in Player.list) {
@@ -505,7 +507,7 @@ Target = function () { //Target
   me.speed = 1; //target speed
   me.targetAim = 0; //target aim
   me.toRemove = false;
-
+  me.disConnect = false;
     
   for (var i in Player.list) { //Player list
     var p = Player.list[i]
@@ -534,6 +536,10 @@ Target = function () { //Target
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
     second_update();
+    
+    if(me.disConnect == true){
+      clearInterval(refreshIntervalId);
+    }
 
     for (var i in Player.list) { //Player list
       var p = Player.list[i]
