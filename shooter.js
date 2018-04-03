@@ -23,7 +23,7 @@ console.log("Server started.");  //Sends "sever started" to the server, so i can
 
 var SOCKET_LIST = {};
 
-var isValidPassword = function (data, cb) { 
+var isValidPassword = function (data, cb) {
   db.accounts.find({ username: data.username, password: data.password }, function (err, res) {
     if (res.length > 0) { //if match then its correct! SO LET USER LOG IN!
       playerName = data.username;
@@ -34,6 +34,7 @@ var isValidPassword = function (data, cb) {
     }
   });
 }
+
 
 function resolveAfter1() {
   return new Promise((resolve, reject) => {
@@ -47,8 +48,9 @@ function resolveAfter1() {
 }
 
 resolveAfter1() // resolve function
-  .then((result) => { console.log(result); })
+  // .then((result) => { console.log(result); })
   .catch((error) => { console.log(error); })
+
 
 async function asyncCall() {
   var result = await resolveAfter1();
@@ -85,7 +87,7 @@ var takenUser = function (data, cb) {
 
 var addPlayer = function (data, cb) {
   db.accounts.insert({ username: data.username, password: data.password, score: 0 }, function (err, res) {
-      cb();
+    cb();
   });
 }
 
@@ -124,6 +126,10 @@ io.sockets.on('connection', function (socket) {
   });
 
   asyncCall().then((res) => socket.emit('allScores', res));
+
+  setInterval(function () {
+    asyncCall().then((res) => socket.emit('allScores', res));
+  }, 3500);
 
 });
 

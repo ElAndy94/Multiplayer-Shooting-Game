@@ -176,8 +176,8 @@ Player = function (id) {
       // me.soundBeenPlayed = true;
 
       if (me.spaceReset == true) { //if i press spacebar when I die this will reset it
-        me.healthPoints = 10; // player hp
-        me.maxHealthPoints = 10; // the max hp a player starts with
+        me.healthPoints = 5; // player hp
+        me.maxHealthPoints = 5; // the max hp a player starts with
         me.score = 0; //score starts at 0, +1 for every kill.
         me.dead = false; //reset to not dead
         me.addEnemy();
