@@ -133,7 +133,7 @@ Player = function (id) {
     if (me.pAttack) {
       me.fireBullet(me.mouseAngle); //mouse angle attack
     }
-    
+
     if (me.x <= 10) {
       me.pLeft = false;
       me.x += 3;
@@ -232,8 +232,13 @@ Player = function (id) {
   }
   me.addMeteo = function (data) { //this is what makes the meteo
     var e = Meteo(data);
+    if (Math.random() >= 0.5) {
+      e.y = 1;
+    } else {
+      e.y = 499;
+    }
     e.x = Math.random() * 500; //the x of the new meteo
-    e.y = 1; //the y of the new meteo
+
   }
   me.addHP = function (data) { //this is what makes the meteo
     var e = HP(data);
@@ -422,9 +427,13 @@ Bullet = function (parent, angle) { //bullet
           enemy.speedCounter += 1; //add speed after every kill
           enemy.sCounter += 1; //special enemy
           t.life = t.maxLife; // you get 10 healthpoints again
-          t.x = 1; //enemy spawn random x
+
+          if (Math.random() >= 0.5) {
+            t.x = 1;
+          } else {
+            t.x = 499;
+          }
           t.y = Math.random() * 500; //enemy random y after dying.
-          // t.toRemove = true;
         }
         me.toRemove = true; //remove bullet when it hits target
       }
@@ -436,14 +445,20 @@ Bullet = function (parent, angle) { //bullet
 
         if (t.life <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
           var enemy = Player.list[me.parent];
-          if (enemy)
+          if (enemy) {
             enemy.score += 15;  //enemy who shot you gets 1 point
-          enemy.sCounter += 1; //add 1 to counter after every kill
-          enemy.sSpeedCounter += 1; //add speed after every kill
-          t.life = t.maxLife; // you get 10 healthpoints again
-          t.x = Math.random() * 500; //enemy spawn random x
-          t.y = Math.random() * 500; //enemy random y after dying.
-          t.toRemove = true; //removes monster
+            enemy.sCounter += 1; //add 1 to counter after every kill
+            enemy.sSpeedCounter += 1; //add speed after every kill
+            t.life = t.maxLife; // you get 10 healthpoints again
+
+            if (Math.random() >= 0.5) {
+              t.x = 1;
+            } else {
+              t.x = 499;
+            }
+            t.y = Math.random() * 500; //enemy random y after dying.
+            t.toRemove = true; //removes monster
+          }
         }
         me.toRemove = true; //remove bullet when it hits target
       }
@@ -518,7 +533,7 @@ Target = function () { //Target
   me.targetAim = 0; //target aim
   me.toRemove = false;
   me.disConnect = false;
-    
+
   for (var i in Player.list) { //Player list
     var p = Player.list[i]
     // me.angle = Math.atan2(p.x, p.y) / Math.PI * 180;
@@ -546,20 +561,20 @@ Target = function () { //Target
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
     second_update();
-    
-    if(me.disConnect == true){
+
+    if (me.disConnect == true) {
       clearInterval(refreshIntervalId);
     }
 
     for (var i in Player.list) { //Player list
       var p = Player.list[i]
 
-      if(p.dead == true){
-      // I NEED TO ADD THIS TO MY PAPER! 
+      if (p.dead == true) {
+        // I NEED TO ADD THIS TO MY PAPER! 
         clearInterval(refreshIntervalId);
       }
 
-      if(p.toRemove == true){
+      if (p.toRemove == true) {
         clearInterval(refreshIntervalId);
       }
 
@@ -588,7 +603,7 @@ Target = function () { //Target
         if (p.healthPoints <= 0) {
           me.toRemove = true;
         }
-      } 
+      }
     }
   }
 

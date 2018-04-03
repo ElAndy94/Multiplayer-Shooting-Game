@@ -22,6 +22,9 @@
     <p class="control" style="padding-top:0.3em">
         <button class="button is-success" id="signDiv-signUp">Sign Up</button>
     </p>
+    <div id="controlImage">
+        <img src="/client/images/keyboard.png">
+    </div>
 </div>
 <script src="/socket.io/socket.io.js"></script>
 
@@ -130,8 +133,6 @@
     Img.hP.src = '/client/images/hp.png'; //loads hp
     Img.fire = new Image();
     Img.fire.src = '/client/images/energy.png';//loads the fire
-    Img.key = new Image();
-    Img.key.src = '/client/images/keyboard.png'; //wasd control and arrow png
 
     Img.space = {}; //two maps
     Img.space['blackGal'] = new Image();
@@ -149,32 +150,32 @@
         me.healthPoints = infoPack.healthPoints; //health Points
         me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10    
         // me.soundBeenPlayed = infoPack.soundBeenPlayed;
-        
+
         me.draw = function () {
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
-            
+
             var hpBar = 20 * me.healthPoints / me.maxHealthPoints;
-            
+
             // console.log('ontop ', me.soundBeenPlayed);
-            if(me.healthPoints >= 5){ 
-                ctx.fillStyle = 'green';         
-            } else if(me.healthPoints >=3 && me.healthPoints <= 4){               
-                ctx.fillStyle = 'yellow';        
-            } else if(me.healthPoints <= 2){     
-                ctx.fillStyle = 'red';      
+            if (me.healthPoints >= 5) {
+                ctx.fillStyle = 'green';
+            } else if (me.healthPoints >= 3 && me.healthPoints <= 4) {
+                ctx.fillStyle = 'yellow';
+            } else if (me.healthPoints <= 2) {
+                ctx.fillStyle = 'red';
             }
-            ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
-            
-            if(me.healthPoints <= 0){
-               hpBar = 0;
-            //    if(me.soundBeenPlayed === false) {
-            //        playSound();
-            //        console.log('i Should be false ', me.soundBeenPlayed);
-            //         me.soundBeenPlayed = true;
-            //         console.log('I should be true ', me.soundBeenPlayed);
-            //    }
-            } 
+            ctx.fillRect(x - hpBar / 2, y - 25, hpBar, 4);
+
+            if (me.healthPoints <= 0) {
+                hpBar = 0;
+                //    if(me.soundBeenPlayed === false) {
+                //        playSound();
+                //        console.log('i Should be false ', me.soundBeenPlayed);
+                //         me.soundBeenPlayed = true;
+                //         console.log('I should be true ', me.soundBeenPlayed);
+                //    }
+            }
             var width = Img.player.width / 4;  //the width of the player img /4 because it was too big
             var height = Img.player.height / 4; //the height of the player img /4 because it was too big
 
@@ -220,21 +221,21 @@
         me.draw = function () {
             var width = Img.target.width / 4; //target width size
             var height = Img.target.height / 4; //target height size
-            
+
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
 
             var hpBar = 20 * me.life / me.maxLife;
             ctx.fillStyle = 'red';
 
-            if(me.life >= 7){ 
-                ctx.fillStyle = 'green';         
-            } else if(me.life >=4 && me.life <= 6){               
-                ctx.fillStyle = 'yellow';        
-            } else if(me.life <= 3){     
-                ctx.fillStyle = 'red';      
+            if (me.life >= 7) {
+                ctx.fillStyle = 'green';
+            } else if (me.life >= 4 && me.life <= 6) {
+                ctx.fillStyle = 'yellow';
+            } else if (me.life <= 3) {
+                ctx.fillStyle = 'red';
             }
-            ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
+            ctx.fillRect(x - hpBar / 2, y - 25, hpBar, 4);
 
 
             ctx.drawImage(Img.target, 0, 0, Img.target.width, Img.target.height,
@@ -263,14 +264,14 @@
             var hpBar = 20 * me.life / me.maxLife;
             ctx.fillStyle = 'red';
 
-            if(me.life >= 20){ 
-                ctx.fillStyle = 'green';         
-            } else if(me.life >=10 && me.life <= 19){               
-                ctx.fillStyle = 'yellow';        
-            } else if(me.life <= 9){     
-                ctx.fillStyle = 'red';      
+            if (me.life >= 20) {
+                ctx.fillStyle = 'green';
+            } else if (me.life >= 10 && me.life <= 19) {
+                ctx.fillStyle = 'yellow';
+            } else if (me.life <= 9) {
+                ctx.fillStyle = 'red';
             }
-            ctx.fillRect(x - hpBar/2, y - 25, hpBar,4);
+            ctx.fillRect(x - hpBar / 2, y - 25, hpBar, 4);
 
             ctx.drawImage(Img.monster, 0, 0, Img.monster.width, Img.monster.height,
                 x - width / 2, y - height / 2, width, height); //draw enemy (Monster)
@@ -415,7 +416,7 @@
                 if (pack.life !== undefined)
                     tar.life = pack.life;
                 if (pack.maxLife !== undefined)
-                    tar.maxLife = pack.maxLife;        
+                    tar.maxLife = pack.maxLife;
             }
         }
 
@@ -430,7 +431,7 @@
                 if (pack.life !== undefined)
                     tar.life = pack.life;
                 if (pack.maxLife !== undefined)
-                    tar.maxLife = pack.maxLife;    
+                    tar.maxLife = pack.maxLife;
             }
         }
 
@@ -544,11 +545,16 @@
 
     var theScore = function () {
         ctx.fillStyle = 'white'; //score on black text
-        ctx.fillText(Player.list[meId].score, 0, 30); //draws the score for THAT player only!**
+        ctx.font = '16px Arial';
+        ctx.fillText("Score: " + Player.list[meId].score, 0, 20); //draws the score for THAT player only!**
     }
     var healthP = function () {
-        ctx.fillStyle = 'lime'; //score on black text
-        ctx.fillText(Player.list[meId].healthPoints, 460, 30);//shows score for that player only!
+        ctx.fillStyle = 'white'; //score on black text
+        ctx.font = '16px Arial';
+        if (Player.list[meId].healthPoints < 0) {
+            Player.list[meId].healthPoints = 0
+        }
+        ctx.fillText("Health: " + Player.list[meId].healthPoints, 420, 20);//shows score for that player only!
     }
     var deadMan = function () {
         ctx.fillStyle = 'red'; //score on black text
