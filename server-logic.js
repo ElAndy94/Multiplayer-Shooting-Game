@@ -61,21 +61,23 @@ Shared.makeModular = function () { //this is what makes my project modular
     }
   };
 
-  infoPack.player, infoPack.bullet, infoPack.target, infoPack.monster, infoPack.meteo, infoPack.hP, infoPack.fire, infoPack.coin = []; //sets to empty so it does not repeat/duplicate
-  removePack.player, removePack.bullet, removePack.target, removePack.monster, removePack.meteo, removePack.hP, removePack.fire, removePack.coin = [];  //sets to empty so it does not repeat/duplicate
+  // infoPack.player, infoPack.bullet, infoPack.target, infoPack.monster, infoPack.meteo, infoPack.hP, infoPack.fire, infoPack.coin = []; //sets to empty so it does not repeat/duplicate
+  // removePack.player, removePack.bullet, removePack.target, removePack.monster, removePack.meteo, removePack.hP, removePack.fire, removePack.coin = [];  //sets to empty so it does not repeat/duplicate
+  infoPack.player = [];
+  infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
+  infoPack.target = []; //sets to empty so it does not repeat/duplicate
+  infoPack.monster = [];
+  infoPack.meteo = [];
+  infoPack.hP = [];
+  infoPack.fire = [];
+  removePack.player = [];
+  removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
+  removePack.target = [];  //sets to empty so it does not repeat/duplicate
+  removePack.monster = [];
+  removePack.meteo = [];
+  removePack.hP = [];
+  removePack.fire = [];
   return pack;
-  // infoPack.bullet = []; //sets to empty so it does not repeat/duplicate
-  // infoPack.target = []; //sets to empty so it does not repeat/duplicate
-  // infoPack.monster = [];
-  // infoPack.meteo = [];
-  // infoPack.hP = [];
-  // infoPack.fire = [];
-  // removePack.bullet = [];  //sets to empty so it does not repeat/duplicate
-  // removePack.target = [];  //sets to empty so it does not repeat/duplicate
-  // removePack.monster = [];
-  // removePack.meteo = [];
-  // removePack.hP = [];
-  // removePack.fire = [];
 }
 
 Player = function (id) {
@@ -100,7 +102,9 @@ Player = function (id) {
   me.dead = false;
   me.spaceReset = false
   me.shootingSpeed = 0;
+  me.healthAppear = false;
   me.playSound = false;
+  me.rapidShooting = false; //rapid shooting true randomly
   // me.soundBeenPlayed = false;
 
   var second_update = me.update;
@@ -109,16 +113,20 @@ Player = function (id) {
     me.updateSpeed();
     second_update();
 
+    if (me.healthAppear == true) {
+      me.addHP();
+      me.healthAppear = false;
+    }
+
     if (me.sCounter == 6) { //special monster
       me.addMonster(); //call addMonster function
-      me.addHP();
       me.addCoin();
       me.sCounter = 0; //reset counter back to 0
     }
 
     if (me.counter == 5) { //if counter is 5 then
       me.specialCounter++;
-      if (me.specialCounter <= 3) {
+      if (me.specialCounter <= 2) {
         me.addEnemy(); //add enemy
         me.counter = 0; //set counter back to 0
       }
@@ -136,7 +144,12 @@ Player = function (id) {
     }
 
     if (me.pAttack) {
-      me.fireBullet(me.mouseAngle); //mouse angle attack
+      if (me.rapidShooting == true) {
+        for (var i = -3; i < 3; i++)
+          me.fireBullet(i * 10 + me.mouseAngle);
+      } else {
+        me.fireBullet(me.mouseAngle); //mouse angle attack
+      }
     }
 
     if (me.x <= 10) {
@@ -466,6 +479,7 @@ Bullet = function (parent, angle) { //bullet
       var t = Target.list[i]
       if (me.getDist(t) < 20 && me.parent !== t.id) { //gets distance
         t.life -= 1; //takes away 1hp if you get hit by bullet
+
         if (t.life <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
           var enemy = Player.list[me.parent];
           if (enemy)
@@ -480,7 +494,11 @@ Bullet = function (parent, angle) { //bullet
           } else {
             t.x = 499;
           }
-          t.y = Math.random() * 500; //enemy random y after dying.
+          if (Math.random() >= 0.5) {
+            t.y = 1;
+          } else {
+            t.y = 499;
+          }
         }
         me.toRemove = true; //remove bullet when it hits target
       }
@@ -496,14 +514,7 @@ Bullet = function (parent, angle) { //bullet
             enemy.score += 15;  //enemy who shot you gets 1 point
             enemy.sCounter += 1; //add 1 to counter after every kill
             enemy.sSpeedCounter += 1; //add speed after every kill
-            t.life = t.maxLife; // you get 10 healthpoints again
-
-            if (Math.random() >= 0.5) {
-              t.x = 1;
-            } else {
-              t.x = 499;
-            }
-            t.y = Math.random() * 500; //enemy random y after dying.
+            enemy.healthAppear = true;
             t.toRemove = true; //removes monster
           }
         }
@@ -984,17 +995,24 @@ Coin = function () { //coin
     for (var i in Player.list) { ////ENEMY DETEC
       var p = Player.list[i]
       if (me.getDist(p) < 20) { //gets distance (!== p.id)
-        me.toRemove = true;
         p.playSound = true;
-        p.maxSpeed = 10;
-
-        setTimeout(() => {
-          p.maxSpeed = 6;
-        }, 5000);
+        me.toRemove = true;
 
         setTimeout(() => {
           p.playSound = false;
         }, 80);
+
+        if (Math.random() >= 0.5) {
+          p.maxSpeed = 10;
+          setTimeout(() => {
+            p.maxSpeed = 6;
+          }, 5000);
+        } else {
+          p.rapidShooting = true;
+          setTimeout(() => {
+            p.rapidShooting = false;
+          }, 3750);
+        }
       }
     }
   }
