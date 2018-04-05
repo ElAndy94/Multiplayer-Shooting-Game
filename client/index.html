@@ -55,7 +55,7 @@
     var WIDTH = 500;
     var HEIGHT = 500;
     var soundID = "Shot"; //sound
-    // var soundD = "Death";
+    // var soundD = "speedBoost";
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -63,8 +63,6 @@
     var signDivSignIn = document.getElementById('signDiv-signIn'); //<!-- sign in element -->
     var signDivPassword = document.getElementById('signDiv-password'); //<!-- password element -->
     var signDivUp = document.getElementById('signDiv-signUp'); //<!-- password element -->
-    // var gameDiv = document.getElementById('gameDiv');
-    // var scoreBoard = document.getElementById('scoreBoard');
 
     signDivSignIn.onclick = function () {
         if (signDivUsername.value.length >= 4 && signDivUsername.value.length <= 12) {
@@ -115,28 +113,42 @@
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     ctx.font = '30px Arial';
+    
     ctx.mozImageSmoothingEnabled = false;
     ctx.msImageSmoothingEnabled = false;
     ctx.imageSmoothingEnabled = false;
-    var Img = {}; //creats image array
-    Img.bullet = new Image();
-    Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
-    Img.player = new Image();
-    Img.player.src = '/client/images/enemyUFO.png'; //loads the player
-    Img.target = new Image();
-    Img.target.src = '/client/images/player.png'; //loads the target
-    Img.monster = new Image();
-    Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
-    Img.meteo = new Image();
-    Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
-    Img.hP = new Image();
-    Img.hP.src = '/client/images/hp.png'; //loads hp
-    Img.fire = new Image();
-    Img.fire.src = '/client/images/energy.png';//loads the fire
 
+    var Img = {}; //creats image array
+     Img.bullet = new Image();
+     Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
+     Img.player = new Image();
+     Img.player.src = '/client/images/enemyUFO.png'; //loads the player
+     Img.target = new Image();
+     Img.target.src = '/client/images/player.png'; //loads the target
+     Img.monster = new Image();
+     Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
+     Img.meteo = new Image();
+     Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
+     Img.hP = new Image();
+     Img.hP.src = '/client/images/hp.png'; //loads hp
+     Img.fire = new Image();
+     Img.fire.src = '/client/images/energy.png';//loads the fire
+     Img.coin = new Image();
+     Img.coin.src = '/client/images/coin.png'; //loads the coin
+     // Img.heart = new Image();
+     // Img.heart.src = '/client/images/heart.png';
     Img.space = {}; //two maps
-    Img.space['blackGal'] = new Image();
-    Img.space['blackGal'].src = '/client/images/blackgal.png'; //loads the background       
+     Img.space['blackGal'] = new Image();
+     Img.space['blackGal'].src = '/client/images/blackgal.png'; //loads the background   
+
+    // Img.heart.addEventListener("load", loadImage, false);
+    Img.coin.addEventListener("load", loadImage, false);
+     var shift = 0;
+     var frameWidth = 99;
+     var frameHeight = 99;
+     var totalFrames = 10; //speed of animation
+     var currentFrame = 0;
+
 
     var Player = function (infoPack) {
         var me = {};
@@ -148,7 +160,8 @@
         me.space = infoPack.space; //the map
         me.dead = infoPack.dead; //if player is dead
         me.healthPoints = infoPack.healthPoints; //health Points
-        me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10    
+        me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10 
+        me.playSound = infoPack.playSound;   
         // me.soundBeenPlayed = infoPack.soundBeenPlayed;
 
         me.draw = function () {
@@ -157,7 +170,6 @@
 
             var hpBar = 20 * me.healthPoints / me.maxHealthPoints;
 
-            // console.log('ontop ', me.soundBeenPlayed);
             if (me.healthPoints >= 5) {
                 ctx.fillStyle = 'green';
             } else if (me.healthPoints >= 3 && me.healthPoints <= 4) {
@@ -166,6 +178,11 @@
                 ctx.fillStyle = 'red';
             }
             ctx.fillRect(x - hpBar / 2, y - 25, hpBar, 4);
+
+            if (me.playSound === true){
+                playSound();
+              me.playSound = false; 
+            }
 
             if (me.healthPoints <= 0) {
                 hpBar = 0;
@@ -306,20 +323,44 @@
         me.id = infoPack.id; //HP id
         me.x = infoPack.x; //HP x
         me.y = infoPack.y; //HP y
-        me.draw = function () {
-            var width = Img.hP.width / 22; //HP width size
-            var height = Img.hP.height / 22; //HP height size
 
+        me.draw = function () {
+            var width = Img.hP.width / 24; //HP width size
+            var height = Img.hP.height / 24; //HP height size
+            
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
-
+            
             ctx.drawImage(Img.hP, 0, 0, Img.hP.width, Img.hP.height,
-                x - width / 2, y - height / 2, width, height); //draw enemy (HP)
+            x - width / 2, y - height / 2, width, height); //draw enemy (HP)
+            
+            // ctx.drawImage(Img.coin, shift, 0, frameWidth, frameHeight,
+            //     x - width / 2, y - height / 2, width, height);
         }
         HP.list[me.id] = me;
         return me;
     }
     HP.list = {};
+    
+    var Coin = function (infoPack) {
+        var me = {};
+        me.id = infoPack.id; //coin id
+        me.x = infoPack.x; //coin x
+        me.y = infoPack.y; //coin y
+        me.draw = function () {
+            var width = Img.coin.width / 40; //coin width size
+            var height = Img.coin.height / 6; //coin height size
+
+            var x = me.x - Player.list[meId].x + WIDTH / 2;
+            var y = me.y - Player.list[meId].y + HEIGHT / 2;
+
+            ctx.drawImage(Img.coin, shift, 0, frameWidth, frameHeight,
+                x - width / 2, y - height / 2, width, height);
+        }
+        Coin.list[me.id] = me;
+        return me;
+    }
+    Coin.list = {};
 
     var Fire = function (infoPack) {
         var me = {};
@@ -341,6 +382,7 @@
         return me;
     }
     Fire.list = {};
+
 
     var meId = null;
     Player.list[meId];
@@ -371,6 +413,9 @@
         for (var i = 0; i < data.fire.length; i++) { //fire
             new Fire(data.fire[i]);
         }
+        for (var i = 0; i < data.coin.length; i++) { //coin
+            new Coin(data.coin[i]);
+        }
     });
     socket.on('update', function (data) { // update player and bullet location - id
         for (var i = 0; i < data.player.length; i++) {
@@ -389,6 +434,8 @@
                     ple.dead = pack.dead;
                 if (pack.space !== undefined)
                     ple.space = pack.space;
+                if (pack.playSound !== undefined)
+                    ple.playSound = pack.playSound;    
                 // if (pack.soundBeenPlayed !== undefined)
                 //     ple.soundBeenPlayed = pack.soundBeenPlayed;    
             }
@@ -453,13 +500,24 @@
                 if (pack.x !== undefined)
                     tar.x = pack.x;
                 if (pack.y !== undefined)
-                    tar.y = pack.y;
+                    tar.y = pack.y;  
             }
         }
 
         for (var i = 0; i < data.fire.length; i++) {
             var pack = data.fire[i];
             var bul = Fire.list[data.fire[i].id];
+            if (bul) {
+                if (pack.x !== undefined)
+                    bul.x = pack.x;
+                if (pack.y !== undefined)
+                    bul.y = pack.y;
+            }
+        }
+
+        for (var i = 0; i < data.coin.length; i++) {
+            var pack = data.coin[i];
+            var bul = Coin.list[data.coin[i].id];
             if (bul) {
                 if (pack.x !== undefined)
                     bul.x = pack.x;
@@ -490,6 +548,9 @@
         }
         for (var i = 0; i < data.fire.length; i++) { //removing fire
             delete Fire.list[data.fire[i]];
+        }
+        for (var i = 0; i < data.coin.length; i++) { //removing coin
+            delete Coin.list[data.coin[i]];
         }
     });
 
@@ -522,6 +583,8 @@
             HP.list[i].draw();
         for (var i in Fire.list) //draws the fire every set miliseconds
             Fire.list[i].draw();
+        for (var i in Coin.list)
+            Coin.list[i].draw();    
     }, 40);
 
 
@@ -576,6 +639,23 @@
         ctx.drawImage(Img.space[Player.list[meId].space], x, y); //draw grass function
     }
 
+    function loadImage(e) {
+        animate();//runs the animate function
+    }
+
+    function animate() {
+        shift += frameWidth + 1;
+
+
+        if (currentFrame == totalFrames) {
+            shift = 0;
+            currentFrame = 0;
+        }
+
+        currentFrame++; //adds 1 to the frame
+
+        requestAnimationFrame(animate);
+    }
 
     document.onkeydown = function (event) { //keyboard controls
         if (event.keyCode === 39 || event.keyCode === 68) //right arrow || d
