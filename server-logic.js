@@ -466,12 +466,12 @@ Bullet = function (parent, angle) { //bullet
     for (var i in Player.list) {
       var p = Player.list[i]
       if (me.getDist(p) < 32 && me.parent !== p.id) { //gets distance
-        p.healthPoints -= 1; //takes away 1hp if you get hit by bullet
-        if (p.healthPoints <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
-          var enemy = Player.list[me.parent];
-          if (enemy)
-            enemy.score += 1;  //enemy who shot you gets 1 point
-        }
+        // p.healthPoints -= 1; //takes away 1hp if you get hit by bullet
+        // if (p.healthPoints <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
+        //   var enemy = Player.list[me.parent];
+        //   if (enemy)
+        //     enemy.score += 1;  //enemy who shot you gets 1 point
+        // }
         me.toRemove = true;
       }
     }
@@ -722,6 +722,8 @@ Target.mergePack = function () {
 
 Monster = function () { //Target 
   var me = Shared(); //uses shared properties with player
+  me.x = 1;
+  me.y = Math.random() * 500;
   me.life = 30;
   me.maxLife = 30;
   me.id = Math.random(); //random id
@@ -817,6 +819,8 @@ Monster.mergePack = function () {
 
 Meteo = function () { //meteorite 
   var me = Shared(); //uses shared properties with player
+  me.x = 1;
+  me.y = Math.random() * 500;
   me.life = 12;
   me.maxLife = 12;
   me.id = Math.random(); //random id
@@ -915,13 +919,13 @@ Meteo.mergePack = function () {
 
 HP = function () { //hp
   var me = Shared(); //uses shared properties with player
-  me.id = Math.random(); //random id
+  me.x = 1;
+  me.y = Math.random() * 500;
   me.toRemove = false; // to remove heart
 
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
     second_update();
-
 
     for (var i in Player.list) { ////ENEMY DETEC
       var p = Player.list[i]
@@ -983,6 +987,8 @@ HP.mergePack = function () {
 
 Coin = function () { //coin
   var me = Shared(); //uses shared properties with player
+  me.x = 1;
+  me.y = Math.random() * 500;
   me.id = Math.random(); //random id
   me.toRemove = false; // to remove heart
 

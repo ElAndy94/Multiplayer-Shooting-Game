@@ -17,7 +17,8 @@ app.get('/', function (req, res) {
 });
 app.use('/client', express.static(__dirname + '/client'));  //use the client file, which contails index.html
 app.use(express.static(path.join(__dirname, 'public')));
-server.listen(process.env.PORT || 5000);
+// server.listen(process.env.PORT || 5000);
+server.listen(process.env.PORT || 8081);
 // server.listen(8081);   //listens to the localhost:8081
 console.log("Server started.");  //Sends "sever started" to the server, so i can see when ive connected.
 
