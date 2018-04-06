@@ -105,7 +105,8 @@ Player = function (id) {
   me.healthAppear = false;
   me.playSound = false;
   me.rapidShooting = false; //rapid shooting true randomly
-  // me.soundBeenPlayed = false;
+  me.eatHealth = false;
+  me.healthInv = false;
 
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
@@ -126,22 +127,22 @@ Player = function (id) {
 
     if (me.counter == 5) { //if counter is 5 then
       me.specialCounter++;
-      if (me.specialCounter <= 2) {
+      if (me.specialCounter <= 1) {
         me.addEnemy(); //add enemy
         me.counter = 0; //set counter back to 0
       }
     }
 
     if (me.speedCounter == 3) { //if counter is 3 then
-      me.speedKiller(); //call the speedkiller function below
+      // me.speedKiller(); //call the speedkiller function below
       me.addMeteo();
       me.speedCounter = 0; //set counter back to 0
     }
 
-    if (me.sSpeedCounter == 5) { //if counter is 5 then
-      me.speedKillerTwo(); //call the speedkiller function below
-      me.sSpeedCounter = 0; //set counter back to 0
-    }
+    // if (me.sSpeedCounter == 5) { //if counter is 5 then
+    //   me.speedKillerTwo(); //call the speedkiller function below
+    //   me.sSpeedCounter = 0; //set counter back to 0
+    // }
 
     if (me.pAttack) {
       if (me.rapidShooting == true) {
@@ -170,14 +171,14 @@ Player = function (id) {
     }
 
   }
-  me.speedKiller = function (data) { //the speed killer function 
-    for (var i in Target.list) { //looks into the target list
-      var t = Target.list[i] //t for target list
-      if (t.speed < 2) {
-        t.speed += 1; // add 1 to the target.speed that i set in target
-      }
-    }
-  }
+  // me.speedKiller = function (data) { //the speed killer function 
+  //   for (var i in Target.list) { //looks into the target list
+  //     var t = Target.list[i] //t for target list
+  //     if (t.speed < 2) {
+  //       t.speed += 1; // add 1 to the target.speed that i set in target
+  //     }
+  //   }
+  // }
   me.resetEverything = function (data) {
     if (me.healthPoints <= 0) {
       me.dead = true;
@@ -185,7 +186,7 @@ Player = function (id) {
       me.counter = 0; //killing counter
       me.speedCounter = 0;  //speed counter
       me.sCounter = 0; //special monster
-      me.sSpeedCounter = 0; //speed for special monster
+      // me.sSpeedCounter = 0; //speed for special monster
       me.specialCounter = 0; //stops creating too many targets
       me.x = 250;
       me.y = 250;
@@ -199,8 +200,6 @@ Player = function (id) {
         me.score = 0; //score starts at 0, +1 for every kill.
         me.dead = false; //reset to not dead
         me.addEnemy();
-        // me.soundBeenPlayed = false;
-        // console.log('im false now', me.soundBeenPlayed);
       }
     }
   }
@@ -234,14 +233,14 @@ Player = function (id) {
       t.toRemove = true;
     }
   }
-  me.speedKillerTwo = function (data) { //the speed killer function 
-    for (var i in Monster.list) { //looks into the target list
-      var t = Monster.list[i] //t for target list
-      if (t.speed < 2) {
-        t.speed += 1; // add 1 to the target.speed that i set in target
-      }
-    }
-  }
+  // me.speedKillerTwo = function (data) { //the speed killer function 
+  //   for (var i in Monster.list) { //looks into the target list
+  //     var t = Monster.list[i] //t for target list
+  //     if (t.speed < 2) {
+  //       t.speed += 1; // add 1 to the target.speed that i set in target
+  //     }
+  //   }
+  // }
   me.addEnemy = function (data) { //this is what makes the enemy
     var e = Target(data);
     if (Math.random() >= 0.5) {
@@ -323,8 +322,10 @@ Player = function (id) {
       score: me.score,
       space: me.space,
       dead: me.dead,
-      soundBeenPlayed: me.soundBeenPlayed,
-      playSound: me.playSound
+      eatHealth: me.eatHealth,
+      playSound: me.playSound,
+      healthInv: me.healthInv,
+      rapidShooting: me.rapidShooting
     };
   }
   me.retrieveUpdatePack = function () { //this gets the update pack
@@ -336,8 +337,10 @@ Player = function (id) {
       score: me.score,
       space: me.space,
       dead: me.dead,
-      soundBeenPlayed: me.soundBeenPlayed,
-      playSound: me.playSound
+      eatHealth: me.eatHealth,
+      playSound: me.playSound,
+      healthInv: me.healthInv,
+      rapidShooting: me.rapidShooting
     };
   }
   Player.list[id] = me;
@@ -513,7 +516,7 @@ Bullet = function (parent, angle) { //bullet
           if (enemy) {
             enemy.score += 15;  //enemy who shot you gets 1 point
             enemy.sCounter += 1; //add 1 to counter after every kill
-            enemy.sSpeedCounter += 1; //add speed after every kill
+            // enemy.sSpeedCounter += 1; //add speed after every kill
             enemy.healthAppear = true;
             t.toRemove = true; //removes monster
           }
@@ -614,7 +617,7 @@ Target = function () { //Target
       , 1800);
   }
 
-
+  var chance = Math.random();
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
     second_update();
@@ -651,22 +654,35 @@ Target = function () { //Target
       }
     }
 
+    me.updateLocation = function () {
+      if (chance <= 0.25) {
+        me.x = 1;
+        me.y = 499;
+      } else if (chance <= 0.5) {
+        me.x = 1;
+        me.y = 1;
+      } else if (chance <= 0.75) {
+        me.x = 499;
+        me.y = 499;
+      } else {
+        me.x = 499;
+        me.y = 1;
+      }
+    };
+
     for (var i in Player.list) { ////ENEMY DETEC
       var p = Player.list[i]
-      if (me.getDist(p) < 20) { //gets distance (!== p.id)
-        p.healthPoints -= 1; //takes away 1hp if you get hit by bullet 
-        if (Math.random() >= 0.5) {
-          me.y = 1;
-        } else {
-          me.y = 499;
+      if (p.healthInv == true) {
+        if (me.getDist(p) < 16) {
+          me.updateLocation();
         }
-        if (Math.random() >= 0.5) {
-          me.x = 1;
-        } else {
-          me.x = 499;
-        }
-        if (p.healthPoints <= 0) {
-          me.toRemove = true;
+      } else {
+        if (me.getDist(p) < 20) { //gets distance (!== p.id)
+          p.healthPoints -= 1; //takes away 1hp if you get hit by bullet 
+          me.updateLocation();
+          if (p.healthPoints <= 0) {
+            me.toRemove = true;
+          }
         }
       }
     }
@@ -730,6 +746,7 @@ Monster = function () { //Target
   me.speed = 2; //enemy speed
   me.toRemove = false; //if shot yourself then = true.
 
+  var chance = Math.random();
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
     second_update();
@@ -751,19 +768,32 @@ Monster = function () { //Target
         me.y -= me.speed;
     }
 
+    me.updateLocation = function () {
+      if (chance <= 0.25) {
+        me.x = 1;
+        me.y = 499;
+      } else if (chance <= 0.5) {
+        me.x = 1;
+        me.y = 1;
+      } else if (chance <= 0.75) {
+        me.x = 499;
+        me.y = 499;
+      } else {
+        me.x = 499;
+        me.y = 1;
+      }
+    };
+
     for (var i in Player.list) { ////ENEMY DETEC
       var p = Player.list[i]
-      if (me.getDist(p) < 20) { //gets distance (!== p.id)
-        p.healthPoints -= 2; //takes away 1hp if you get hit by bullet
-        if (Math.random() >= 0.5) {
-          me.y = 1;
-        } else {
-          me.y = 499;
+      if (p.healthInv == true) {
+        if (me.getDist(p) < 16) {
+          me.updateLocation();
         }
-        if (Math.random() >= 0.5) {
-          me.x = 1;
-        } else {
-          me.x = 499;
+      } else {
+        if (me.getDist(p) < 20) { //gets distance 
+          p.healthPoints -= 2; //takes away 2hp if you get hit by monster
+          me.updateLocation();
         }
       }
     }
@@ -853,20 +883,31 @@ Meteo = function () { //meteorite
 
     for (var i in Player.list) { ////ENEMY DETEC
       var p = Player.list[i]
-      if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
-        p.healthPoints -= 8; //takes away 8hp if you get hit by bullet
-        me.toRemove = true;
+      if (p.healthInv == true) {
+        if (me.getDist(p) < 16) {
+          if (Math.random() >= 0.5) {
+            me.y = 1;
+          } else {
+            me.y = 499;
+          }
+          me.x = Math.random() * 500; //the x of the new meteo
+        }
+      } else {
+        if (me.getDist(p) < 20) { //gets distance (!== p.id)
+          p.healthPoints -= 8; //takes away 8hp if you get hit by bullet
+          me.toRemove = true;
+        }
       }
     }
     for (var i in Monster.list) { ////ENEMY DETEC
       var p = Monster.list[i]
-      if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
+      if (me.getDist(p) < 20) { //gets distance (!== p.id)
         p.healthPoints -= 10; //takes away 10hp if you get hit by bullet
       }
     }
     for (var i in Target.list) { ////ENEMY DETEC
       var p = Target.list[i]
-      if (me.getDist(p) < 20 && me.meteo !== p.id) { //gets distance (!== p.id)
+      if (me.getDist(p) < 20) { //gets distance (!== p.id)
         p.healthPoints -= 5; //takes away 5hp if you get hit by bullet   
       }
     }
@@ -932,11 +973,10 @@ HP = function () { //hp
       if (me.getDist(p) < 20) { //gets distance
         p.healthPoints += 1; //takes away 8hp if you get hit by bullet
         me.toRemove = true;
-        p.playSound = true;
-
+        p.eatHealth = true;
         setTimeout(() => {
-          p.playSound = false;
-        }, 80);
+          p.eatHealth = false;
+        }, 100);
       }
     }
   }
@@ -997,27 +1037,34 @@ Coin = function () { //coin
   me.update = function () { //this function calls a secondary update
     second_update();
 
-
     for (var i in Player.list) { ////ENEMY DETEC
       var p = Player.list[i]
       if (me.getDist(p) < 20) { //gets distance (!== p.id)
-        p.playSound = true;
         me.toRemove = true;
 
-        setTimeout(() => {
-          p.playSound = false;
-        }, 80);
-
-        if (Math.random() >= 0.5) {
+        let chance = Math.random();
+        if (chance <= 0.33) {
+          p.playSound = true;
           p.maxSpeed = 10;
           setTimeout(() => {
+            p.playSound = false;
+          }, 80);
+          setTimeout(() => {
             p.maxSpeed = 6;
-          }, 5000);
-        } else {
+          }, 4250);
+
+        } else if (chance <= 0.66) {
           p.rapidShooting = true;
           setTimeout(() => {
             p.rapidShooting = false;
           }, 3750);
+
+        } else {
+          console.log('gotcha');
+          p.healthInv = true;
+          setTimeout(() => {
+            p.healthInv = false;
+          }, 8000);
         }
       }
     }
@@ -1087,12 +1134,18 @@ Fire = function (parent, angle) { //fire
       var p = Player.list[i]
       for (var i in Target.list) {
         var t = Target.list[i]
-        if (me.getDist(p) < 16) { //gets distance
-          p.healthPoints -= 1; //takes away 1hp if you get hit by the fire
-          if (p.healthPoints <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
-            t.toRemove = true;
+        if (p.healthInv == true) {
+          if (me.getDist(p) < 16) {
+            me.toRemove = true;
           }
-          me.toRemove = true;
+        } else {
+          if (me.getDist(p) < 16) { //gets distance
+            p.healthPoints -= 1; //takes away 1hp if you get hit by the fire
+            if (p.healthPoints <= 0) {  //if healthpoints are lower than 0 or = to 0 then this happens ->
+              t.toRemove = true;
+            }
+            me.toRemove = true;
+          }
         }
       }
     }

@@ -29,13 +29,13 @@
 <script src="/socket.io/socket.io.js"></script>
 
 <body onload="loadSound();">
-<div id="gameDiv" style="display:none;">
+    <div id="gameDiv" style="display:none;">
         <!-- Game Div, display none, until logged in! -->
         <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas>
 
-    <div id='scoreBoard' style='position: relative; left: 520px; display:none;'>
+        <div id='scoreBoard' style='position: relative; left: 520px; display:none;'>
+        </div>
     </div>
-</div>
 </body>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -51,8 +51,6 @@
     var socket = io(); // socket io
     var WIDTH = 500;
     var HEIGHT = 500;
-    var soundID = "Shot"; //sound
-    // var soundD = "speedBoost";
 
     //signIn/Out
     var signDiv = document.getElementById('signDiv'); //<!-- Sign in Div -->
@@ -95,56 +93,53 @@
 
     //game
     function loadSound() {
-        createjs.Sound.registerSound("/client/shot.mp3", soundID); //gets the sound from my client file named shot.mp3
-        // createjs.Sound.registerSound("assets/thunder.mp3", soundD);
+        createjs.Sound.registerSounds(
+            [{ id: "soundID", src: "shooting.mp4" },
+            { id: "boost", src: "boost.mp4" },
+            { id: "health", src: "health.mp4" }], "/client/");
     }
-
-    function playSound() { //play sound function
-        createjs.Sound.play(soundID);
-    }
-
-    // function dSound(){
-    //     createjs.Sound.play(soundD);
-    // }
 
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     ctx.font = '30px Arial';
-    
+
     ctx.mozImageSmoothingEnabled = false;
     ctx.msImageSmoothingEnabled = false;
     ctx.imageSmoothingEnabled = false;
 
     var Img = {}; //creats image array
-     Img.bullet = new Image();
-     Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
-     Img.player = new Image();
-     Img.player.src = '/client/images/enemyUFO.png'; //loads the player
-     Img.target = new Image();
-     Img.target.src = '/client/images/player.png'; //loads the target
-     Img.monster = new Image();
-     Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
-     Img.meteo = new Image();
-     Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
-     Img.hP = new Image();
-     Img.hP.src = '/client/images/hp.png'; //loads hp
-     Img.fire = new Image();
-     Img.fire.src = '/client/images/energy.png';//loads the fire
-     Img.coin = new Image();
-     Img.coin.src = '/client/images/coin.png'; //loads the coin
-     // Img.heart = new Image();
-     // Img.heart.src = '/client/images/heart.png';
+    Img.bullet = new Image();
+    Img.bullet.src = '/client/images/bullet.png'; //loads the bullet
+    Img.player = new Image();
+    Img.player.src = '/client/images/enemyUFO.png'; //loads the player
+    Img.target = new Image();
+    Img.target.src = '/client/images/player.png'; //loads the target
+    Img.monster = new Image();
+    Img.monster.src = '/client/images/enemyShip.png'; //loads special enemy
+    Img.meteo = new Image();
+    Img.meteo.src = '/client/images/meteoXl.png'; //loads meteorite
+    Img.hP = new Image();
+    Img.hP.src = '/client/images/hp.png'; //loads hp
+    Img.fire = new Image();
+    Img.fire.src = '/client/images/energy.png';//loads the fire
+    Img.coin = new Image();
+    Img.coin.src = '/client/images/coin.png'; //loads the coin
+    Img.protection = new Image();
+    Img.protection.src = '/client/images/protection.png';//loads forcefield
+    Img.power = new Image();
+    Img.power.src = '/client/images/power.png';
+
     Img.space = {}; //two maps
-     Img.space['blackGal'] = new Image();
-     Img.space['blackGal'].src = '/client/images/blackgal.png'; //loads the background   
+    Img.space['blackGal'] = new Image();
+    Img.space['blackGal'].src = '/client/images/blackgal.png'; //loads the background   
 
     // Img.heart.addEventListener("load", loadImage, false);
     Img.coin.addEventListener("load", loadImage, false);
-     var shift = 0;
-     var frameWidth = 99;
-     var frameHeight = 99;
-     var totalFrames = 10; //speed of animation
-     var currentFrame = 0;
+    var shift = 0;
+    var frameWidth = 99;
+    var frameHeight = 99;
+    var totalFrames = 10; //speed of animation
+    var currentFrame = 0;
 
 
     var Player = function (infoPack) {
@@ -158,8 +153,10 @@
         me.dead = infoPack.dead; //if player is dead
         me.healthPoints = infoPack.healthPoints; //health Points
         me.maxHealthPoints = infoPack.maxHealthPoints; //health max = at 10 
-        me.playSound = infoPack.playSound;   
-        // me.soundBeenPlayed = infoPack.soundBeenPlayed;
+        me.playSound = infoPack.playSound;
+        me.eatHealth = infoPack.eatHealth;
+        me.healthInv = infoPack.healthInv;
+        me.rapidShooting = infoPack.rapidShooting;
 
         me.draw = function () {
             var x = me.x - Player.list[meId].x + WIDTH / 2;
@@ -176,26 +173,47 @@
             }
             ctx.fillRect(x - hpBar / 2, y - 25, hpBar, 4);
 
-            if (me.playSound === true){
-                playSound();
-              me.playSound = false; 
+            // if (me.healthInv === true) {
+            //     ctx.fillStyle = 'blue';
+            //     ctx.arc(x, y, 50, 0, 2 * Math.PI);
+            //     ctx.stroke();
+            //     ctx.fill();
+            // }
+
+            if (me.playSound === true) {
+                createjs.Sound.play("boost");
+                me.playSound = false;
+            }
+
+            if (me.eatHealth === true) {
+                createjs.Sound.play("health");
+                me.eatHealth = false;
             }
 
             if (me.healthPoints <= 0) {
                 hpBar = 0;
-                //    if(me.soundBeenPlayed === false) {
-                //        playSound();
-                //        console.log('i Should be false ', me.soundBeenPlayed);
-                //         me.soundBeenPlayed = true;
-                //         console.log('I should be true ', me.soundBeenPlayed);
-                //    }
             }
-            var width = Img.player.width / 4;  //the width of the player img /4 because it was too big
-            var height = Img.player.height / 4; //the height of the player img /4 because it was too big
 
-            ctx.drawImage(Img.player,  //draws the image here.
-                0, 0, Img.player.width, Img.player.height,
-                x - width / 2, y - height / 2, width, height);
+
+            if (me.rapidShooting === true) {
+                let width = Img.power.width / 10;
+                let height = Img.power.height / 10;
+                ctx.drawImage(Img.power,  
+                    0, 0, Img.power.width, Img.power.height,
+                    x - width / 2, y - height / 2, width, height);
+            } else if (me.healthInv === true) {
+                let width = Img.protection.width / 10;  
+                let height = Img.protection.height / 10; 
+                ctx.drawImage(Img.protection,  
+                    0, 0, Img.protection.width, Img.protection.height,
+                    x - width / 2, y - height / 2, width, height);
+            } else {
+                let width = Img.player.width / 4;  //the width of the player img /4 because it was too big
+                let height = Img.player.height / 4; //the height of the player img /4 because it was too big
+                ctx.drawImage(Img.player,  //draws the image here.
+                    0, 0, Img.player.width, Img.player.height,
+                    x - width / 2, y - height / 2, width, height);
+            }
         }
         Player.list[me.id] = me;
         return me;
@@ -324,13 +342,13 @@
         me.draw = function () {
             var width = Img.hP.width / 24; //HP width size
             var height = Img.hP.height / 24; //HP height size
-            
+
             var x = me.x - Player.list[meId].x + WIDTH / 2;
             var y = me.y - Player.list[meId].y + HEIGHT / 2;
-            
+
             ctx.drawImage(Img.hP, 0, 0, Img.hP.width, Img.hP.height,
-            x - width / 2, y - height / 2, width, height); //draw enemy (HP)
-            
+                x - width / 2, y - height / 2, width, height); //draw enemy (HP)
+
             // ctx.drawImage(Img.coin, shift, 0, frameWidth, frameHeight,
             //     x - width / 2, y - height / 2, width, height);
         }
@@ -338,7 +356,7 @@
         return me;
     }
     HP.list = {};
-    
+
     var Coin = function (infoPack) {
         var me = {};
         me.id = infoPack.id; //coin id
@@ -432,7 +450,13 @@
                 if (pack.space !== undefined)
                     ple.space = pack.space;
                 if (pack.playSound !== undefined)
-                    ple.playSound = pack.playSound;    
+                    ple.playSound = pack.playSound;
+                if (pack.eatHealth !== undefined)
+                    ple.eatHealth = pack.eatHealth;
+                if (pack.healthInv !== undefined)
+                    ple.healthInv = pack.healthInv;
+                if (pack.rapidShooting !== undefined)
+                    ple.rapidShooting = pack.rapidShooting;
                 // if (pack.soundBeenPlayed !== undefined)
                 //     ple.soundBeenPlayed = pack.soundBeenPlayed;    
             }
@@ -497,7 +521,7 @@
                 if (pack.x !== undefined)
                     tar.x = pack.x;
                 if (pack.y !== undefined)
-                    tar.y = pack.y;  
+                    tar.y = pack.y;
             }
         }
 
@@ -581,33 +605,40 @@
         for (var i in Fire.list) //draws the fire every set miliseconds
             Fire.list[i].draw();
         for (var i in Coin.list)
-            Coin.list[i].draw();    
+            Coin.list[i].draw();
     }, 40);
 
 
     socket.on('allScores', function (data) {
-        var tableHtml = "<div id=\"results\"> <h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
-        var playerScores = data.sort((a, b) => {
-            return b.score - a.score;
-        });
+        if (!meId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
+            return;
 
-        tableHtml += "<table class=\"table is-striped is-hoverable is-bordered>\"";
-        tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
-        tableHtml += "<tbody>";
+        for (var i in Player.list)  //draws the playlist every set miliseconds
+            var t = Player.list[i]
+        if (t.dead == true) {
+            var tableHtml = "<div id=\"results\"> <h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
+            var playerScores = data.sort((a, b) => {
+                return b.score - a.score;
+            });
 
-        if (playerScores.length > 10) {
-            for (var i = 0; i < 10; i++) {
-                tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
+            tableHtml += "<table class=\"table is-striped is-hoverable is-bordered>\"";
+            tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
+            tableHtml += "<tbody>";
+
+            if (playerScores.length > 10) {
+                for (var i = 0; i < 10; i++) {
+                    tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
+                }
+            } else {
+                for (var i = 0; i < playerScores.length; i++) {
+                    tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
+                }
             }
-        } else {
-            for (var i = 0; i < playerScores.length; i++) {
-                tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
-            }
+
+            tableHtml += "</tbody></table></div>";
+            document.getElementById("scoreBoard").innerHTML = tableHtml;
         }
-
-        tableHtml += "</tbody></table></div>";
-        document.getElementById("scoreBoard").innerHTML = tableHtml;
-    })
+    });
 
     var theScore = function () {
         ctx.fillStyle = 'white'; //score on black text
@@ -686,7 +717,8 @@
             if (event.target.attributes["id"].value !== "canvas") { // only plays shot sound once im logged in, had clickdown sound when pressing login!*
                 return;
             } else {
-                playSound(); //plays the shot sound
+                createjs.Sound.play("soundID");
+                // playSound(); //plays the shot sound
             }
         }
     }
