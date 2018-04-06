@@ -126,11 +126,11 @@ io.sockets.on('connection', function (socket) {
     Player.onDisconnect(socket);
   });
 
-  asyncCall().then((res) => socket.emit('allScores', res));
+  // asyncCall().then((res) => socket.emit('allScores', res));
 
   setInterval(function () {
     asyncCall().then((res) => socket.emit('allScores', res));
-  }, 3500);
+  }, 2500);
 
 });
 

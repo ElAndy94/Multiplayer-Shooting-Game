@@ -93,7 +93,7 @@ Player = function (id) {
   me.maxSpeed = 6; //moving speed 10 (need to modify this)***
   me.healthPoints = 5; // player hp
   me.maxHealthPoints = 5; // the max hp a player starts with
-  me.score = 0; //score starts at 0, +1 for every kill.
+  me.score = 0; //score starts at 0, + dependant on the kill.
   me.counter = 0; //killing counter
   me.speedCounter = 0;  //speed counter
   me.sCounter = 0; //special monster
@@ -105,8 +105,10 @@ Player = function (id) {
   me.healthAppear = false;
   me.playSound = false;
   me.rapidShooting = false; //rapid shooting true randomly
-  me.eatHealth = false;
-  me.healthInv = false;
+  me.eatHealth = false; //ate health
+  me.healthInv = false; //invinsable
+  var chance = Math.random();
+  var chanceRand = Math.random() * 500;
 
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
@@ -127,7 +129,7 @@ Player = function (id) {
 
     if (me.counter == 5) { //if counter is 5 then
       me.specialCounter++;
-      if (me.specialCounter <= 1) {
+      if (me.specialCounter <= 2) {
         me.addEnemy(); //add enemy
         me.counter = 0; //set counter back to 0
       }
@@ -138,12 +140,10 @@ Player = function (id) {
       me.addMeteo();
       me.speedCounter = 0; //set counter back to 0
     }
-
     // if (me.sSpeedCounter == 5) { //if counter is 5 then
     //   me.speedKillerTwo(); //call the speedkiller function below
     //   me.sSpeedCounter = 0; //set counter back to 0
     // }
-
     if (me.pAttack) {
       if (me.rapidShooting == true) {
         for (var i = -3; i < 3; i++)
@@ -242,29 +242,25 @@ Player = function (id) {
   //   }
   // }
   me.addEnemy = function (data) { //this is what makes the enemy
-    var e = Target(data);
-    if (Math.random() >= 0.5) {
-      e.y = 1;
+    var t = Target(data);
+    // let chance = Math.random();
+    // let chanceRand = Math.random () * 500;
+    if (chance <= 0.5) {
+      t.x = 1;
+      t.y = chanceRand;
     } else {
-      e.y = 499;
-    }
-    if (Math.random() >= 0.5) {
-      e.x = 1;
-    } else {
-      e.x = 499;
+      t.x = chanceRand;
+      t.y = 1;
     }
   }
   me.addMonster = function (data) { //this is what makes the enemy
-    var e = Monster(data);
-    if (Math.random() >= 0.5) {
-      e.y = 1;
+    var t = Monster(data);
+    if (chance <= 0.5) {
+      t.x = 1;
+      t.y = chanceRand;
     } else {
-      e.y = 499;
-    }
-    if (Math.random() >= 0.5) {
-      e.x = 1;
-    } else {
-      e.x = 499;
+      t.x = chanceRand;
+      t.y = 1;
     }
   }
   me.addMeteo = function (data) { //this is what makes the meteo
@@ -460,7 +456,8 @@ Bullet = function (parent, angle) { //bullet
   me.timer = 0; //bullet timer - dies at 100.
   me.toRemove = false; //if shot yourself then = true.
   var second_update = me.update;
-
+  var chance = Math.random();
+  var chanceRand = Math.random() * 500;
   me.update = function () {
     if (me.timer++ > 35) //timeout on bullet traveling
       me.toRemove = true; //removes it
@@ -480,6 +477,17 @@ Bullet = function (parent, angle) { //bullet
     }
     for (var i in Target.list) { //WORKING BULLET COLLISION WITH TARGET **
       var t = Target.list[i]
+
+      updateLocation = function () {
+        if (chance <= 0.5) {
+          t.x = 1;
+          t.y = chanceRand;
+        } else {
+          t.x = chanceRand;
+          t.y = 1;
+        }
+      };
+
       if (me.getDist(t) < 20 && me.parent !== t.id) { //gets distance
         t.life -= 1; //takes away 1hp if you get hit by bullet
 
@@ -491,17 +499,7 @@ Bullet = function (parent, angle) { //bullet
           enemy.speedCounter += 1; //add speed after every kill
           enemy.sCounter += 1; //special enemy
           t.life = t.maxLife; // you get 10 healthpoints again
-
-          if (Math.random() >= 0.5) {
-            t.x = 1;
-          } else {
-            t.x = 499;
-          }
-          if (Math.random() >= 0.5) {
-            t.y = 1;
-          } else {
-            t.y = 499;
-          }
+          updateLocation();
         }
         me.toRemove = true; //remove bullet when it hits target
       }
@@ -594,6 +592,8 @@ Target = function () { //Target
   me.targetAim = 0; //target aim
   me.toRemove = false;
   me.disConnect = false;
+  var chance = Math.random();
+  var chanceRand = Math.random() * 500;
 
   for (var i in Player.list) { //Player list
     var p = Player.list[i]
@@ -617,7 +617,6 @@ Target = function () { //Target
       , 1800);
   }
 
-  var chance = Math.random();
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
     second_update();
@@ -655,17 +654,11 @@ Target = function () { //Target
     }
 
     me.updateLocation = function () {
-      if (chance <= 0.25) {
+      if (chance <= 0.5) {
         me.x = 1;
-        me.y = 499;
-      } else if (chance <= 0.5) {
-        me.x = 1;
-        me.y = 1;
-      } else if (chance <= 0.75) {
-        me.x = 499;
-        me.y = 499;
+        me.y = chanceRand;
       } else {
-        me.x = 499;
+        me.x = chanceRand;
         me.y = 1;
       }
     };
@@ -745,8 +738,8 @@ Monster = function () { //Target
   me.id = Math.random(); //random id
   me.speed = 2; //enemy speed
   me.toRemove = false; //if shot yourself then = true.
-
   var chance = Math.random();
+  var chanceRand = Math.random() * 500;
   var second_update = me.update;
   me.update = function () { //this function calls a secondary update
     second_update();
@@ -769,17 +762,11 @@ Monster = function () { //Target
     }
 
     me.updateLocation = function () {
-      if (chance <= 0.25) {
+      if (chance <= 0.5) {
         me.x = 1;
-        me.y = 499;
-      } else if (chance <= 0.5) {
-        me.x = 1;
-        me.y = 1;
-      } else if (chance <= 0.75) {
-        me.x = 499;
-        me.y = 499;
+        me.y = chanceRand;
       } else {
-        me.x = 499;
+        me.x = chanceRand;
         me.y = 1;
       }
     };
@@ -1030,7 +1017,7 @@ Coin = function () { //coin
   me.x = 1;
   me.y = Math.random() * 500;
   me.id = Math.random(); //random id
-  me.toRemove = false; // to remove heart
+  me.toRemove = false; // to remove coin
 
 
   var second_update = me.update;
@@ -1060,7 +1047,6 @@ Coin = function () { //coin
           }, 3750);
 
         } else {
-          console.log('gotcha');
           p.healthInv = true;
           setTimeout(() => {
             p.healthInv = false;
@@ -1126,7 +1112,7 @@ Fire = function (parent, angle) { //fire
   var second_update = me.update;
 
   me.update = function () {
-    if (me.timer++ > 57) //timeout on fire traveling
+    if (me.timer++ > 60) //timeout on fire traveling
       me.toRemove = true; //removes it
     second_update();
 
