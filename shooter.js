@@ -1,5 +1,5 @@
 require('./server-logic');
-var mongojs = require("mongojs"); //require mongo js packages
+var mongojs = require('mongojs'); //require mongo js packages
 var db = mongojs('mongodb://admin:password@ds151908.mlab.com:51908/elandy', ['accounts']);
 
 var express = require('express'); //require the express package
@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 server.listen(process.env.PORT || 8081);
 // server.listen(process.env.PORT || 5000);
 // server.listen(8081);   //listens to the localhost:8081
-console.log("Server started.");  //Sends "sever started" to the server, so i can see when ive connected.
+console.log('Server started.');  //Sends "sever started" to the server, so i can see when ive connected.
 
 var SOCKET_LIST = {};
 
@@ -34,12 +34,12 @@ var isValidPassword = function (data, cb) {
       cb(false);
     }
   });
-}
+};
 
 
 function resolveAfter1() {
   return new Promise((resolve, reject) => {
-    var scoresFromDb = db.accounts.find({}, { username: 1, score: 1 }).toArray(function (err, result) {
+    db.accounts.find({}, { username: 1, score: 1 }).toArray(function (err, result) {
       if (err)
         reject(err);
       else
@@ -50,12 +50,12 @@ function resolveAfter1() {
 
 resolveAfter1() // resolve function
   // .then((result) => { console.log(result); })
-  .catch((error) => { console.log(error); })
+  .catch((error) => { console.log(error); });
 
 
 async function asyncCall() {
   var result = await resolveAfter1();
-  return result
+  return result;
 }
 
 module.exports.checkInfo = function (obj) {
@@ -71,11 +71,11 @@ module.exports.checkInfo = function (obj) {
             // 'username' : playerName,
             'score': obj.score
           }
-        })
+        });
       console.log('High Score Updated');
     }
   });
-}
+};
 
 var takenUser = function (data, cb) {
   db.accounts.find({ username: data.username }, function (err, res) {
@@ -84,13 +84,16 @@ var takenUser = function (data, cb) {
     else
       cb(false);
   });
-}
+};
 
 var addPlayer = function (data, cb) {
-  db.accounts.insert({ username: data.username, password: data.password, score: 0 }, function (err, res) {
+  db.accounts.insert({ username: data.username, password: data.password, score: 0 }, function (err) {
+    if (err){
+      console.log(err);
+    }
     cb();
   });
-}
+};
 
 var io = require('socket.io')(server, {});
 io.sockets.on('connection', function (socket) {
@@ -128,13 +131,13 @@ io.sockets.on('connection', function (socket) {
 
   // asyncCall().then((res) => socket.emit('allScores', res));
 
-  setInterval(function () {
+  setInterval( () => {
     asyncCall().then((res) => socket.emit('allScores', res));
   }, 1200);
 
 });
 
-setInterval(function () {
+setInterval( () => {
   var packs = Shared.makeModular();
   for (var i in SOCKET_LIST) {
     var socket = SOCKET_LIST[i];
