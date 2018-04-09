@@ -130,7 +130,7 @@ io.sockets.on('connection', function (socket) {
 
   setInterval(function () {
     asyncCall().then((res) => socket.emit('allScores', res));
-  }, 2500);
+  }, 1200);
 
 });
 
