@@ -32,9 +32,7 @@
     <div id="gameDiv" style="display:none;">
         <!-- Game Div, display none, until logged in! -->
         <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas>
-
-        <div id='scoreBoard' style='position: relative; left: 520px; display:none;'>
-        </div>
+        <div id='scoreBoard' style='position: relative; left: 520px; display:none;'></div>
     </div>
 </body>
 
@@ -198,13 +196,13 @@
             if (me.rapidShooting === true) {
                 let width = Img.power.width / 10;
                 let height = Img.power.height / 10;
-                ctx.drawImage(Img.power,  
+                ctx.drawImage(Img.power,
                     0, 0, Img.power.width, Img.power.height,
                     x - width / 2, y - height / 2, width, height);
             } else if (me.healthInv === true) {
-                let width = Img.protection.width / 10;  
-                let height = Img.protection.height / 10; 
-                ctx.drawImage(Img.protection,  
+                let width = Img.protection.width / 10;
+                let height = Img.protection.height / 10;
+                ctx.drawImage(Img.protection,
                     0, 0, Img.protection.width, Img.protection.height,
                     x - width / 2, y - height / 2, width, height);
             } else {
@@ -592,6 +590,12 @@
         if (t.dead == true) {
             deadMan(); //draws end score
         }
+        if (t.dead === true){
+            scoreBoard.style.display = 'inline';
+            playerScores();
+        } else {
+            scoreBoard.style.display = 'none';
+        }
         for (var i in Bullet.list) //draws the bulletlist every set miliseconds
             Bullet.list[i].draw();
         for (var i in Target.list) //draws the targetlist every set miliseconds
@@ -610,12 +614,15 @@
 
 
     socket.on('allScores', function (data) {
+        playerScores(data);
+    });
+
+    var playerScores = function (data) {
         if (!meId) //if player isnt set then dont draw anything, helps us with not getting the errors!*
             return;
 
         for (var i in Player.list)  //draws the playlist every set miliseconds
             var t = Player.list[i]
-        if (t.dead == true) {
             var tableHtml = "<div id=\"results\"> <h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
             var playerScores = data.sort((a, b) => {
                 return b.score - a.score;
@@ -637,13 +644,12 @@
 
             tableHtml += "</tbody></table></div>";
             document.getElementById("scoreBoard").innerHTML = tableHtml;
-        }
-    });
+    }
 
     var theScore = function () {
         ctx.fillStyle = 'white'; //score on black text
         ctx.font = '16px Arial';
-        ctx.fillText("Score: " + Player.list[meId].score, 0, 20); //draws the score for THAT player only!**
+        ctx.fillText(" Score: " + Player.list[meId].score, 0, 20); //draws the score for THAT player only!**
     }
     var healthP = function () {
         ctx.fillStyle = 'white'; //score on black text
