@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <div class="container" id="signDiv" style="width:45%">
-
     User Name:
     <p class="control has-icons-left">
         <input class="input" id="signDiv-username" type="text" minlength="4" maxlength="12" placeholder="Username">
@@ -28,7 +27,7 @@
 </div>
 <script src="/socket.io/socket.io.js"></script>
 
-<body bgcolor="#e3e7ed" onload="loadSound();">
+<body onload="loadSound();">
     <div id="gameDiv" style="display:none;">
         <!-- Game Div, display none, until logged in! -->
         <canvas id="canvas" width="500" height="500" style="position:absolute;border:1px solid #000000;"></canvas>
@@ -36,10 +35,10 @@
     </div>
 </body>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
 <!-- <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"> -->
-<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script> -->
+<!-- <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
 <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
@@ -582,7 +581,7 @@
         if (t.dead == true) {
             deadMan(); //draws end score
         }
-        if (t.dead === true){
+        if (t.dead === true) {
             scoreBoard.style.display = 'inline';
             playerScores();
         } else {
@@ -615,27 +614,27 @@
 
         for (var i in Player.list)  //draws the playlist every set miliseconds
             var t = Player.list[i]
-            var tableHtml = "<div id=\"results\"> <h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
-            var playerScores = data.sort((a, b) => {
-                return b.score - a.score;
-            });
+        var tableHtml = "<div id=\"results\"> <h3 class=\"title is-size-4 noselect\" style=\"margin-bottom: 0.25rem;\" > High Score Board </h3>";
+        var playerScores = data.sort((a, b) => {
+            return b.score - a.score;
+        });
 
-            tableHtml += "<table class=\"table is-striped is-hoverable is-bordered>\"";
-            tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
-            tableHtml += "<tbody>";
+        tableHtml += "<table class=\"table is-striped is-hoverable is-bordered>\"";
+        tableHtml += "<thead> <tr><th> Name </th> <th> Score </th><tr> </thead>";
+        tableHtml += "<tbody>";
 
-            if (playerScores.length > 10) {
-                for (var i = 0; i < 10; i++) {
-                    tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
-                }
-            } else {
-                for (var i = 0; i < playerScores.length; i++) {
-                    tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
-                }
+        if (playerScores.length > 10) {
+            for (var i = 0; i < 10; i++) {
+                tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
             }
+        } else {
+            for (var i = 0; i < playerScores.length; i++) {
+                tableHtml += "<tr><td>" + playerScores[i].username + '</td><td>' + playerScores[i].score + '</td></tr>';
+            }
+        }
 
-            tableHtml += "</tbody></table></div>";
-            document.getElementById("scoreBoard").innerHTML = tableHtml;
+        tableHtml += "</tbody></table></div>";
+        document.getElementById("scoreBoard").innerHTML = tableHtml;
     }
 
     var theScore = function () {

@@ -136,14 +136,10 @@ Player = function (id) {
     }
 
     if (me.speedCounter == 3) { //if counter is 3 then
-      // me.speedKiller(); //call the speedkiller function below
       me.addMeteo();
       me.speedCounter = 0; //set counter back to 0
     }
-    // if (me.sSpeedCounter == 5) { //if counter is 5 then
-    //   me.speedKillerTwo(); //call the speedkiller function below
-    //   me.sSpeedCounter = 0; //set counter back to 0
-    // }
+
     if (me.pAttack) {
       if (me.rapidShooting == true) {
         for (var i = -3; i < 3; i++)
@@ -171,14 +167,6 @@ Player = function (id) {
     }
 
   };
-  // me.speedKiller = function (data) { //the speed killer function 
-  //   for (var i in Target.list) { //looks into the target list
-  //     var t = Target.list[i] //t for target list
-  //     if (t.speed < 2) {
-  //       t.speed += 1; // add 1 to the target.speed that i set in target
-  //     }
-  //   }
-  // }
   me.resetEverything = function () {
     if (me.healthPoints <= 0) {
       me.dead = true;
@@ -186,13 +174,11 @@ Player = function (id) {
       me.counter = 0; //killing counter
       me.speedCounter = 0;  //speed counter
       me.sCounter = 0; //special monster
-      // me.sSpeedCounter = 0; //speed for special monster
       me.specialCounter = 0; //stops creating too many targets
       me.x = 250;
       me.y = 250;
       me.remove();
       shooter.checkInfo(me);
-      // me.soundBeenPlayed = true;
 
       if (me.spaceReset == true) { //if i press spacebar when I die this will reset it
         me.healthPoints = 5; // player hp
@@ -233,14 +219,6 @@ Player = function (id) {
       t.toRemove = true;
     }
   };
-  // me.speedKillerTwo = function (data) { //the speed killer function 
-  //   for (var i in Monster.list) { //looks into the target list
-  //     var t = Monster.list[i] //t for target list
-  //     if (t.speed < 2) {
-  //       t.speed += 1; // add 1 to the target.speed that i set in target
-  //     }
-  //   }
-  // }
   me.addEnemy = function (data) { //this is what makes the enemy
     var t = Target(data);
     // let chance = Math.random();
