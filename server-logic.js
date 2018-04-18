@@ -607,7 +607,6 @@ Target = function () { //Target
       var p = Player.list[i];
 
       if (p.dead == true) {
-        // I NEED TO ADD THIS TO MY PAPER! 
         clearInterval(refreshIntervalId);
       }
 
